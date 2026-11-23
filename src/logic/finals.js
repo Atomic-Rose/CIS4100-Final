@@ -17,7 +17,7 @@ export function scopeProgress(progress, bank) {
     if (!items.length) return [];
     return [{ ...session, items, label: items.length === session.items.length ? session.label : 'Finals questions from saved session' }];
   });
-  return { ...progress, first: keep(progress.first), latest: keep(progress.latest),
+  return { ...progress, first: keep(progress.first), latest: keep(progress.latest), attempts: keep(progress.attempts || {}),
     flags: progress.flags.filter(id => isFinals(bank.get(id))), history,
     active: isFinalsSession(progress.active, bank) ? progress.active : null };
 }
@@ -46,7 +46,7 @@ export function studyStatus(pool, progress) {
 export function resetFinalsProgress(progress, bank) {
   const archiveOnly = records => Object.fromEntries(Object.entries(records).filter(([id]) => !isFinals(bank.get(id))));
   const mixedHistory = progress.history.filter(s => s.items.some(i => isFinals(bank.get(i.id))) && s.items.some(i => !isFinals(bank.get(i.id))));
-  return { ...progress, active: null, first: archiveOnly(progress.first), latest: archiveOnly(progress.latest),
+  return { ...progress, active: null, first: archiveOnly(progress.first), latest: archiveOnly(progress.latest), attempts: archiveOnly(progress.attempts || {}),
     flags: progress.flags.filter(id => !isFinals(bank.get(id))),
     history: progress.history.filter(s => s.items.every(i => !isFinals(bank.get(i.id)))),
     // Keep original mixed attempts intact outside the finals view, including any archived answers.

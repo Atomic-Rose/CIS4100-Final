@@ -1,5 +1,8 @@
 import { cellState } from './finals.js';
 import { shuffle } from './session.js';
+import { dueList } from './review.js';
+import { finalExamDate } from '../data/chapters.js';
+export const examAt = () => new Date(`${finalExamDate}T00:00:00`).getTime();
 // Pure numbers behind the Today dashboard. Every figure is derived from real answers only.
 const pct = (n, total) => total ? Math.round(n / total * 100) : 0;
 export function counts(pool, progress) {
@@ -20,7 +23,9 @@ export function chapterCards(chapters, questions, progress) {
 // Today's session: the oldest misses first, then unseen questions from the started chapter that has the most left.
 export function todayPlan(chapters, questions, progress, size = 10) {
   const cards = chapterCards(chapters, questions, progress);
-  const review = questions.filter(q => cellState(q, progress) === 'review').sort((a, b) => progress.latest[a.id].at - progress.latest[b.id].at).slice(0, Math.min(4, size));
+  // Smart review decides what is due: most-missed first, then oldest. Saves without attempt history fall back to latest misses.
+  const due = progress.attempts ? dueList(questions, progress, Date.now(), examAt()).map(d => d.question) : questions.filter(q => cellState(q, progress) === 'review').sort((a, b) => progress.latest[a.id].at - progress.latest[b.id].at);
+  const review = due.slice(0, Math.min(4, size));
   const started = cards.filter(c => c.correct + c.review > 0 && c.unseen > 0).sort((a, b) => b.unseen - a.unseen || a.readiness - b.readiness);
   const focus = started[0] || null;
   const unseenPool = questions.filter(q => cellState(q, progress) === 'unseen' && (!focus || q.chapter === focus.number));

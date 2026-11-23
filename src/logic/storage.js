@@ -1,9 +1,10 @@
 import { recordItem } from './session.js';
+import { attemptsFromHistory, validAttempts } from './review.js';
 export const key = 'smartprep-finals-v1';
 // Reading window.localStorage can itself throw (site data blocked), so it is only touched inside try blocks.
 const defaultStorage = () => { try { return globalThis.localStorage; } catch { return { getItem() { throw new Error('blocked'); }, setItem() { throw new Error('blocked'); }, get length() { throw new Error('blocked'); } }; } };
 export const backupPrefix = `${key}.backup-`;
-export const freshProgress = () => ({ active: null, archivedSessions: [], latest: {}, first: {}, flags: [], retries: { total: 0, correct: 0 }, history: [] });
+export const freshProgress = () => ({ active: null, archivedSessions: [], latest: {}, first: {}, flags: [], retries: { total: 0, correct: 0 }, history: [], attempts: {} });
 function validItem(item, q, mock) {
   return q && Array.isArray(item.order) && item.order.length === q.choices.length && new Set(item.order).size === item.order.length &&
     item.order.every(c => Number.isInteger(c) && c >= 0 && c < q.choices.length) &&
@@ -22,7 +23,8 @@ export function validSession(s, bank, finished = false) {
   if (s.followUps !== undefined && (!Array.isArray(s.followUps) || !s.followUps.every(f => f && bank.has(f.id) && typeof f.correct === 'boolean'))) return false;
   if (s.followUp != null) {
     const f = s.followUp;
-    if (finished || s.mock || !validItem(f, bank.get(f.id), false) || s.items.some(i => i.id === f.id)) return false;
+    // A "second look" repeats a question from this session; a similar question must be a different one.
+    if (finished || s.mock || !validItem(f, bank.get(f.id), false) || (f.kind !== 'repeat' && s.items.some(i => i.id === f.id))) return false;
   }
   return s.draft === s.items[s.index].draft && (s.draft === null || s.items[s.index].order.includes(s.draft));
 }
@@ -41,8 +43,11 @@ export function validateProgress(raw, bank) {
     !(raw.active === null || validSession(raw.active, bank)) || !validRetries(raw.retries) ||
     raw.archivedSessions !== undefined && (!Array.isArray(raw.archivedSessions) || !raw.archivedSessions.every(s => validSession(s, bank))) ||
     new Set([...raw.history.map(s => s.id), ...(raw.active ? [raw.active.id] : [])]).size !== raw.history.length + (raw.active ? 1 : 0)) throw new Error('Invalid or incompatible progress backup.');
-  const progress = structuredClone({ active: raw.active, archivedSessions: raw.archivedSessions || [], latest: raw.latest, first: raw.first, flags: raw.flags, retries: raw.retries, history: raw.history });
+  if (raw.attempts !== undefined && !validAttempts(raw.attempts, bank)) throw new Error('Invalid or incompatible progress backup.');
+  const progress = structuredClone({ active: raw.active, archivedSessions: raw.archivedSessions || [], latest: raw.latest, first: raw.first, flags: raw.flags, retries: raw.retries, history: raw.history, attempts: raw.attempts || {} });
   migrateOutcomes(progress, bank);
+  // Saves from before Smart review: rebuild per-question history from finished sessions.
+  if (raw.attempts === undefined) progress.attempts = attemptsFromHistory(progress, bank);
   return progress;
 }
 // Record-by-record recovery for a damaged save: keep everything that is individually valid and count the rest.
@@ -62,6 +67,8 @@ export function recoverProgress(raw, bank) {
   if (validRetries(raw.retries)) p.retries = { ...raw.retries }; else dropped++;
   const kept = Object.keys(p.first).length + Object.keys(p.latest).length + p.history.length + (p.active ? 1 : 0) + p.flags.length;
   migrateOutcomes(p, bank);
+  if (validAttempts(raw.attempts, bank)) p.attempts = structuredClone(raw.attempts);
+  else { if (raw.attempts !== undefined) dropped++; p.attempts = attemptsFromHistory(p, bank); }
   return { progress: p, dropped, kept };
 }
 // Only real answers are progress. Legacy 'skipped'/'unanswered' records are replaced by the most recent (latest)

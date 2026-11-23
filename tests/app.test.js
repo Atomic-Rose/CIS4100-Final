@@ -121,7 +121,7 @@ test('learner: wrong DMA answer shows its own rationale, a similar question, and
  const s=createSession([c20,...others],{ordered:true});setDraft(s,1);confirmCurrent(s);
  const match=similarQuestion(c20,questions,s);assert.equal(match.match,'topic');assert.equal(match.question.topic,'DMA');assert.ok(!s.items.some(i=>i.id===match.question.id));
  const before=score(s,allBank);assert.ok(startFollowUp(s,match.question));setDraft(s,match.question.answer);assert.ok(confirmCurrent(s));assert.equal(s.index,0);assert.ok(endFollowUp(s,allBank));
- const after=score(s,allBank);assert.equal(after.total,before.total);assert.equal(after.correct,before.correct);assert.equal(s.index,0);assert.deepEqual(s.followUps,[{id:match.question.id,correct:true,from:0}]);
+ const after=score(s,allBank);assert.equal(after.total,before.total);assert.equal(after.correct,before.correct);assert.equal(s.index,0);assert.deepEqual(s.followUps,[{id:match.question.id,correct:true,from:0,kind:'similar'}]);
  const full=createSession(questions.filter(q=>q.topic==='DMA'),{});assert.equal(similarQuestion(c20,questions,full),null);
 });
 test('learner: every finals distractor has a one-sentence rationale and a concept',()=>{

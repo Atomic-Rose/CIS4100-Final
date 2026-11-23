@@ -80,15 +80,16 @@ export function similarQuestion(question, questions, session, answered = new Set
   for (const [index, tier] of tiers.entries()) { const pick = unseenFirst(tier)[0]; if (pick) return { question: pick, match: index === 0 ? 'concept' : 'topic' }; }
   return null;
 }
-export function startFollowUp(session, question, random = Math.random) {
+export function startFollowUp(session, question, random = Math.random, kind = 'similar') {
   if (session.mock || session.followUp) return false;
   session.followUp = { id: question.id, order: question.type === 'true-false' ? [0, 1] : shuffle(question.choices.map((_, i) => i), random),
-    pick: null, draft: null, checked: false, skipped: false, flag: false, recorded: false, shown: true, from: session.index };
+    pick: null, draft: null, checked: false, skipped: false, flag: false, recorded: false, shown: true, from: session.index, kind };
+  if (kind === 'repeat') { const r = (session.repeats || []).find(r => r.id === question.id && !r.done); if (r) r.done = true; }
   return true;
 }
 export function endFollowUp(session, bank) {
   const f = session.followUp; if (!f) return false;
-  if (f.checked) (session.followUps ??= []).push({ id: f.id, correct: f.pick === bank.get(f.id).answer, from: f.from });
+  if (f.checked) (session.followUps ??= []).push({ id: f.id, correct: f.pick === bank.get(f.id).answer, from: f.from, kind: f.kind || 'similar' });
   session.followUp = null; return true;
 }
 export function recordItem(progress, session, item, bank, final = false) {
@@ -98,7 +99,24 @@ export function recordItem(progress, session, item, bank, final = false) {
   if (!progress.first[item.id]) progress.first[item.id] = { ...outcome };
   else { progress.retries.total++; if (correct) progress.retries.correct++; }
   progress.latest[item.id] = outcome;
+  // Smart review keeps a short per-question history; confidence ("guess") changes how a correct answer counts.
+  const attempt = { at: outcome.at, correct };
+  if (['sure', 'unsure', 'guess'].includes(item.conf)) attempt.conf = item.conf;
+  if (!correct) attempt.pick = item.pick; // lets the miss sheet show what you chose and why it was wrong
+  const list = ((progress.attempts ??= {})[item.id] ??= []);
+  list.push(attempt); if (list.length > 30) list.splice(0, list.length - 30);
   item.recorded = true;
+}
+// A missed practice question comes back once, a few questions later in the same session ("second look").
+export function queueRepeat(session, itemId, gap = 3) {
+  if (session.mock || session.followUp?.kind === 'repeat') return false;
+  const repeats = (session.repeats ??= []);
+  if (repeats.some(r => r.id === itemId)) return false;
+  repeats.push({ id: itemId, at: Math.min(session.index + gap, session.items.length - 1), done: false });
+  return true;
+}
+export function nextRepeat(session) {
+  return (session.repeats || []).find(r => !r.done && r.at <= session.index) || null;
 }
 export function finishSession(progress, bank, reason = 'submitted') {
   const s = progress.active;

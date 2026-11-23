@@ -1,10 +1,11 @@
 import { chapters as finalsChapters, finalExamDate } from './data/chapters.js';
 import { questions as finalsQuestions } from './data/questions.js';
 import { archiveQuestions } from './data/archive.js';
-import { createSession, confirmCurrent, setDraft, navigate, score, recommend, recordItem, finishSession, currentItem, similarQuestion, startFollowUp, endFollowUp } from './logic/session.js';
+import { createSession, confirmCurrent, setDraft, navigate, score, recommend, recordItem, finishSession, currentItem, similarQuestion, startFollowUp, endFollowUp, queueRepeat, nextRepeat } from './logic/session.js';
+import { dueList, reviewSummary, weakDrillPool, stagesFor } from './logic/review.js';
 import { loadProgress, saveProgress, validateProgress, importLegacy, listBackups, adoptUnreadable, key } from './logic/storage.js';
-import { renderStart, renderLibrary, renderSettings, renderQuiz, renderResults, renderShell, renderChapters, renderChapter, renderHistory, renderProgress, renderReview, setScorer } from './views/screens.js';
-import { todayPlan, pickPlan, snapshot } from './logic/dashboard.js';
+import { renderStart, renderLibrary, renderSettings, renderQuiz, renderResults, renderShell, renderChapters, renderChapter, renderHistory, renderProgress, renderReview, renderMissSheet, setScorer } from './views/screens.js';
+import { todayPlan, pickPlan, snapshot, examAt } from './logic/dashboard.js';
 import { isFinals, isFinalsSession, parkArchiveSession, scopeProgress, resetFinalsProgress } from './logic/finals.js';
 const chapters = finalsChapters, questions = finalsQuestions;
 const bank = new Map([...questions,...archiveQuestions].map(q=>[q.id,q]));
@@ -92,19 +93,20 @@ function reveal(element) {
 // Theme: 'system' follows the device; 'light'/'dark' are stored per browser.
 function applyTheme() { const html=document.documentElement; if(html?.dataset){ if(prefs.theme==='light'||prefs.theme==='dark') html.dataset.theme=prefs.theme; else delete html.dataset.theme; } }
 function savePrefs() { try{localStorage.setItem(prefsKey,JSON.stringify(prefs));}catch{} }
-const shellFor = { library:'today', chapters:'chapters', chapter:'chapters', progress:'progress', history:'progress', results:'progress', review:'review', settings:'settings' };
+const shellFor = { library:'today', chapters:'chapters', chapter:'chapters', progress:'progress', history:'progress', results:'progress', review:'review', sheet:'review', settings:'settings' };
 function render(focus='heading') {
   document.body.dataset.screen=screen;
   const scoped=scopeProgress(progress,bank), session=progress.active;
-  const wrap=html=>renderShell(shellFor[screen],html,{reviewCount:questions.filter(q=>progress.latest[q.id]?.status==='answered'&&!progress.latest[q.id].correct).length,theme:prefs.theme||'system'});
+  const wrap=html=>renderShell(shellFor[screen],html,{reviewCount:reviewSummary(questions,scoped,Date.now(),examAt()).due,theme:prefs.theme||'system'});
   if(screen==='start') root.innerHTML=renderStart(scoped,chapters,questions,{theme:prefs.theme||'system'});
-  if(screen==='library') root.innerHTML=wrap(renderLibrary(chapters,questions,scoped,{prefs}));
+  if(screen==='library') root.innerHTML=wrap(renderLibrary(chapters,questions,scoped,{prefs,examAt:examAt()}));
   if(screen==='chapters') root.innerHTML=wrap(renderChapters(chapters,questions,scoped));
   if(screen==='chapter') root.innerHTML=wrap(renderChapter(chapters.find(c=>c.number===currentChapter),questions,scoped));
   if(screen==='history') root.innerHTML=wrap(renderHistory(scoped));
   if(screen==='progress') root.innerHTML=wrap(renderProgress(chapters,questions,scoped,{prefs}));
-  if(screen==='review') root.innerHTML=wrap(renderReview(questions,scoped));
-  if(screen==='settings') root.innerHTML=wrap(renderSettings({progress:scoped,questions,storage:storageInfo(),prefs,backups:listBackups(),archived:(progress.archivedSessions||[]).length}));
+  if(screen==='review') root.innerHTML=wrap(renderReview(questions,scoped,{examAt:examAt()}));
+  if(screen==='sheet') root.innerHTML=wrap(renderMissSheet(chapters,questions,scoped,{examAt:examAt()}));
+  if(screen==='settings') root.innerHTML=wrap(renderSettings({progress:scoped,questions,storage:storageInfo(),prefs,backups:listBackups(),archived:(progress.archivedSessions||[]).length,canVibrate:canVibrate()}));
   if(screen==='quiz') {
     const item=currentItem(session), q=bank.get(item.id), questionKey=`${session.id}:${session.index}:${session.followUp?.id||''}`;
     const similar=!session.mock&&!session.followUp&&item.checked&&item.pick!==q.answer?similarQuestion(q,questions,session,answeredIds()):null;
@@ -132,7 +134,7 @@ function start(pool, settings={}) {
     // Start the optional clock when the session actually opens, after replacement confirmation.
     const duration=session.deadline===null?null:session.deadline-session.started;
     session.started=Date.now();session.deadline=duration===null?null:session.started+duration;
-    session.items[0].shown=true;session.before=snapshot(chapters,questions,scopeProgress(progress,bank));progress.active=session;save();show('quiz');
+    session.items[0].shown=true;session.before={...snapshot(chapters,questions,scopeProgress(progress,bank)),stages:stagesFor(session.items.map(i=>i.id),progress,Date.now(),examAt())};progress.active=session;save();show('quiz');
   };
   if(progress.active) ask('End this session and start another?','The current session will be saved in history. Questions you did not answer stay unseen on your map; they are not counted as misses.','End & start',()=>{finishSession(progress,bank,'ended early');begin();});
   else begin();
@@ -160,7 +162,11 @@ function pick(choice) {
   updateCurrentStatus();save();
 }
 // Optional haptic tick after checking (browsers without the Vibration API, such as iOS Safari, ignore it).
-function buzz(item) { if(prefs.vibrate) try{ navigator.vibrate?.(item.pick===bank.get(item.id).answer?15:[25,60,25]); }catch{} }
+// Desktop Chrome exposes navigator.vibrate but has no motor, so also require a touch screen.
+const canVibrate=()=>typeof navigator.vibrate==='function'&&matchMedia('(pointer: coarse)').matches;
+function buzz(item) { if(prefs.vibrate&&canVibrate()) try{ navigator.vibrate?.(item.pick===bank.get(item.id).answer?15:[25,60,25]); }catch{} }
+// Start the next due second look, if any. Returns true when one started (and rendered, unless told not to).
+function startNextRepeat(s,quiet=false){const r=nextRepeat(s);if(!r||s.followUp)return false;startFollowUp(s,bank.get(r.id),Math.random,'repeat');if(!quiet){save();render();}return true;}
 function updateCurrentStatus() {
   const s=progress.active,item=s.items[s.index];
   const status=root.querySelector(`[data-action="goto"][data-value="${s.index}"] small`);
@@ -172,7 +178,9 @@ function step(action) {
     const f=s.followUp;
     if(action!=='next') return;
     if(!f.checked) { if(confirmCurrent(s)) { recordItem(progress,s,f,bank);buzz(f);save();render('feedback'); } return; }
-    endFollowUp(s,bank);save();render();say(`Back to question ${s.index+1} of ${s.items.length}.`);return;
+    const wasRepeat=f.kind==='repeat';endFollowUp(s,bank);
+    if(wasRepeat&&s.items[s.index].checked&&s.index===s.items.length-1){if(startNextRepeat(s))return;save();render('none');submit();return;}
+    save();render();if(!wasRepeat)say(`Back to question ${s.index+1} of ${s.items.length}.`);return;
   }
   const item=s.items[s.index];
   if(action==='previous') { navigate(s,s.index-1);save();render();return; }
@@ -180,11 +188,11 @@ function step(action) {
     if(item.checked) return;
     item.skipped=true;item.draft=null;s.draft=null;
   } else if(!s.mock&&!item.checked) {
-    if(confirmCurrent(s)) { recordItem(progress,s,item,bank);buzz(item);save();render('feedback'); }
+    if(confirmCurrent(s)) { recordItem(progress,s,item,bank);if(item.pick!==bank.get(item.id).answer)queueRepeat(s,item.id);buzz(item);save();render('feedback'); }
     return;
   } else if(s.mock) confirmCurrent(s);
-  if(s.index===s.items.length-1) {save();render('none');submit();return;}
-  navigate(s,s.index+1);save();render();
+  if(s.index===s.items.length-1) {if(!s.mock&&startNextRepeat(s))return;save();render('none');submit();return;}
+  navigate(s,s.index+1);if(!s.mock)startNextRepeat(s,true);save();render();
 }
 function download(text, name) {
   const blob=new Blob([text],{type:'application/json'}), url=URL.createObjectURL(blob);
@@ -239,6 +247,11 @@ function onAction(action, value, button) {
       set(!was);say(`${button?.querySelector?.('.set-text span')?.textContent||'Setting'} ${!was?'on':'off'} · saved`,{undo:()=>set(was)});break;}
     case 'why':if(suppressClick){suppressClick=false;break;}setWhy(!whyOpen);break;
     case 'today':{const plan=todayPlan(chapters,questions,scopeProgress(progress,bank));const pool=pickPlan(plan);if(pool.length)start(pool,{label:'Today’s session',size:pool.length,ordered:true});else start(finalsQuestions,{...options(),label:'Mixed practice'});break;}
+    case 'conf':{const item=currentItem(s);if(!item||item.checked)break;item.conf=item.conf===value?undefined:value;if(!item.conf)delete item.conf;save();render(`[data-action="conf"][data-value="${value}"]`);break;}
+    case 'review-due':{const due=dueList(questions,scopeProgress(progress,bank),Date.now(),examAt()).map(d=>d.question);if(due.length)start(due,{label:'Smart review',size:Math.min(20,due.length),ordered:true});else say('Nothing is due right now.');break;}
+    case 'drill':{const {pool}=weakDrillPool(questions,scopeProgress(progress,bank),Date.now(),examAt());if(pool.length)start(pool,{label:'Weak-spot drill',size:pool.length,ordered:true});else say('No weak spots yet. Miss a question first.');break;}
+    case 'print-sheet':show('sheet');break;
+    case 'print-now':window.print?.();break;
     case 'retry-one':{const q=bank.get(value);if(q&&isFinals(q))start([q],{label:`Retry · ${q.topic}`});break;}
     case 'chapter-practice':start(questions.filter(q=>q.chapter===Number(value)),{...options(),label:`Chapter ${value} practice`});break;
     case 'chapter-missed':start(questions.filter(q=>q.chapter===Number(value)&&progress.latest[q.id]?.status==='answered'&&!progress.latest[q.id].correct),{...options(),label:`Chapter ${value} · to review`});break;

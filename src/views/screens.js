@@ -1,5 +1,6 @@
 import { cellState } from '../logic/finals.js';
 import { finalExamDate } from '../data/chapters.js';
+import { reviewState, reviewStates, reviewSummary, dueList, weakConcepts } from '../logic/review.js';
 // The final's date as words, e.g. "December 11" or "Friday, December 11".
 const examWords = opts => new Date(`${finalExamDate}T12:00:00`).toLocaleDateString(undefined, opts);
 import { counts, chapterCards, todayPlan, firstTry, streak, examCountdown, reviewList, ago, weekDays, correctThisWeek } from '../logic/dashboard.js';
@@ -73,7 +74,7 @@ function recentList(progress, now) {
 }
 
 // Today as a study desk: the next session on the left with three ways to switch, and this week on the right.
-export function renderLibrary(chapters, questions, progress, { prefs = {}, now = Date.now() } = {}) {
+export function renderLibrary(chapters, questions, progress, { prefs = {}, now = Date.now(), examAt = null } = {}) {
   const total = counts(questions, progress), plan = todayPlan(chapters, questions, progress), active = progress.active;
   const exam = examCountdown(prefs.examDate, now), st = streak(questions, progress, now), week = weekDays(questions, progress, now), gained = correctThisWeek(questions, progress, now);
   const answered = total.correct + total.review, cards = chapterCards(chapters, questions, progress);
@@ -89,7 +90,7 @@ export function renderLibrary(chapters, questions, progress, { prefs = {}, now =
   const tile = (act, count, tone, title, note) => `<button type="button" class="card desk-tile" data-action="${act}"><span class="count-chip mono ${tone}">${count}</span><strong>${title}</strong><span class="muted small">${note}</span></button>`;
   const studiedDays = week.filter(d => d.studied).length;
   return `<div class="page desk"><div class="desk-main"><h1 tabindex="-1">${greeting}</h1>${session}
-      <div class="desk-tiles">${tile('review-list', total.review || 'All clear', total.review ? 'chip-review' : 'chip-plain', 'Review misses', total.review ? 'Retry what you got wrong' : 'Nothing to fix yet')}${tile('chapters', chapters.length, 'chip-accent', 'Pick a chapter', weakest ? `Weakest: ${escape(weakest.topic)}` : 'Or a single topic')}${tile('mock', 20, 'chip-plain', 'Mock test', 'Answers at the end')}</div></div>
+      <div class="desk-tiles">${(() => { const sum = reviewSummary(questions, progress, now, examAt), any = sum.learning + sum.getting + sum.solid; return tile('review-list', sum.due || (any ? 'Up to date' : 'All clear'), sum.due ? 'chip-review' : 'chip-plain', 'Smart review', sum.due ? `${plural(sum.due, 'question')} due now` : any ? 'Nothing due right now' : 'Nothing to fix yet'); })()}${tile('chapters', chapters.length, 'chip-accent', 'Pick a chapter', weakest ? `Weakest: ${escape(weakest.topic)}` : 'Or a single topic')}${tile('mock', 20, 'chip-plain', 'Mock test', 'Answers at the end')}</div></div>
     <aside class="card desk-side" aria-label="This week">
       <section class="side-block" aria-labelledby="week-title"><h2 id="week-title">This week${st.days >= 2 ? ` · ${st.days}-day streak` : ''}</h2>
         <ol class="plain week" aria-label="Days studied this week">${week.map(d => `<li aria-label="${d.name}${d.today ? ', today' : ''}: ${d.studied ? 'studied' : d.future ? 'coming up' : d.today ? 'not yet' : 'no study'}"><span class="day-dot${d.studied ? ' is-done' : ''}${d.today && !d.studied ? ' is-today' : ''}" aria-hidden="true"></span><span class="mono day-letter" aria-hidden="true">${d.letter}</span></li>`).join('')}</ol>
@@ -116,14 +117,48 @@ export function renderProgress(chapters, questions, progress, { prefs = {}, now 
     <section class="card list-card" aria-labelledby="recent-title"><div class="block-head"><h2 id="recent-title">Recent sessions</h2>${progress.history.length ? action('All history', 'history-list', 'link') : ''}</div>${recentList(progress, now)}</section></div>`;
 }
 
-export function renderReview(questions, progress, { now = Date.now() } = {}) {
-  const misses = reviewList(questions, progress, Infinity), flagged = questions.filter(q => progress.flags.includes(q.id));
-  const oldest = misses.at(-1);
-  const groups = [...Map.groupBy(misses, m => m.question.chapter)].sort((a, b) => a[0] - b[0]);
-  return `<div class="page review-page"><header class="page-head"><div><h1 tabindex="-1">Review</h1><p class="muted">${misses.length ? `${plural(misses.length, 'miss', 'misses')} · oldest from ${ago(oldest.at, now)}` : 'Nothing to review right now'}</p></div>${misses.length ? action(`Review all ${misses.length}`, 'missed', 'primary large') : ''}</header>
-    ${misses.length ? groups.map(([ch, items]) => `<section class="block" aria-labelledby="rv-${ch}"><h2 class="eyebrow" id="rv-${ch}">Chapter ${ch} · ${items.length}</h2><ul class="plain card review-group">${items.map(({ question: q, at }) => `<li class="queue-item"><span class="queue-text"><span class="small review-text strong">${escape(q.topic)} · missed ${ago(at, now)}</span><span>${escape(q.prompt)}</span></span>${action('Retry', 'retry-one', 'outline', q.id, `aria-label="Retry ${q.id}"`)}</li>`).join('')}</ul></section>`).join('')
-      : '<section class="card empty-card"><p>Wrong answers land here until you get them right. Start today’s session and anything you miss will show up for review.</p>' + action('Back to Today', 'library', 'outline') + '</section>'}
-    ${flagged.length ? `<p class="muted flag-line">Flagged · ${plural(flagged.length, 'question')} · ${action('Practice flagged', 'flags', 'link')}</p>` : ''}</div>`;
+const stageWords = { learning: 'Learning', getting: 'Getting there', solid: 'Solid', known: 'Known', unseen: 'Unseen' };
+const whenDue = (due, now) => { const d = Math.round((new Date(due).setHours(0, 0, 0, 0) - new Date(now).setHours(0, 0, 0, 0)) / 86400000); return d <= 0 ? 'today' : d === 1 ? 'tomorrow' : `in ${d} days`; };
+/// Review: one overview of where your misses stand, the two tools, then a compact due list. Trouble spots and
+// coming-up questions fold away so the page never turns into a wall of questions.
+export function renderReview(questions, progress, { now = Date.now(), examAt = null } = {}) {
+  const states = reviewStates(questions, progress, now, examAt), sum = reviewSummary(questions, progress, now, examAt);
+  const due = dueList(questions, progress, now, examAt), weak = weakConcepts(questions, progress), flagged = questions.filter(q => progress.flags.includes(q.id));
+  const trouble = questions.filter(q => { const s = states.get(q.id); return s.lapses >= 2 && s.stage !== 'solid' && !s.isDue; }).sort((a, b) => states.get(b.id).lapses - states.get(a.id).lapses);
+  const troubleIds = new Set(trouble.map(q => q.id));
+  const upcoming = questions.filter(q => { const s = states.get(q.id); return s.due !== null && !s.isDue && !troubleIds.has(q.id); }).sort((a, b) => states.get(a.id).due - states.get(b.id).due);
+  const tracked = sum.learning + sum.getting + sum.solid, missedEver = tracked > 0;
+  const row = (q, extra = '') => { const s = states.get(q.id); return `<li class="rv-row"><span class="stage-pill pill-${s.stage}">${stageWords[s.stage]}</span>
+      <span class="rv-main"><span class="rv-q">${escape(q.prompt)}</span><span class="rv-meta muted small">Ch ${q.chapter} · ${escape(q.topic)}${s.lapses ? ` · missed ${s.lapses}×` : ''}${extra}</span></span>
+      ${action('Retry', 'retry-one', 'outline small-btn', q.id, `aria-label="Retry: ${escape(q.prompt.slice(0, 60))}"`)}</li>`; };
+  const pct = n => tracked ? `${(n / tracked * 100).toFixed(1)}%` : '0%';
+  const overview = missedEver ? `<section class="card rv-overview" aria-label="Where your misses stand">
+      <span class="rv-bar" aria-hidden="true"><span class="seg-learning" style="width:${pct(sum.learning)}"></span><span class="seg-getting" style="width:${pct(sum.getting)}"></span><span class="seg-solid" style="width:${pct(sum.solid)}"></span></span>
+      <ul class="plain rv-legend"><li><span class="dot dot-learning"></span><strong>${sum.learning}</strong> learning</li><li><span class="dot dot-getting"></span><strong>${sum.getting}</strong> getting there</li><li><span class="dot dot-solid"></span><strong>${sum.solid}</strong> solid</li></ul>
+      <p class="muted small">Solid means right 3 times in a row on 2 different days.</p></section>` : '';
+  const tools = missedEver ? `<div class="rv-tools">${weak.length ? `<button type="button" class="card tool" data-action="drill"><span class="tool-icon tool-drill" aria-hidden="true">${icon('spark', 18)}</span><span class="set-text"><strong>Weak-spot drill</strong><span class="muted small">${escape(weak.map(w => w.topic).filter((t, i, a) => a.indexOf(t) === i).slice(0, 3).join(', '))}</span></span></button>` : ''}
+      <button type="button" class="card tool" data-action="print-sheet"><span class="tool-icon" aria-hidden="true">${icon('review', 18)}</span><span class="set-text"><strong>Print miss sheet</strong><span class="muted small">Answers and why, by chapter</span></span></button></div>` : '';
+  const fold = (id, title, list, extra) => list.length ? `<details class="rv-fold card"><summary><span><strong>${title}</strong><span class="muted"> · ${list.length}</span></span><span class="chev-down" aria-hidden="true">${icon('chevron', 16)}</span></summary><ul class="plain rv-list">${list.slice(0, 10).map(q => row(q, extra(q))).join('')}</ul></details>` : '';
+  return `<div class="page review-page"><header class="page-head"><div><h1 tabindex="-1">Review</h1><p class="muted">${sum.due ? `${plural(sum.due, 'question')} due now` : missedEver ? 'Nothing due right now' : 'Nothing to review yet'}</p></div>${sum.due ? action(`Review ${sum.due} due`, 'review-due', 'primary large') : ''}</header>
+    ${overview}${tools}
+    ${due.length ? `<section class="block" aria-labelledby="due-title"><h2 class="rv-h" id="due-title">Due now</h2><div class="card rv-due"><ul class="plain rv-list">${due.slice(0, 5).map(d => row(d.question)).join('')}</ul>${due.length > 5 ? `<details class="rv-more"><summary><span>Show ${due.length - 5} more</span><span class="chev-down" aria-hidden="true">${icon('chevron', 16)}</span></summary><ul class="plain rv-list">${due.slice(5).map(d => row(d.question)).join('')}</ul></details>` : ''}</div></section>` : ''}
+    ${fold('trouble', 'Trouble spots', trouble, q => states.get(q.id).due ? ` · back ${whenDue(states.get(q.id).due, now)}` : '')}
+    ${fold('upcoming', 'Coming up', upcoming, q => ` · back ${whenDue(states.get(q.id).due, now)}`)}
+    ${!missedEver ? `<section class="card empty-card"><p>Questions you miss show up here and come back until you know them.</p>${action('Back to Today', 'library', 'outline')}</section>` : ''}
+    ${flagged.length ? `<p class="muted flag-line">${plural(flagged.length, 'flagged question')} · ${action('Practice flagged', 'flags', 'link')}</p>` : ''}</div>`;
+}
+
+// Printable miss sheet: every question you have missed and not yet made solid, with the answer, your last wrong pick and why.
+export function renderMissSheet(chapters, questions, progress, { now = Date.now(), examAt = null } = {}) {
+  const states = reviewStates(questions, progress, now, examAt);
+  const missed = questions.filter(q => { const s = states.get(q.id); return s.lapses > 0 && s.stage !== 'solid'; });
+  const lastWrong = q => [...(progress.attempts?.[q.id] || [])].reverse().find(a => !a.correct && Number.isInteger(a.pick));
+  const groups = [...Map.groupBy(missed, q => q.chapter)].sort((a, b) => a[0] - b[0]);
+  return `<div class="page miss-sheet"><header class="sheet-head"><div><p class="eyebrow">CIS 4100 · final review</p><h1 tabindex="-1">Miss sheet</h1><p class="muted">${plural(missed.length, 'question')} you have missed and not yet made solid · ${new Date(now).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}</p></div>
+      <div class="actions no-print">${action('Print', 'print-now', 'primary')}${action('Back to Review', 'review-list', 'outline')}</div></header>
+    ${missed.length ? groups.map(([ch, qs]) => `<section class="sheet-chapter"><h2>Chapter ${ch} · ${escape(chapters.find(c => c.number === ch)?.title || '')}</h2><ol class="sheet-list">${qs.map(q => { const w = lastWrong(q); return `<li><p class="sheet-meta mono">${q.id} · ${escape(q.topic)} · missed ${states.get(q.id).lapses}×</p><p class="sheet-q">${escape(q.prompt)}</p>
+        <p><strong>Answer:</strong> ${escape(q.choices[q.answer])}</p>${w ? `<p><strong>You chose:</strong> ${escape(q.choices[w.pick])}${q.whyNot?.[w.pick] ? ` — ${escape(q.whyNot[w.pick])}` : ''}</p>` : ''}<p class="sheet-why">${escape(q.explanation)}</p><p class="sheet-ref mono">${escape(q.reference)}</p></li>`; }).join('')}</ol></section>`).join('')
+      : '<p class="card empty-card">No misses to print yet.</p>'}</div>`;
 }
 
 export function renderChapters(chapters, questions, progress) {
@@ -158,37 +193,33 @@ export function renderHistory(progress) {
 }
 
 // Settings as grouped rows: one line per setting, value on the right, changes apply instantly (main.js shows a toast with Undo).
-export function renderSettings({ progress, questions, storage, prefs, backups = [], archived = 0 }) {
+export function renderSettings({ progress, questions, storage, prefs, backups = [], archived = 0, canVibrate = false }) {
   const select = (id, label, value, options) => `<li class="set-row"><label for="${id}">${label}</label><span class="set-control"><select id="${id}" data-pref>${options.map(([v, t]) => `<option value="${v}"${String(v) === String(value) ? ' selected' : ''}>${t}</option>`).join('')}</select></span></li>`;
-  const toggle = (key, label, note) => { const on = prefs[key] !== false && (key !== 'vibrate' || prefs.vibrate === true); return `<li class="set-row"><button type="button" class="switch-row" role="switch" aria-checked="${on}" data-action="toggle-pref" data-value="${key}"><span class="set-text"><span>${label}</span><span class="muted small">${note}</span></span><span class="switch" aria-hidden="true"><span></span></span></button></li>`; };
-  const link = (label, act, value = '', detail = '') => `<li class="set-row"><button type="button" class="link-row" data-action="${act}" data-value="${escape(value)}"><span>${label}</span><span class="muted">${detail}</span><span class="chev-right">${icon('chevron', 16)}</span></button></li>`;
+  const toggle = (key, label) => { const on = key === 'vibrate' ? prefs.vibrate === true : prefs[key] !== false; return `<li class="set-row"><button type="button" class="switch-row" role="switch" aria-checked="${on}" data-action="toggle-pref" data-value="${key}"><span class="set-text"><span>${label}</span></span><span class="switch" aria-hidden="true"><span></span></span></button></li>`; };
   const theme = prefs.theme || 'system';
   const swatch = (v, name) => `<button type="button" class="theme-card" role="radio" aria-checked="${theme === v}" data-action="theme" data-value="${v}"><span class="theme-preview tp-${v}" aria-hidden="true"><span class="tp-card"></span><span class="tp-line tp-accent"></span><span class="tp-line"></span><span class="tp-button"></span></span><span>${name}</span></button>`;
+  const when = t => new Date(t).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
   return `<div class="page settings"><header class="page-head"><div><h1 tabindex="-1">Settings</h1></div></header>
-    <section class="card save-health save-${storage.tone}" aria-label="Saving"><span class="health-dot" aria-hidden="true"></span><span class="set-text"><strong>${escape(storage.title || storage.summary)}</strong><span class="muted small">${escape(storage.line || "")}</span></span>${action('Export', 'export', 'outline')}</section>
+    <section class="card save-health save-${storage.tone}" aria-label="Saving"><span class="health-dot" aria-hidden="true"></span><span class="set-text"><strong>${escape(storage.title || storage.summary)}</strong><span class="muted small">${escape(storage.line || '')}</span></span></section>
     ${storage.tone === 'ok' ? '' : `<p class="muted small save-detail">${escape(storage.summary)}</p>`}
     <section class="set-group" aria-labelledby="g-study"><h2 id="g-study">Study</h2><ul class="plain card set-list">
       ${select('length', 'Practice length', prefs.length, [[10, '10 questions'], [20, '20 questions'], [40, '40 questions'], ['all', 'All available']])}
       ${select('mock-length', 'Mock length', prefs.mockLength, [[20, '20 questions'], [40, '40 questions'], ['all', 'All available']])}
       ${select('minutes', 'Mock timer', prefs.minutes, [[0, 'Off'], [15, '15 minutes'], [30, '30 minutes'], [60, '60 minutes']])}
       <li class="set-row"><span class="set-label">Final exam</span><span class="muted">${escape(examWords({ weekday: 'long', month: 'long', day: 'numeric' }))}</span></li></ul></section>
-    <section class="set-group" aria-labelledby="g-look"><h2 id="g-look">Appearance</h2><div class="card theme-picker" role="radiogroup" aria-labelledby="g-look">${swatch('system', 'Auto')}${swatch('light', 'Light')}${swatch('dark', 'Dark')}</div><p class="muted small set-foot">Auto follows your device. Animations always respect your device’s reduce-motion setting.</p></section>
+    <section class="set-group" aria-labelledby="g-look"><h2 id="g-look">Appearance</h2><div class="card theme-picker" role="radiogroup" aria-labelledby="g-look">${swatch('system', 'Auto')}${swatch('light', 'Light')}${swatch('dark', 'Dark')}</div></section>
     <section class="set-group" aria-labelledby="g-answer"><h2 id="g-answer">While answering</h2><ul class="plain card set-list">
-      ${toggle('keyHints', 'Show keyboard hints', 'A–D, T/F and Enter shortcuts under each question')}
-      ${toggle('celebrate', 'Celebrate correct answers', 'One soft pulse on the card, never confetti')}
-      ${toggle('vibrate', 'Vibrate on check', 'Phones that support it, mainly Android')}</ul></section>
-    <section class="set-group" aria-labelledby="g-data"><h2 id="g-data">Your data</h2><ul class="plain card set-list">
-      ${progress.active ? link('Resume session', 'resume', '', `Q${progress.active.index + 1} of ${progress.active.items.length}`) : ''}
-      ${link('History', 'history-list', '', `${progress.history.length} ${progress.history.length === 1 ? 'session' : 'sessions'}`)}
-      ${progress.flags.length ? link('Practice flagged questions', 'flags', '', String(progress.flags.length)) : ''}
-      ${link('Export progress', 'export', '', 'JSON file')}
-      <li class="set-row"><label class="link-row file-row"><span>Import a backup</span><span class="muted">Choose file</span><span class="chev-right">${icon('chevron', 16)}</span><input id="import-progress" class="file-input" type="file" accept=".json,application/json"></label></li>
-      ${storage.retry ? link('Try saving again', 'retry-storage') : ''}${storage.adopt ? link('Start a new save…', 'adopt') : ''}
-      ${backups.map(b => link(`Preserved copy · ${new Date(b.at).toLocaleDateString()}`, 'export-backup', b.name, `${Math.max(1, Math.round(b.size / 1024))} KB · export`)).join('')}</ul>
-      ${archived ? `<p class="muted small set-foot">${archived} earlier ${archived === 1 ? 'session' : 'sessions'} from the midterm archive ${archived === 1 ? 'is' : 'are'} kept in your backup but not shown here.</p>` : ''}
-      <p class="muted small set-foot">${escape(storage.detail || '')}</p></section>
-    <section class="set-group danger-zone" aria-labelledby="g-danger"><h2 id="g-danger">Danger zone</h2><div class="card set-list danger-card"><button type="button" class="link-row danger-row" data-action="reset"><span class="set-text"><span>Reset finals progress…</span><span class="muted small">Asks first. Export a backup before you reset.</span></span></button></div></section>
-    <p class="muted small set-about">CIS 4100 Final review · Chapters 7–11 · ${questions.length} questions. Exam coverage, timing, and format are unspecified. Keyboard: A–D, T/F or 1–4 select an answer; Enter checks or continues; S skips, P goes back, R flags, W opens Why?.</p></div>`;
+      ${toggle('keyHints', 'Show keyboard hints')}${toggle('celebrate', 'Celebrate correct answers')}${canVibrate ? toggle('vibrate', 'Vibrate on check') : ''}</ul></section>
+    <section class="set-group" aria-labelledby="g-data"><h2 id="g-data">Your data</h2><div class="card data-card">
+      <div class="data-row"><span class="set-text"><strong>Backup</strong><span class="muted small">Save your progress to a file, or restore one.</span></span>
+        <span class="data-actions">${action('Export', 'export', 'outline')}<label class="button outline file-button">Import<input id="import-progress" class="file-input" type="file" accept=".json,application/json"></label></span></div>
+      ${storage.retry ? `<div class="data-row"><span class="set-text"><strong>Saving paused</strong><span class="muted small">Recent answers are only in memory.</span></span>${action('Try again', 'retry-storage', 'outline')}</div>` : ''}
+      ${storage.adopt ? `<div class="data-row"><span class="set-text"><strong>Unreadable save</strong><span class="muted small">Kept untouched until you start a new one.</span></span>${action('Start new save…', 'adopt', 'outline')}</div>` : ''}
+      ${backups.length ? `<details class="data-row copies"><summary><span class="set-text"><strong>Earlier save copies</strong><span class="muted small">${backups.length} kept automatically</span></span><span class="chev-down" aria-hidden="true">${icon('chevron', 16)}</span></summary>
+        <ul class="plain copy-list">${backups.map(b => `<li><span>${escape(when(b.at))}<span class="muted small"> · ${Math.max(1, Math.round(b.size / 1024))} KB</span></span>${action('Export', 'export-backup', 'link', b.name, `aria-label="Export copy from ${escape(when(b.at))}"`)}</li>`).join('')}</ul></details>` : ''}
+      ${archived ? `<div class="data-row"><span class="set-text"><strong>Midterm archive</strong><span class="muted small">${archived} earlier ${archived === 1 ? 'session is' : 'sessions are'} kept in your backups.</span></span></div>` : ''}
+    </div></section>
+    <section class="set-group" aria-labelledby="g-reset"><h2 id="g-reset">Reset</h2><div class="card data-card"><div class="data-row"><span class="set-text"><strong>Reset finals progress</strong><span class="muted small">Clears answers, sessions and flags in this browser.</span></span>${action('Reset…', 'reset', 'danger')}</div></div></section></div>`;
 }
 
 function segment(item, bank, { mock, current }) {
@@ -216,16 +247,21 @@ export function renderQuiz(session, question, { bank = null, similar = null, fre
   const note = milestone ? `<p class="rail-note">${milestone}${right !== null && done ? ` · ${right} of ${done} correct so far` : ''}</p>` : '';
   const keys = question.type === 'true-false' ? 'T or F' : 'A–D';
   const hint = !feedback && prefs.keyHints !== false ? `<p class="key-hint muted small">Press ${keys} (or 1–${item.order.length}) to choose, Enter to ${session.mock ? 'save' : 'check'}.</p>` : '';
+  // Optional confidence: a correct answer marked "Guess" counts in the score but not toward making the question solid.
+  const confidence = !feedback && !session.mock ? `<div class="confidence" role="group" aria-label="How sure are you? Optional"><span class="muted small">How sure?</span>${[['sure', 'Sure'], ['unsure', 'Unsure'], ['guess', 'Guess']].map(([v, l]) => `<button type="button" class="conf-chip" data-action="conf" data-value="${v}" aria-pressed="${item.conf === v}">${l}</button>`).join('')}</div>` : '';
+  const isRepeat = follow?.kind === 'repeat', repeatQueued = !follow && (session.repeats || []).some(r => r.id === item.id && !r.done);
+  const subline = wrong ? (repeatQueued ? 'Marked above. You’ll see this one again in a few questions.' : 'Your choice and the correct answer are marked above.')
+    : item.conf === 'guess' ? 'Right, but you guessed. It will come back for another look.' : isRepeat ? 'Fixed. It moves up in your review.' : follow ? 'That idea is landing.' : 'Saved to your map as correct.';
   let bottom;
   if (feedback) bottom = `<div class="feedback sheet${wrong ? ' is-wrong' : ' is-right'}${whyOpen ? ' is-open' : ''}" tabindex="-1" role="region" aria-label="Feedback">
       <button type="button" class="sheet-handle" data-action="why" aria-expanded="${whyOpen}" aria-controls="why-panel" aria-label="${whyOpen ? 'Hide the explanation' : 'Show the explanation'}"><span></span></button>
       <div class="sheet-inner"><div class="sheet-row"><span class="verdict-icon" aria-hidden="true">${icon(wrong ? 'close' : 'check', 22)}</span>
-      <div class="verdict" role="status"><h2>${wrong ? 'Not quite.' : 'Correct.'}</h2><p class="muted">${wrong ? 'Your choice and the correct answer are marked above.' : follow ? 'That idea is landing.' : 'Saved to your map as correct.'}</p></div>
-      <div class="sheet-actions lesson-actions">${wrong && similar && !follow ? action('Try a similar one', 'similar', 'outline') : ''}<button type="button" class="button primary" data-action="next">${follow ? `Back to question ${session.index + 1}` : 'Continue'}</button></div></div>
+      <div class="verdict" role="status"><h2>${wrong ? 'Not quite.' : 'Correct.'}</h2><p class="muted">${subline}</p></div>
+      <div class="sheet-actions lesson-actions">${wrong && similar && !follow ? action('Try a similar one', 'similar', 'outline') : ''}<button type="button" class="button primary" data-action="next">${follow && !isRepeat ? `Back to question ${session.index + 1}` : 'Continue'}</button></div></div>
       <button type="button" class="why-toggle" data-action="why" aria-expanded="${whyOpen}" aria-controls="why-panel">Why?${icon('chevron', 16)}</button>
       <div class="why-wrap"><div class="why-body" id="why-panel"><p>${escape(question.explanation)}</p><p class="mono muted small">Source · Chapter ${question.chapter} · ${escape(question.reference)}</p></div></div>
       ${wrong && !follow && !similar ? '<p class="muted small no-similar">No similar question in the bank yet. This one stays on your review list.</p>' : ''}</div></div>`;
-  else if (follow) bottom = `<div class="bar-bottom"><div class="bar-inner lesson-actions">${action(`Back to question ${session.index + 1}`, 'leave-follow', 'ghost')}<span class="spacer"></span><button type="button" class="button primary" data-action="next" ${selected === null ? 'disabled' : ''}>Check answer</button></div></div>`;
+  else if (follow) bottom = `<div class="bar-bottom"><div class="bar-inner lesson-actions">${action(isRepeat ? 'Skip this question' : `Back to question ${session.index + 1}`, 'leave-follow', 'ghost')}<span class="spacer"></span><button type="button" class="button primary" data-action="next" ${selected === null ? 'disabled' : ''}>Check answer</button></div></div>`;
   else if (session.mock) bottom = `<div class="bar-bottom"><div class="bar-inner lesson-actions">${session.index > 0 ? action('Back', 'previous', 'ghost') : ''}${item.checked ? '' : action('Skip', 'skip', 'ghost')}<span class="spacer"></span>${action('Submit mock', 'submit', 'outline')}<button type="button" class="button primary" data-action="next">${last ? 'Save' : 'Save & next'}</button></div></div>`;
   else bottom = `<div class="bar-bottom"><div class="bar-inner lesson-actions">${action('End session…', 'submit', 'ghost')}<span class="spacer"></span>${session.index > 0 ? action('Back', 'previous', 'ghost') : ''}${action('Skip', 'skip', 'ghost')}<button type="button" class="button primary check-button" data-action="next" ${selected === null ? 'disabled' : ''}>Check answer</button></div></div>`;
   const nav = session.mock && !follow ? `<details class="navigator card"><summary>All questions</summary><p class="muted small">Answers stay editable until you submit.</p>
@@ -236,9 +272,9 @@ export function renderQuiz(session, question, { bank = null, similar = null, fre
   return `<section class="lesson${fresh ? ' enter' : ''}${session.mock ? ' is-mock' : ''}"><header class="lesson-rail"><div class="rail-inner">
       <button type="button" class="icon-button" data-action="exit" aria-label="Save and exit">${icon('close', 20)}</button>${strip}<span class="count mono">${session.index + 1} of ${total}</span>
       ${follow ? '<span class="rail-spacer"></span>' : `<button type="button" class="button ghost flag-button" data-action="flag" aria-pressed="${item.flag}">${icon('flag', 18, item.flag ? 'fill="currentColor"' : '')}${item.flag ? 'Flagged' : 'Flag'}</button>`}</div>${note}</header>
-    <div class="lesson-main">${follow ? `<p class="follow-note">Similar question · not part of this session’s score. Your place is saved at question ${session.index + 1}.</p>` : ''}
+    <div class="lesson-main">${isRepeat ? '<p class="follow-note">Try again · you missed this one earlier in this session. It doesn’t count toward your score.</p>' : follow ? `<p class="follow-note">Similar question · not part of this session’s score. Your place is saved at question ${session.index + 1}.</p>` : ''}
       <div class="lesson-body"><p class="chips"><span class="chip mono">Chapter ${question.chapter} · ${escape(question.topic)}</span><span class="chip mono">${question.type === 'true-false' ? 'True / False' : 'Single answer'}</span>${session.mock && !follow ? '<span class="chip mono">Mock</span>' : ''}<span id="timer" class="chip mono timer" role="timer" aria-label="Time remaining"></span></p>
-      <h1 tabindex="-1">${escape(question.prompt)}</h1><ul class="plain choices" aria-label="Answers">${choices}</ul>${hint}</div>${nav}</div>
+      <h1 tabindex="-1">${escape(question.prompt)}</h1><ul class="plain choices" aria-label="Answers">${choices}</ul>${confidence}${hint}</div>${nav}</div>
     ${bottom}</section>`;
 }
 
@@ -249,7 +285,16 @@ export function renderResults(result, recommendation, label = 'Session complete'
   const scoreRing = `<svg class="ring score-ring" width="168" height="168" viewBox="0 0 168 168" role="img" aria-label="${result.correct} of ${result.total} correct"><circle cx="84" cy="84" r="${r}" class="ring-track"/>${result.correct ? `<circle cx="84" cy="84" r="${r}" class="ring-correct" stroke-linecap="round" stroke-dasharray="${(share * circ).toFixed(1)} ${circ.toFixed(1)}" transform="rotate(-90 84 84)"/>` : ''}<text x="84" y="92" text-anchor="middle" class="ring-value big">${result.correct}/${result.total}</text><text x="84" y="116" text-anchor="middle" class="ring-label">correct</text></svg>`;
   const heading = !answered.length ? 'Nothing was answered' : !missed.length ? 'Everything you answered is correct' : missed.length === 1 ? 'Good work. One to fix.' : `${plural(missed.length, 'question')} to fix`;
   const strip = `<ol class="segments big" aria-hidden="true">${result.entries.map(e => `<li class="seg ${e.status === 'answered' ? e.correct ? 'ok' : 'bad' : e.status === 'skipped' ? 'skip' : ''}"></li>`).join('')}</ol>`;
-  const follows = session?.followUps?.length ? `<p class="muted small">You also tried ${plural(session.followUps.length, 'similar question')} (${session.followUps.filter(f => f.correct).length} correct). ${session.followUps.length === 1 ? 'It is' : 'They are'} not part of this score.</p>` : '';
+  const extras = session?.followUps || [], similars = extras.filter(f => f.kind !== 'repeat'), looks = extras.filter(f => f.kind === 'repeat');
+  const extraBits = [similars.length && `${plural(similars.length, 'similar question')} (${similars.filter(f => f.correct).length} right)`, looks.length && `${plural(looks.length, 'retried miss', 'retried misses')} (${looks.filter(f => f.correct).length} fixed)`].filter(Boolean);
+  // Smart review movement: compare each question's stage before the session with now.
+  const rank = { unseen: 0, known: 3, learning: 0, getting: 1, solid: 2 };
+  const stagesBefore = session?.before?.stages || {}, movedIds = Object.keys(stagesBefore);
+  const nowStage = id => reviewState(progress?.attempts?.[id]).stage;
+  const up = movedIds.filter(id => ['learning', 'getting'].includes(stagesBefore[id]) && rank[nowStage(id)] > rank[stagesBefore[id]]).length;
+  const down = movedIds.filter(id => nowStage(id) === 'learning' && stagesBefore[id] !== 'learning').length;
+  const moves = progress && (up || down) ? [up && `${up} moved up`, down && `${down} back to learning`].filter(Boolean).join(' · ') : '';
+  const follows = extraBits.length || moves ? `<p class="muted small">${moves ? `Smart review: ${moves}. ` : ''}${extraBits.length ? `You also did ${extraBits.join(' and ')}, not part of this score.` : ''}</p>` : '';
   let next;
   if (recommendation?.single) next = `<div class="next-text"><p class="eyebrow accent-text">Next step · ${escape(recommendation.topic)}</p><h2 id="next-title">Retry the ${plural(missed.length, 'question')} you missed</h2><p>You missed ${recommendation.missed} of ${recommendation.total} ${escape(recommendation.topic)} questions.</p></div>
       <div class="actions">${action(`Retry ${missed.length} missed`, 'retry', 'primary large')}${recommendation.conceptPool.length ? action('Try a fresh question on this idea', 'concept', 'ghost large') : ''}</div>`;

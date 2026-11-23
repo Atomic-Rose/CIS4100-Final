@@ -18,6 +18,18 @@ A focused study site for Computer Organization Chapters 7–11. Open [offline/Sm
 
 Every text colour pair meets WCAG 2.2 AA in both themes (checked automatically on every screen), states always carry a word as well as a colour, controls are at least 44 px where they are buttons, and motion stops under reduced-motion settings.
 
+## Smart review
+
+Every real answer is kept in a short per-question history (with optional confidence). From it each question you have missed or guessed gets a stage:
+
+| Stage | Meaning | Comes back |
+| --- | --- | --- |
+| Learning | Latest answer was wrong | Now, and once more later in the same session (asked again a few questions later, not scored) |
+| Getting there | Right since the last miss, not yet solid | In 1–2 days; sooner the more often it was missed |
+| Solid | 3 counted correct answers in a row on at least 2 different days | Once more before the final |
+
+A correct answer marked **Guess** counts in the session score but does not move the question forward. Spacing tightens as the final (December 11) approaches. Today’s session puts due questions first, most-missed first. The **Review** tab shows due / learning / getting there / solid counts, trouble spots (missed twice or more) and what is coming up, plus a **Weak-spot drill** (the concepts with the highest miss rate) and a **Printable miss sheet** (every unsolid miss with the answer, your wrong pick, why it was wrong, the explanation and the slide reference). Older saves get their history rebuilt from finished sessions.
+
 ## What counts as progress
 
 Only a checked practice answer or a submitted mock answer updates first attempt, latest answer, and review status. Skipped, unanswered, and never-reached questions appear in that session's results but never create a miss, never replace a real answer, never count as practiced, and stay eligible for unseen-first sampling. This holds for submit, End session, starting a new session over an active one, and timer expiry.

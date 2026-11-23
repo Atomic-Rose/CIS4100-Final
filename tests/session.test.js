@@ -80,7 +80,7 @@ test('legacy content IDs stay fixed; separate progress import preserves first an
 });
 test('views expose native controls, no-feedback mocks and expandable answer review',()=>{
  const s=createSession(questions,{size:1}),q=bank.get(s.items[0].id);let html=renderQuiz(s,q);assert.ok(html.includes('Check answer'));setDraft(s,q.answer);confirmCurrent(s);html=renderQuiz(s,q);assert.ok(html.includes(q.explanation));assert.ok(html.includes('Chapter '+q.chapter));
- const r=score(s,bank);assert.ok(renderResults(r,null).includes('<details>'));const library=renderLibrary(chapters,questions,freshProgress());assert.ok(library.includes('data-action="today"'));const settings=renderSettings({progress:freshProgress(),questions,storage:{tone:'ok',summary:'Saving'},prefs:{length:10,mockLength:20,minutes:0}});assert.ok(settings.includes('Practice length'));assert.ok(settings.includes('Exam coverage, timing, and format are unspecified'));
+ const r=score(s,bank);assert.ok(renderResults(r,null).includes('<details>'));const library=renderLibrary(chapters,questions,freshProgress());assert.ok(library.includes('data-action="today"'));const settings=renderSettings({progress:freshProgress(),questions,storage:{tone:'ok',summary:'Saving'},prefs:{length:10,mockLength:20,minutes:0}});assert.ok(settings.includes('Practice length'));assert.ok(settings.includes('data-action="reset"')&&!settings.includes('unspecified'));
 });
 test('worked calculation answers are independently checked',()=>{
  const byId=new Map(questions.map(q=>[q.id,q]));

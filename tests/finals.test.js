@@ -43,7 +43,7 @@ test('balanced practice prefers unseen items within each chapter and caps sparse
 });
 test('one primary decision follows resume, missed, mixed priority; chapter opens topic actions',()=>{
  const p=freshProgress();let html=renderLibrary(chapters,questions,p);assert.equal((html.match(/class="button primary[ "]/g)||[]).length,1);assert.match(html,/class="button primary large" data-action="today"/);
- p.latest[questions[0].id]={correct:false,status:'answered',at:1};html=renderLibrary(chapters,questions,p);assert.match(html,/class="button primary large" data-action="today"/);assert.ok(html.includes('Fix 1 miss'));
+ p.latest[questions[0].id]={correct:false,status:'answered',at:1};p.attempts[questions[0].id]=[{at:1,correct:false,pick:(questions[0].answer+1)%questions[0].choices.length}];html=renderLibrary(chapters,questions,p);assert.match(html,/class="button primary large" data-action="today"/);assert.ok(html.includes('Fix 1 miss'));
  p.active=createSession(questions,{size:10});html=renderLibrary(chapters,questions,p);assert.match(html,/class="button primary large" data-action="resume"/);assert.match(renderStart(p),/Resume session/);assert.ok(!renderStart(p).includes('Start studying'));
  const chapter=renderChapter(chapters[2],questions,p);assert.ok(chapter.includes('9:DMA'));assert.ok(chapter.includes('Practice chapter · 10'));assert.equal((chapter.match(/class="button primary[ "]/g)||[]).length,1);
 });
