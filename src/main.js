@@ -15,12 +15,23 @@ let progress = loaded.progress, screen = 'start', currentChapter = 7, result, re
 // Storage state. canWrite=false means writing could destroy something we could not read (or storage is blocked).
 let storageStatus = loaded.status, canWrite = loaded.writable, writeFailed = false, dirty = false, retryTimer = null;
 const prefsKey = `${key}.prefs`;
-let prefs = { length: 10, mockLength: 20, minutes: 0 };
+let prefs = { length: 10, mockLength: 20, minutes: 0, keyHints: true, celebrate: true, vibrate: false };
+let lastSavedAt = null, whyOpen = false, toastTimer = null, dragStart = null, suppressClick = false;
 try { prefs = { ...prefs, ...JSON.parse(localStorage.getItem(prefsKey) || '{}') }; } catch {}
 const parkedArchive = parkArchiveSession(progress, bank);
 const answeredIds = () => new Set(Object.entries(progress.latest).filter(([,r]) => r.status === 'answered').map(([id]) => id));
 
+function savedAgo() {
+  if (!lastSavedAt) return 'nothing changed yet this visit';
+  const s = Math.round((Date.now() - lastSavedAt) / 1000);
+  return s < 45 ? 'just now' : s < 3600 ? `${Math.round(s / 60)} min ago` : new Date(lastSavedAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+}
 function storageInfo() {
+  const info = baseStorageInfo();
+  if (info.tone === 'ok') return { ...info, title: 'Saving automatically', line: lastSavedAt ? `Last saved ${savedAgo()} · this browser` : 'Up to date · this browser' };
+  return { ...info, title: storageStatus === 'blocked' || storageStatus === 'unreadable' ? 'Not saving · in memory only' : 'Save failed · retrying', line: 'Export to keep this visit’s progress' };
+}
+function baseStorageInfo() {
   const exportNote = 'Export saves a JSON backup you can import later.';
   if (storageStatus === 'blocked') return { tone: 'warn', summary: 'Not saving. This browser is blocking storage for this page, so progress from this visit is in memory only and will be lost when the page closes or reloads.', detail: exportNote, retry: true, banner: 'Progress is not being saved: this browser is blocking storage for this page. Export before you close or reload.' };
   if (storageStatus === 'unreadable') return { tone: 'warn', summary: 'Not saving. Your saved progress could not be read, so it has been left untouched. Progress from this visit is in memory only.', detail: `Start a new save keeps a copy of the unreadable data under Preserved copies. ${exportNote}`, adopt: true, banner: 'Your saved progress could not be read and has been left untouched. This visit is in memory only. Export to keep it.' };
@@ -36,12 +47,28 @@ function renderBanner() {
 function save() {
   dirty = true;
   if (canWrite) {
-    if (saveProgress(progress)) { dirty = false; if (writeFailed) { writeFailed = false; say('Saved. Your progress is back in this browser.'); } }
+    if (saveProgress(progress)) { dirty = false; lastSavedAt = Date.now(); if (writeFailed) { writeFailed = false; say('Saved. Your progress is back in this browser.'); } }
     else { writeFailed = true; clearTimeout(retryTimer); retryTimer = setTimeout(() => { if (writeFailed) save(); }, 4000); }
   }
   renderBanner();
 }
-function say(message) { notice.textContent = message; notice.hidden = false; }
+// Toast: a short status message at the bottom of the screen, optionally with Undo. It hides itself after a few seconds.
+function say(message, { undo = null, duration = 5000 } = {}) {
+  notice.textContent = message; notice.hidden = false;
+  if (undo && document.createElement && notice.append) {
+    const button = document.createElement('button'); button.type = 'button'; button.className = 'toast-undo'; button.textContent = 'Undo';
+    button.addEventListener('click', () => { undo(); notice.hidden = true; }); notice.append(button);
+  }
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { notice.hidden = true; }, duration);
+}
+// The feedback sheet's explanation opens and closes in place (no re-render, so nothing jumps).
+function setWhy(open) {
+  whyOpen = open;
+  const sheet = root.querySelector('.sheet'); if (!sheet?.classList) return;
+  sheet.classList.toggle('is-open', open);
+  for (const b of root.querySelectorAll('[data-action="why"]')) b.setAttribute('aria-expanded', String(open));
+  root.querySelector('.sheet-handle')?.setAttribute('aria-label', open ? 'Hide the explanation' : 'Show the explanation');
+}
 function ask(title, message, label, callback) {
   originFocus = document.activeElement;
   document.querySelector('#confirm-title').textContent = title;
@@ -78,7 +105,8 @@ function render(focus='heading') {
   if(screen==='quiz') {
     const item=currentItem(session), q=bank.get(item.id), questionKey=`${session.id}:${session.index}:${session.followUp?.id||''}`;
     const similar=!session.mock&&!session.followUp&&item.checked&&item.pick!==q.answer?similarQuestion(q,questions,session,answeredIds()):null;
-    root.innerHTML=renderQuiz(session,q,{bank,similar,fresh:questionKey!==lastQuestionKey});lastQuestionKey=questionKey;
+    const fresh=questionKey!==lastQuestionKey; if(fresh||!item.checked) whyOpen=false;
+    root.innerHTML=renderQuiz(session,q,{bank,similar,fresh,whyOpen,prefs});lastQuestionKey=questionKey;
   }
   if(screen==='results') root.innerHTML=wrap(renderResults(result,recommendation,resultLabel,{progress:scoped,chapters,questions,session:resultSession}));
   if(focus==='feedback') { const f=root.querySelector('.feedback'); f?.focus({preventScroll:true}); reveal(root.querySelector('.choices .is-wrong')||root.querySelector('.choices .is-correct')); }
@@ -128,6 +156,8 @@ function pick(choice) {
   const next=root.querySelector('[data-action="next"]'); if(next) next.disabled=false;
   updateCurrentStatus();save();
 }
+// Optional haptic tick after checking (browsers without the Vibration API, such as iOS Safari, ignore it).
+function buzz(item) { if(prefs.vibrate) try{ navigator.vibrate?.(item.pick===bank.get(item.id).answer?15:[25,60,25]); }catch{} }
 function updateCurrentStatus() {
   const s=progress.active,item=s.items[s.index];
   const status=root.querySelector(`[data-action="goto"][data-value="${s.index}"] small`);
@@ -138,7 +168,7 @@ function step(action) {
   if(s.followUp) {
     const f=s.followUp;
     if(action!=='next') return;
-    if(!f.checked) { if(confirmCurrent(s)) { recordItem(progress,s,f,bank);save();render('feedback'); } return; }
+    if(!f.checked) { if(confirmCurrent(s)) { recordItem(progress,s,f,bank);buzz(f);save();render('feedback'); } return; }
     endFollowUp(s,bank);save();render();say(`Back to question ${s.index+1} of ${s.items.length}.`);return;
   }
   const item=s.items[s.index];
@@ -147,7 +177,7 @@ function step(action) {
     if(item.checked) return;
     item.skipped=true;item.draft=null;s.draft=null;
   } else if(!s.mock&&!item.checked) {
-    if(confirmCurrent(s)) { recordItem(progress,s,item,bank);save();render('feedback'); }
+    if(confirmCurrent(s)) { recordItem(progress,s,item,bank);buzz(item);save();render('feedback'); }
     return;
   } else if(s.mock) confirmCurrent(s);
   if(s.index===s.items.length-1) {save();render('none');submit();return;}
@@ -176,7 +206,7 @@ async function importProgress(file,legacy) {
       if(!makeWritable()) say('Imported for this visit only: storage is not available, so the import is in memory.');
       save();show('library');if(canWrite)say('Progress imported.');
     });
-  } catch(error) {say(`Import rejected; current progress was kept. ${error.message}`);}
+  } catch(error) {say(`Import rejected; current progress was kept. ${error.message}`,{duration:10000});}
 }
 root.addEventListener('change',event=>{
   const target=event.target;
@@ -197,7 +227,13 @@ function onAction(action, value, button) {
     case 'chapter':if(chapters.some(c=>c.number===Number(value))){currentChapter=Number(value);show('chapter');}break;
     case 'chapters':show('chapters');break;
     case 'history-list':show('history');break;
-    case 'theme':prefs.theme=['light','dark'].includes(value)?value:'system';savePrefs();applyTheme();render('[data-action="theme"][aria-pressed="true"]');break;
+    case 'theme':{const before=prefs.theme||'system',next=['light','dark'].includes(value)?value:'system';if(before===next)break;
+      const applyChoice=v=>{prefs.theme=v;savePrefs();applyTheme();render(`[data-action="theme"][data-value="${v}"]`);};
+      applyChoice(next);say(`Appearance: ${{system:'Auto',light:'Light',dark:'Dark'}[next]} · saved`,{undo:()=>applyChoice(before)});break;}
+    case 'toggle-pref':{if(!['keyHints','celebrate','vibrate'].includes(value))break;const was=value==='vibrate'?prefs.vibrate===true:prefs[value]!==false;
+      const set=v=>{prefs[value]=v;savePrefs();render(`[data-action="toggle-pref"][data-value="${value}"]`);};
+      set(!was);say(`${button?.querySelector?.('.set-text span')?.textContent||'Setting'} ${!was?'on':'off'} · saved`,{undo:()=>set(was)});break;}
+    case 'why':if(suppressClick){suppressClick=false;break;}setWhy(!whyOpen);break;
     case 'exam':show('library');root.querySelector('#exam-date')?.focus();break;
     case 'today':{const plan=todayPlan(chapters,questions,scopeProgress(progress,bank));const pool=pickPlan(plan);if(pool.length)start(pool,{label:'Today’s session',size:pool.length,ordered:true});else start(finalsQuestions,{...options(),label:'Mixed practice'});break;}
     case 'retry-one':{const q=bank.get(value);if(q&&isFinals(q))start([q],{label:`Retry · ${q.topic}`});break;}
@@ -240,6 +276,12 @@ root.addEventListener('click',event=>{
   const button=event.target.closest('button[data-action]');if(!button) return;
   onAction(button.dataset.action,button.dataset.value,button);
 });
+// Drag the feedback sheet's handle: up opens the explanation, down closes it. A plain tap toggles (via the click handler).
+root.addEventListener('pointerdown',event=>{ if(event.target.closest?.('.sheet-handle')) dragStart=event.clientY; });
+root.addEventListener('pointerup',event=>{
+  if(dragStart===null) return; const dy=event.clientY-dragStart; dragStart=null;
+  if(Math.abs(dy)>12){ suppressClick=true; setWhy(dy<0); setTimeout(()=>{suppressClick=false;},400); }
+});
 banner.addEventListener('click',event=>{
   const button=event.target.closest?.('button[data-action]');if(button) onAction(button.dataset.action,button.dataset.value,button);
 });
@@ -258,7 +300,7 @@ document.addEventListener('keydown',event=>{
   else if(key==='s'&&!item.checked&&!follow){event.preventDefault();step('skip');}
   else if(key==='p'&&s.index>0&&!follow){event.preventDefault();step('previous');}
   else if(key==='r'&&!follow){event.preventDefault();root.querySelector('[data-action="flag"]')?.click();}
-  else if(key==='w'){const why=root.querySelector('details.why');if(why){event.preventDefault();why.open=!why.open;}}
+  else if(key==='w'&&root.querySelector('.sheet')){event.preventDefault();setWhy(!whyOpen);}
 });
 function tick() {
   const s=progress.active;if(!s?.deadline||!isFinalsSession(s,bank)) return;

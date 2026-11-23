@@ -16,13 +16,17 @@ const paths = {
   history: '<path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M22 20H2"/>',
   settings: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>',
   close: '<path d="M6 6l12 12M18 6 6 18"/>', check: '<path d="M20 6 9 17l-5-5"/>', flag: '<path d="M5 21V4h11l-1.5 4L16 12H5"/>',
-  chevron: '<path d="m6 9 6 6 6-6"/>', spark: '<path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/>',
+  chevron: '<path d="m6 9 6 6 6-6"/>', arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>', spark: '<path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/>',
 };
 export const icon = (name, size = 20, extra = '') => `<svg class="icon" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"${extra ? ` ${extra}` : ''}>${paths[name]}</svg>`;
 export const mark = (size = 28) => `<svg width="${size}" height="${size}" viewBox="0 0 28 28" aria-hidden="true" class="mark"><rect x="2" y="2" width="11" height="11" rx="3" class="m1"/><rect x="15" y="2" width="11" height="11" rx="3" class="m2"/><rect x="2" y="15" width="11" height="11" rx="3" class="m3"/><rect x="15" y="15" width="11" height="11" rx="3" class="m4"/></svg>`;
 const bar = (c, cls = '') => `<span class="bar ${cls}" aria-hidden="true"><span class="bar-correct" style="width:${(c.correct / c.total * 100).toFixed(1)}%"></span><span class="bar-review" style="width:${(c.review / c.total * 100).toFixed(1)}%"></span></span>`;
 const summary = c => c.correct + c.review === 0 ? `Not started · ${plural(c.total, 'question')}` : [c.correct && `${c.correct} correct`, c.review && `${c.review} to review`, c.unseen && `${c.unseen} unseen`].filter(Boolean).join(' · ');
 function ring(c, size = 132) {
+  if (size < 100) {
+    const r = size / 2 - 5, circ = 2 * Math.PI * r, mid = size / 2, a = c.correct / c.total * circ, b = c.review / c.total * circ;
+    return `<svg class="ring ring-small" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" aria-hidden="true"><circle cx="${mid}" cy="${mid}" r="${r}" class="ring-track"/>${c.correct ? `<circle cx="${mid}" cy="${mid}" r="${r}" class="ring-correct" stroke-dasharray="${a.toFixed(1)} ${circ.toFixed(1)}" transform="rotate(-90 ${mid} ${mid})"/>` : ''}${c.review ? `<circle cx="${mid}" cy="${mid}" r="${r}" class="ring-review" stroke-dasharray="${b.toFixed(1)} ${circ.toFixed(1)}" stroke-dashoffset="${(-a).toFixed(1)}" transform="rotate(-90 ${mid} ${mid})"/>` : ''}</svg>`;
+  }
   const r = size * .394, circ = 2 * Math.PI * r, mid = size / 2, a = c.correct / c.total * circ, b = c.review / c.total * circ;
   return `<svg class="ring" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" role="img" aria-label="Readiness ${c.readiness} percent: ${c.correct} correct, ${c.review} to review, ${c.unseen} unseen of ${c.total} questions">
     <circle cx="${mid}" cy="${mid}" r="${r.toFixed(1)}" class="ring-track"/>${c.correct ? `<circle cx="${mid}" cy="${mid}" r="${r.toFixed(1)}" class="ring-correct" stroke-dasharray="${a.toFixed(1)} ${circ.toFixed(1)}" transform="rotate(-90 ${mid} ${mid})"/>` : ''}
@@ -58,7 +62,7 @@ export function renderStart(progress = {}, chapters = [], questions = [], { them
 }
 
 function chapterCard(c) {
-  return `<li><button type="button" class="card chapter-card" data-action="chapter" data-value="${c.number}"><span class="card-top"><span class="mono eyebrow">Chapter ${c.number}</span><span class="pct">${c.readiness}%</span></span>
+  return `<li><button type="button" class="card chapter-card" data-action="chapter" data-value="${c.number}"><span class="card-top"><span class="mono eyebrow" data-num="${String(c.number).padStart(2, '0')}">Chapter ${c.number}</span><span class="pct">${c.readiness}%</span></span>
     <strong class="card-title">${escape(c.title)}</strong>${bar(c)}<span class="muted small">${summary(c)}</span><span class="small card-note">${escape(c.note)}</span></button></li>`;
 }
 function recentList(progress, now) {
@@ -80,10 +84,15 @@ export function renderLibrary(chapters, questions, progress, { prefs = {}, now =
       <ul class="plain plan-list">${plan.review.length ? `<li><span class="count-chip chip-review mono">${plan.review.length}</span><span><strong>To review</strong><span class="muted"> · ${escape(plan.reviewTopics.slice(0, 3).join(', '))}</span></span></li>` : ''}${plan.fresh ? `<li><span class="count-chip chip-accent mono">${plan.fresh}</span><span><strong>Unseen</strong><span class="muted"> · ${plan.focus ? `Chapter ${plan.focus.number} · ${escape(plan.focus.title)}` : 'All five chapters'}</span></span></li>` : ''}</ul>
       <div class="actions">${plan.total ? action('Start session', 'today', 'primary large') : action('Mixed practice', 'mixed', 'primary large')}${action('Choose something else', 'chapters', 'ghost large')}</div></section>`;
   const more = [action('Mixed practice · 10', 'mixed', 'link'), action('Mock test · 20', 'mock', 'link'), total.review && action(`Review all ${total.review}`, 'missed', 'link'), flagged && action(`Flagged · ${flagged}`, 'flags', 'link')].filter(Boolean).join('<span class="sep" aria-hidden="true">·</span>');
-  return `<div class="page today"><header class="page-head"><div><p class="eyebrow">${escape(date)}</p><h1 tabindex="-1">Today</h1></div><p class="muted head-summary">${answered ? `${total.correct} correct · ${total.review} to review · ${total.unseen} unseen` : `${total.total} questions across five chapters. Nothing answered yet.`}</p></header>
-    <div class="row">${sessionCard}<section class="card ready-card" aria-labelledby="ready-title"><h2 id="ready-title">Readiness</h2><div class="ready-body">${ring(total)}${legend(total)}</div><p class="muted small">Readiness is the share of all ${total.total} questions whose latest answer is correct.</p></section></div>
+  const examLine = exam && exam.days >= 0 ? ` · exam ${exam.days === 0 ? 'today' : exam.days === 1 ? 'tomorrow' : `in ${exam.days} days`}` : '';
+  const oldest = list.length ? reviewList(questions, progress, total.review).at(-1) : null;
+  // Phones get a compact Today: one readiness row, swipeable stats, a chapter list, one review row and a start button by the thumb.
+  const ctaLabel = active ? 'Resume session' : plan.total ? 'Start today’s session' : 'Start mixed practice';
+  return `<div class="page today"><header class="page-head"><div><p class="eyebrow">${escape(date)}${escape(examLine)}</p><h1 tabindex="-1">Today</h1></div><p class="muted head-summary">${answered ? `${total.correct} correct · ${total.review} to review · ${total.unseen} unseen` : `${total.total} questions across five chapters. Nothing answered yet.`}</p></header>
+    <div class="row">${sessionCard}<section class="card ready-card desktop-only" aria-labelledby="ready-title"><h2 id="ready-title">Readiness</h2><div class="ready-body">${ring(total)}${legend(total)}</div><p class="muted small">Readiness is the share of all ${total.total} questions whose latest answer is correct.</p></section></div>
+    <section class="card ready-row mobile-only" aria-label="Readiness">${ring(total, 64)}<span class="ready-row-text"><strong>${total.readiness}% ready</strong><span class="muted small">${total.correct} correct · ${total.review} to review · ${total.unseen} unseen</span></span></section>
     <p class="more-actions"><span class="muted">Or start:</span> ${more}</p>
-    <div class="stats">
+    <div class="stats" role="region" aria-label="Your stats" tabindex="0">
       <section class="card stat" aria-label="Answered"><span class="muted">Answered</span><strong class="stat-value">${answered} <small>of ${total.total}</small></strong><span class="muted small">${Math.round(answered / total.total * 100)}% of the bank</span></section>
       <section class="card stat" aria-label="First-try accuracy"><span class="muted">First-try accuracy</span><strong class="stat-value">${ft.answered ? `${ft.rate}%` : '–'}</strong><span class="muted small">${ft.answered ? `${ft.correct} of ${ft.answered} right the first time` : 'Answer a question to start'}</span></section>
       <section class="card stat" aria-label="Study streak"><span class="muted">Study streak</span><strong class="stat-value">${st.days} <small>${st.days === 1 ? 'day' : 'days'}</small></strong><span class="muted small">${st.today ? 'You studied today' : st.days ? `Practice today to make it ${st.days + 1}` : 'Answer a question today to start one'}</span></section>
@@ -91,7 +100,9 @@ export function renderLibrary(chapters, questions, progress, { prefs = {}, now =
         <label class="date-field"><span class="${exam ? 'visually-hidden' : 'small muted'}">${exam ? 'Change exam date' : 'Add your exam date'}</span><input id="exam-date" type="date" value="${escape(prefs.examDate || '')}" data-pref></label></section></div>
     <section aria-labelledby="chapters-title" class="block"><div class="block-head"><h2 id="chapters-title">Chapters</h2><span class="muted small">${total.total} questions · ${chapters.length} chapters</span></div>
       <ul class="plain chapter-grid">${cards.map(chapterCard).join('')}</ul></section>
-    <div class="row">
+    ${total.review ? `<button type="button" class="card review-row mobile-only" data-action="missed"><span class="count-chip chip-review mono">${total.review}</span><span class="review-row-label">Review list</span><span class="muted small">${oldest ? `Oldest: ${ago(oldest.at, now)}` : ''}</span><span class="chev-right">${icon('chevron', 16)}</span></button>` : ''}
+    <div class="sticky-start mobile-only"><button type="button" class="button cta" data-action="${active ? 'resume' : plan.total ? 'today' : 'mixed'}">${ctaLabel}${icon('arrow', 18)}</button></div>
+    <div class="row desktop-only">
       <section class="card list-card" aria-labelledby="queue-title"><div class="block-head"><h2 id="queue-title">Review list</h2>${total.review ? action(`Review all ${total.review}`, 'missed', 'link') : ''}</div>
         ${list.length ? `<ul class="plain">${list.map(({ question: q, at }) => `<li class="queue-item"><span class="queue-text"><span class="mono muted small">Ch ${q.chapter} · ${escape(q.topic)} · missed ${ago(at, now)}</span><span class="clamp">${escape(q.prompt)}</span></span>${action('Retry', 'retry-one', 'outline', q.id, `aria-label="Retry ${escape(q.topic)} question ${q.id}"`)}</li>`).join('')}</ul>` : '<p class="muted empty">No misses waiting. Wrong answers land here until you get them right.</p>'}</section>
       <section class="card list-card" aria-labelledby="recent-title"><div class="block-head"><h2 id="recent-title">Recent sessions</h2>${progress.history.length ? action('All history', 'history-list', 'link') : ''}</div>${recentList(progress, now)}</section></div></div>`;
@@ -128,26 +139,38 @@ export function renderHistory(progress) {
     <section class="card list-card">${list.length ? `<ul class="plain">${list.map(s => `<li class="recent-item"><span class="recent-text"><strong>${escape(s.label)}</strong><span class="muted small">${new Date(s.finished).toLocaleString()} · ${plural(s.items.length, 'question')}</span></span><span class="mono score-pill">${scoreOf(s)}/${s.items.length}</span>${action('View results', 'history', 'outline', s.id)}</li>`).join('')}</ul>` : '<p class="muted empty">No finished sessions yet.</p>'}</section></div>`;
 }
 
+// Settings as grouped rows: one line per setting, value on the right, changes apply instantly (main.js shows a toast with Undo).
 export function renderSettings({ progress, questions, storage, prefs, backups = [], archived = 0 }) {
-  const select = (id, label, value, options) => `<label class="field">${label}<select id="${id}" data-pref>${options.map(([v, t]) => `<option value="${v}"${String(v) === String(value) ? ' selected' : ''}>${t}</option>`).join('')}</select></label>`;
-  return `<div class="page settings"><header class="page-head"><div><p class="eyebrow">Settings</p><h1 tabindex="-1">Progress, backups, and defaults</h1></div></header>
-    <section class="card panel" aria-labelledby="save-title"><h2 id="save-title">Saving</h2><p class="save-state save-${storage.tone}">${escape(storage.summary)}</p>${storage.detail ? `<p class="muted small">${escape(storage.detail)}</p>` : ''}
-      <div class="actions">${action('Export progress', 'export', 'outline')}${storage.retry ? action('Try saving again', 'retry-storage', 'outline') : ''}${storage.adopt ? action('Start a new save…', 'adopt', 'outline') : ''}</div>
-      <label class="field file-field">Import a progress backup<input id="import-progress" type="file" accept=".json,application/json"></label>
-      ${backups.length ? `<h3>Preserved copies of earlier saves</h3><ul class="plain">${backups.map(b => `<li class="recent-item"><span>${new Date(b.at).toLocaleString()} · ${Math.max(1, Math.round(b.size / 1024))} KB</span>${action('Export copy', 'export-backup', 'link', b.name)}</li>`).join('')}</ul>` : ''}</section>
-    <section class="card panel" aria-labelledby="sessions-title"><h2 id="sessions-title">Sessions</h2>
-      ${progress.active ? `<p>${escape(progress.active.label)} · question ${progress.active.index + 1} of ${progress.active.items.length}</p>` : '<p class="muted">No session in progress.</p>'}
-      ${archived ? `<p class="muted small">${plural(archived, 'earlier session')} from the midterm archive ${archived === 1 ? 'is' : 'are'} kept in your backup but not shown here.</p>` : ''}
-      <div class="actions">${progress.active ? action('Resume session', 'resume', 'outline') : ''}${action('View history', 'history-list', 'outline')}${progress.flags.length ? action(`Practice ${plural(progress.flags.length, 'flagged question')}`, 'flags', 'outline') : ''}</div></section>
-    <section class="card panel" aria-labelledby="defaults-title"><h2 id="defaults-title">Session defaults</h2><div class="options">
+  const select = (id, label, value, options) => `<li class="set-row"><label for="${id}">${label}</label><span class="set-control"><select id="${id}" data-pref>${options.map(([v, t]) => `<option value="${v}"${String(v) === String(value) ? ' selected' : ''}>${t}</option>`).join('')}</select></span></li>`;
+  const toggle = (key, label, note) => { const on = prefs[key] !== false && (key !== 'vibrate' || prefs.vibrate === true); return `<li class="set-row"><button type="button" class="switch-row" role="switch" aria-checked="${on}" data-action="toggle-pref" data-value="${key}"><span class="set-text"><span>${label}</span><span class="muted small">${note}</span></span><span class="switch" aria-hidden="true"><span></span></span></button></li>`; };
+  const link = (label, act, value = '', detail = '') => `<li class="set-row"><button type="button" class="link-row" data-action="${act}" data-value="${escape(value)}"><span>${label}</span><span class="muted">${detail}</span><span class="chev-right">${icon('chevron', 16)}</span></button></li>`;
+  const theme = prefs.theme || 'system';
+  const swatch = (v, name) => `<button type="button" class="theme-card" role="radio" aria-checked="${theme === v}" data-action="theme" data-value="${v}"><span class="theme-preview tp-${v}" aria-hidden="true"><span class="tp-card"></span><span class="tp-line tp-accent"></span><span class="tp-line"></span><span class="tp-button"></span></span><span>${name}</span></button>`;
+  return `<div class="page settings"><header class="page-head"><div><h1 tabindex="-1">Settings</h1></div></header>
+    <section class="card save-health save-${storage.tone}" aria-label="Saving"><span class="health-dot" aria-hidden="true"></span><span class="set-text"><strong>${escape(storage.title || storage.summary)}</strong><span class="muted small">${escape(storage.line || "")}</span></span>${action('Export', 'export', 'outline')}</section>
+    ${storage.tone === 'ok' ? '' : `<p class="muted small save-detail">${escape(storage.summary)}</p>`}
+    <section class="set-group" aria-labelledby="g-study"><h2 id="g-study">Study</h2><ul class="plain card set-list">
       ${select('length', 'Practice length', prefs.length, [[10, '10 questions'], [20, '20 questions'], [40, '40 questions'], ['all', 'All available']])}
       ${select('mock-length', 'Mock length', prefs.mockLength, [[20, '20 questions'], [40, '40 questions'], ['all', 'All available']])}
-      ${select('minutes', 'Mock timer', prefs.minutes, [[0, 'No timer'], [15, '15 minutes'], [30, '30 minutes'], [60, '60 minutes']])}
-      <label class="field">Exam date<input id="exam-date" type="date" value="${escape(prefs.examDate || '')}" data-pref></label></div>
-      <p class="muted small">Sessions use at most the available questions. Mocks hold feedback until you submit.</p></section>
-    <section class="card panel" aria-labelledby="look-title"><h2 id="look-title">Appearance</h2>${themeSwitch(prefs.theme || 'system')}<p class="muted small">Auto follows your device setting.</p></section>
-    <section class="card panel" aria-labelledby="keys-title"><h2 id="keys-title">Keyboard</h2><p class="muted">A–D, T/F or 1–4 select an answer. Enter checks or continues. S skips, P goes back, R flags, W opens Why?. On a chapter page, arrow keys move between its buttons.</p></section>
-    <section class="card panel" aria-labelledby="reset-title"><h2 id="reset-title">Reset</h2><p class="muted">Clears finals answers, sessions, and flags in this browser. Export first to keep them. Exam coverage, timing, and format are unspecified.</p><div class="actions">${action('Reset finals progress…', 'reset', 'danger')}</div></section></div>`;
+      ${select('minutes', 'Mock timer', prefs.minutes, [[0, 'Off'], [15, '15 minutes'], [30, '30 minutes'], [60, '60 minutes']])}
+      <li class="set-row"><label for="exam-date">Exam date</label><span class="set-control"><input id="exam-date" type="date" value="${escape(prefs.examDate || '')}" data-pref></span></li></ul></section>
+    <section class="set-group" aria-labelledby="g-look"><h2 id="g-look">Appearance</h2><div class="card theme-picker" role="radiogroup" aria-labelledby="g-look">${swatch('system', 'Auto')}${swatch('light', 'Light')}${swatch('dark', 'Dark')}</div><p class="muted small set-foot">Auto follows your device. Animations always respect your device’s reduce-motion setting.</p></section>
+    <section class="set-group" aria-labelledby="g-answer"><h2 id="g-answer">While answering</h2><ul class="plain card set-list">
+      ${toggle('keyHints', 'Show keyboard hints', 'A–D, T/F and Enter shortcuts under each question')}
+      ${toggle('celebrate', 'Celebrate correct answers', 'One soft pulse on the card, never confetti')}
+      ${toggle('vibrate', 'Vibrate on check', 'Phones that support it, mainly Android')}</ul></section>
+    <section class="set-group" aria-labelledby="g-data"><h2 id="g-data">Your data</h2><ul class="plain card set-list">
+      ${progress.active ? link('Resume session', 'resume', '', `Q${progress.active.index + 1} of ${progress.active.items.length}`) : ''}
+      ${link('History', 'history-list', '', `${progress.history.length} ${progress.history.length === 1 ? 'session' : 'sessions'}`)}
+      ${progress.flags.length ? link('Practice flagged questions', 'flags', '', String(progress.flags.length)) : ''}
+      ${link('Export progress', 'export', '', 'JSON file')}
+      <li class="set-row"><label class="link-row file-row"><span>Import a backup</span><span class="muted">Choose file</span><span class="chev-right">${icon('chevron', 16)}</span><input id="import-progress" class="file-input" type="file" accept=".json,application/json"></label></li>
+      ${storage.retry ? link('Try saving again', 'retry-storage') : ''}${storage.adopt ? link('Start a new save…', 'adopt') : ''}
+      ${backups.map(b => link(`Preserved copy · ${new Date(b.at).toLocaleDateString()}`, 'export-backup', b.name, `${Math.max(1, Math.round(b.size / 1024))} KB · export`)).join('')}</ul>
+      ${archived ? `<p class="muted small set-foot">${archived} earlier ${archived === 1 ? 'session' : 'sessions'} from the midterm archive ${archived === 1 ? 'is' : 'are'} kept in your backup but not shown here.</p>` : ''}
+      <p class="muted small set-foot">${escape(storage.detail || '')}</p></section>
+    <section class="set-group danger-zone" aria-labelledby="g-danger"><h2 id="g-danger">Danger zone</h2><div class="card set-list danger-card"><button type="button" class="link-row danger-row" data-action="reset"><span class="set-text"><span>Reset finals progress…</span><span class="muted small">Asks first. Export a backup before you reset.</span></span></button></div></section>
+    <p class="muted small set-about">CIS 4100 Final review · Chapters 7–11 · ${questions.length} questions. Exam coverage, timing, and format are unspecified. Keyboard: A–D, T/F or 1–4 select an answer; Enter checks or continues; S skips, P goes back, R flags, W opens Why?.</p></div>`;
 }
 
 function segment(item, bank, { mock, current }) {
@@ -155,38 +178,49 @@ function segment(item, bank, { mock, current }) {
     item.checked ? item.pick === q.answer ? 'ok' : 'bad' : item.skipped ? 'skip' : '';
   return `<li class="seg ${state}${current ? ' current' : ''}${item.flag ? ' flagged' : ''}"></li>`;
 }
-export function renderQuiz(session, question, { bank = null, similar = null, fresh = false } = {}) {
+export function renderQuiz(session, question, { bank = null, similar = null, fresh = false, whyOpen = false, prefs = {} } = {}) {
   const follow = session.followUp, item = follow || session.items[session.index], feedback = item.checked && (!session.mock || follow);
   const selected = follow ? item.draft ?? item.pick : session.draft ?? item.draft ?? item.pick, last = session.index === session.items.length - 1;
-  const wrong = feedback && item.pick !== question.answer;
+  const wrong = feedback && item.pick !== question.answer, celebrate = prefs.celebrate !== false;
   const choices = item.order.map((choice, position) => {
     const correct = feedback && choice === question.answer, mine = feedback && choice === item.pick, bad = mine && !correct;
     const badge = question.type === 'true-false' ? question.choices[choice][0] : 'ABCD'[position];
     const why = bad && question.whyNot?.[choice];
-    return `<li class="${correct ? 'is-correct' : ''}${bad ? ' is-wrong' : ''}"><button class="choice" type="button" data-action="pick" data-value="${choice}" aria-pressed="${selected === choice}" ${feedback ? 'disabled' : ''}${why ? ' aria-describedby="why-not"' : ''}>
-      <span class="choice-key mono" aria-hidden="true">${badge}</span><span class="choice-body">${correct || bad ? `<span class="answer-status">${icon(correct ? 'check' : 'close', 15)}${correct ? (mine ? 'Your answer · Correct' : 'Correct answer') : 'Your answer · Incorrect'}</span>` : ''}<span class="choice-text">${escape(question.choices[choice])}</span>${why ? `<span class="why-not" id="why-not">${escape(why)}</span>` : ''}</span></button></li>`;
+    return `<li class="${correct ? 'is-correct' : ''}${bad ? ' is-wrong' : ''}${correct && mine && celebrate ? ' celebrate' : ''}"><button class="choice" type="button" data-action="pick" data-value="${choice}" aria-pressed="${selected === choice}" ${feedback ? 'disabled' : ''}${why ? ' aria-describedby="why-not"' : ''}>
+      <span class="choice-key mono" aria-hidden="true">${badge}</span><span class="choice-body">${correct || bad ? `<span class="answer-status">${icon(correct ? 'check' : 'close', 15)}${correct ? (mine ? 'Your answer · Correct' : 'Correct answer') : 'Your answer · Incorrect'}</span>` : ''}<span class="choice-text">${escape(question.choices[choice])}</span>${why ? `<span class="why-not" id="why-not">${escape(why)}</span>` : ''}</span>
+      <span class="choice-mark" aria-hidden="true">${icon(bad ? 'close' : 'check', 14)}</span></button></li>`;
   }).join('');
   const strip = bank ? `<ol class="segments" aria-hidden="true">${session.items.map((i, n) => segment(i, bank, { mock: session.mock, current: n === session.index })).join('')}</ol>` : '<span></span>';
+  // A short milestone note under the progress bar: halfway and the last question.
+  const total = session.items.length, done = session.items.filter(i => i.checked).length;
+  const right = bank && !session.mock ? session.items.filter(i => i.checked && i.pick === bank.get(i.id).answer).length : null;
+  const milestone = follow || total < 4 ? '' : session.index === total - 1 ? 'Last question' : session.index === Math.floor(total / 2) ? 'Halfway there' : '';
+  const note = milestone ? `<p class="rail-note">${milestone}${right !== null && done ? ` · ${right} of ${done} correct so far` : ''}</p>` : '';
+  const keys = question.type === 'true-false' ? 'T or F' : 'A–D';
+  const hint = !feedback && prefs.keyHints !== false ? `<p class="key-hint muted small">Press ${keys} (or 1–${item.order.length}) to choose, Enter to ${session.mock ? 'save' : 'check'}.</p>` : '';
   let bottom;
-  if (feedback) bottom = `<div class="feedback sheet${wrong ? ' is-wrong' : ' is-right'}" tabindex="-1" role="status"><div class="sheet-inner"><div class="sheet-row"><span class="verdict-icon" aria-hidden="true">${icon(wrong ? 'close' : 'check', 22)}</span>
-      <div class="verdict"><h2>${wrong ? 'Not quite.' : 'Correct.'}</h2><p class="muted">${wrong ? 'Your choice and the correct answer are marked above.' : follow ? 'That idea is landing.' : 'Saved to your map as correct.'}</p></div>
+  if (feedback) bottom = `<div class="feedback sheet${wrong ? ' is-wrong' : ' is-right'}${whyOpen ? ' is-open' : ''}" tabindex="-1" role="region" aria-label="Feedback">
+      <button type="button" class="sheet-handle" data-action="why" aria-expanded="${whyOpen}" aria-controls="why-panel" aria-label="${whyOpen ? 'Hide the explanation' : 'Show the explanation'}"><span></span></button>
+      <div class="sheet-inner"><div class="sheet-row"><span class="verdict-icon" aria-hidden="true">${icon(wrong ? 'close' : 'check', 22)}</span>
+      <div class="verdict" role="status"><h2>${wrong ? 'Not quite.' : 'Correct.'}</h2><p class="muted">${wrong ? 'Your choice and the correct answer are marked above.' : follow ? 'That idea is landing.' : 'Saved to your map as correct.'}</p></div>
       <div class="sheet-actions lesson-actions">${wrong && similar && !follow ? action('Try a similar one', 'similar', 'outline') : ''}<button type="button" class="button primary" data-action="next">${follow ? `Back to question ${session.index + 1}` : 'Continue'}</button></div></div>
-      <details class="why"><summary>Why?${icon('chevron', 16)}</summary><div class="why-body"><p>${escape(question.explanation)}</p><p class="mono muted small">Source · Chapter ${question.chapter} · ${escape(question.reference)}</p></div></details>
+      <button type="button" class="why-toggle" data-action="why" aria-expanded="${whyOpen}" aria-controls="why-panel">Why?${icon('chevron', 16)}</button>
+      <div class="why-wrap"><div class="why-body" id="why-panel"><p>${escape(question.explanation)}</p><p class="mono muted small">Source · Chapter ${question.chapter} · ${escape(question.reference)}</p></div></div>
       ${wrong && !follow && !similar ? '<p class="muted small no-similar">No similar question in the bank yet. This one stays on your review list.</p>' : ''}</div></div>`;
   else if (follow) bottom = `<div class="bar-bottom"><div class="bar-inner lesson-actions">${action(`Back to question ${session.index + 1}`, 'leave-follow', 'ghost')}<span class="spacer"></span><button type="button" class="button primary" data-action="next" ${selected === null ? 'disabled' : ''}>Check answer</button></div></div>`;
   else if (session.mock) bottom = `<div class="bar-bottom"><div class="bar-inner lesson-actions">${session.index > 0 ? action('Back', 'previous', 'ghost') : ''}${item.checked ? '' : action('Skip', 'skip', 'ghost')}<span class="spacer"></span>${action('Submit mock', 'submit', 'outline')}<button type="button" class="button primary" data-action="next">${last ? 'Save' : 'Save & next'}</button></div></div>`;
-  else bottom = `<div class="bar-bottom"><div class="bar-inner lesson-actions">${action('End session…', 'submit', 'ghost')}<span class="spacer"></span>${session.index > 0 ? action('Back', 'previous', 'ghost') : ''}${action('Skip', 'skip', 'ghost')}<button type="button" class="button primary" data-action="next" ${selected === null ? 'disabled' : ''}>Check answer</button></div></div>`;
+  else bottom = `<div class="bar-bottom"><div class="bar-inner lesson-actions">${action('End session…', 'submit', 'ghost')}<span class="spacer"></span>${session.index > 0 ? action('Back', 'previous', 'ghost') : ''}${action('Skip', 'skip', 'ghost')}<button type="button" class="button primary check-button" data-action="next" ${selected === null ? 'disabled' : ''}>Check answer</button></div></div>`;
   const nav = session.mock && !follow ? `<details class="navigator card"><summary>All questions</summary><p class="muted small">Answers stay editable until you submit.</p>
       <div class="actions">${action('Next unanswered', 'next-unanswered', 'outline')}${action('Next flagged', 'next-flagged', 'outline')}</div><div class="question-grid">${session.items.map((i, n) => {
         const state = i.checked ? 'Saved' : i.draft !== null ? 'Selected' : i.skipped ? 'Skipped' : 'Unanswered';
         return `<button class="nav-question ${n === session.index ? 'current' : ''}" type="button" data-action="goto" data-value="${n}"${n === session.index ? ' aria-current="step"' : ''}>${n + 1}<small>${state}${i.flag ? ' · Flagged' : ''}</small></button>`;
       }).join('')}</div></details>` : '';
   return `<section class="lesson${fresh ? ' enter' : ''}${session.mock ? ' is-mock' : ''}"><header class="lesson-rail"><div class="rail-inner">
-      <button type="button" class="icon-button" data-action="exit" aria-label="Save and exit">${icon('close', 20)}</button>${strip}<span class="count mono">${session.index + 1} of ${session.items.length}</span>
-      ${follow ? '<span class="rail-spacer"></span>' : `<button type="button" class="button ghost flag-button" data-action="flag" aria-pressed="${item.flag}">${icon('flag', 18, item.flag ? 'fill="currentColor"' : '')}${item.flag ? 'Flagged' : 'Flag'}</button>`}</div></header>
+      <button type="button" class="icon-button" data-action="exit" aria-label="Save and exit">${icon('close', 20)}</button>${strip}<span class="count mono">${session.index + 1} of ${total}</span>
+      ${follow ? '<span class="rail-spacer"></span>' : `<button type="button" class="button ghost flag-button" data-action="flag" aria-pressed="${item.flag}">${icon('flag', 18, item.flag ? 'fill="currentColor"' : '')}${item.flag ? 'Flagged' : 'Flag'}</button>`}</div>${note}</header>
     <div class="lesson-main">${follow ? `<p class="follow-note">Similar question · not part of this session’s score. Your place is saved at question ${session.index + 1}.</p>` : ''}
       <div class="lesson-body"><p class="chips"><span class="chip mono">Chapter ${question.chapter} · ${escape(question.topic)}</span><span class="chip mono">${question.type === 'true-false' ? 'True / False' : 'Single answer'}</span>${session.mock && !follow ? '<span class="chip mono">Mock</span>' : ''}<span id="timer" class="chip mono timer" role="timer" aria-label="Time remaining"></span></p>
-      <h1 tabindex="-1">${escape(question.prompt)}</h1><ul class="plain choices" aria-label="Answers">${choices}</ul></div>${nav}</div>
+      <h1 tabindex="-1">${escape(question.prompt)}</h1><ul class="plain choices" aria-label="Answers">${choices}</ul>${hint}</div>${nav}</div>
     ${bottom}</section>`;
 }
 

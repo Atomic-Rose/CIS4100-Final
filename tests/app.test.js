@@ -117,7 +117,7 @@ test('learner: legacy save — unanswered records stop counting, real answers ar
 test('learner: wrong DMA answer shows its own rationale, a similar question, and returns to the same place',()=>{
  const c20=questions.find(q=>q.id==='C9-020'),others=questions.filter(q=>q.chapter===9&&q.topic!=='DMA').slice(0,3);
  const html=renderQuiz((()=>{const s=createSession([c20],{seed:'x'});setDraft(s,1);confirmCurrent(s);return s;})(),c20,{similar:{question:questions.find(q=>q.id==='C9-019')}});
- assert.ok(html.includes(c20.whyNot[1]));assert.ok(!html.includes(c20.whyNot[2]));assert.ok(html.includes('<summary>Why?'));assert.ok(html.includes('Try a similar one'));assert.ok(html.includes('Continue'));
+ assert.ok(html.includes(c20.whyNot[1]));assert.ok(!html.includes(c20.whyNot[2]));assert.ok(html.includes('class="why-toggle" data-action="why" aria-expanded="false"'))&&assert.ok(html.includes(c20.explanation));assert.ok(html.includes('Try a similar one'));assert.ok(html.includes('Continue'));
  const s=createSession([c20,...others],{ordered:true});setDraft(s,1);confirmCurrent(s);
  const match=similarQuestion(c20,questions,s);assert.equal(match.match,'topic');assert.equal(match.question.topic,'DMA');assert.ok(!s.items.some(i=>i.id===match.question.id));
  const before=score(s,allBank);assert.ok(startFollowUp(s,match.question));setDraft(s,match.question.answer);assert.ok(confirmCurrent(s));assert.equal(s.index,0);assert.ok(endFollowUp(s,allBank));

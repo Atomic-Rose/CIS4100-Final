@@ -90,7 +90,14 @@ h1,h2,h3,p{margin:0}h1,h2,h3{line-height:1.15;letter-spacing:-.02em;font-weight:
 .storage-warning{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 16px;padding:10px max(16px,calc((100vw - 1120px)/2));background:var(--warn-soft);border-bottom:1px solid var(--warn-line);font-size:.9375rem}
 .storage-warning .button{min-height:40px}
 .storage-warning[hidden],#notice[hidden]{display:none}.banner-actions{display:flex;gap:4px}
-#notice{padding:10px max(16px,calc((100vw - 1120px)/2));background:var(--surface);border-bottom:1px solid var(--border);font-size:.9375rem}
+/* Toast: bottom-centre, above the tab bar and the quiz sheet; Undo when the change can be reversed. */
+#notice{position:fixed;z-index:30;left:50%;bottom:24px;transform:translateX(-50%);width:max-content;max-width:min(520px,calc(100vw - 32px));display:flex;align-items:center;gap:12px;padding:10px 10px 10px 16px;border-radius:14px;background:var(--text);color:var(--bg);font-size:.9375rem;line-height:1.4;box-shadow:0 10px 30px rgb(0 0 0 / .25);animation:toast-in .22s cubic-bezier(.2,.7,.2,1)}
+#notice:not(:has(.toast-undo)){padding-right:16px}
+.toast-undo{min-height:40px;padding:0 12px;border:0;border-radius:10px;background:transparent;color:var(--bg);font-weight:650;text-decoration:underline;text-underline-offset:3px}
+.toast-undo:focus-visible{outline-color:var(--bg)}
+body[data-screen="quiz"] #notice{bottom:auto;top:72px}
+@keyframes toast-in{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
+.mobile-only{display:none!important}
 .skip-link{position:absolute;top:-100px;left:12px;z-index:20;background:var(--surface);padding:12px;border-radius:8px}.skip-link:focus{top:8px}
 
 /* Cards */
@@ -186,6 +193,44 @@ h1,h2,h3,p{margin:0}h1,h2,h3{line-height:1.15;letter-spacing:-.02em;font-weight:
 .options{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px}
 .field{display:flex;flex-direction:column;gap:6px;font-size:.875rem;font-weight:600}.file-field input{min-height:44px;border:0;padding:8px 0}
 .settings .theme-switch{max-width:320px}
+/* Grouped settings */
+.settings.page{max-width:720px}
+.save-health{display:flex;align-items:center;gap:14px;padding:16px 18px}
+.health-dot{width:10px;height:10px;flex-shrink:0;border-radius:999px;background:var(--ok);box-shadow:0 0 0 4px var(--ok-soft)}
+.save-warn .health-dot{background:var(--warn-line);box-shadow:0 0 0 4px var(--warn-soft)}
+.save-detail{margin-top:-12px;padding:0 4px}
+.set-text{flex-grow:1;display:flex;flex-direction:column;gap:2px;text-align:left}
+.set-group{display:flex;flex-direction:column;gap:8px}
+.set-group>h2{margin:0 6px;font-size:.8125rem;font-weight:600;letter-spacing:0;color:var(--text-2)}
+.set-list{overflow:hidden;padding:0}
+.set-row{display:flex;align-items:center;gap:12px;min-height:56px;padding:0 18px;border-top:1px solid var(--border);font-size:1rem}
+.set-row:first-child{border-top:0}
+.set-row>label:first-child{flex-grow:1;font-weight:500}
+.set-control select,.set-control input{min-height:40px;padding:6px 10px;border:1.5px solid var(--border-strong);border-radius:10px;background:var(--surface);color:var(--text);font-size:.9375rem}
+.switch-row,.link-row{flex-grow:1;align-self:stretch;display:flex;align-items:center;gap:12px;min-height:56px;margin:0 -18px;padding:8px 18px;border:0;background:transparent;color:var(--text);font-size:1rem;text-align:left;cursor:pointer}
+.switch-row:hover,.link-row:hover{background:var(--surface-2)}
+.link-row>span:first-child{flex-grow:1}
+.chev-right{display:inline-grid;color:var(--text-2)}.chev-right .icon{transform:rotate(-90deg)}
+.switch{flex-shrink:0;position:relative;width:50px;height:30px;border-radius:999px;background:var(--border-strong);transition:background-color .18s ease}
+.switch span{position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:999px;background:#fff;box-shadow:0 1px 3px rgb(0 0 0 / .3);transition:transform .18s cubic-bezier(.2,.8,.2,1)}
+[aria-checked="true"] .switch{background:var(--accent)}[aria-checked="true"] .switch span{transform:translateX(20px)}
+.file-row{position:relative}.file-row:focus-within{outline:2px solid var(--ring);outline-offset:-2px}
+.file-input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.theme-picker{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:16px}
+.theme-card{display:flex;flex-direction:column;align-items:center;gap:8px;padding:0;border:0;background:transparent;color:var(--text);font-weight:500}
+.theme-card[aria-checked="true"]{font-weight:650}
+.theme-preview{width:100%;height:92px;display:flex;flex-direction:column;gap:5px;padding:8px;border-radius:12px;border:1.5px solid var(--border);overflow:hidden}
+.theme-card[aria-checked="true"] .theme-preview{border:2.5px solid var(--accent)}
+.tp-light,.tp-system{background:#f6f5f1}.tp-dark{background:#0e1014}.tp-system{background:linear-gradient(135deg,#f6f5f1 50%,#0e1014 50%)}
+.tp-card{height:18px;border-radius:5px;background:#fff;border:1px solid #e2dfd7}.tp-dark .tp-card{background:#1e222b;border-color:#2e3440}
+.tp-line{height:6px;width:50%;border-radius:3px;background:#e2dfd7}.tp-dark .tp-line{background:#2e3440}
+.tp-accent{width:70%;background:#3346d3}.tp-dark .tp-accent{background:#8c9bff}
+.tp-button{margin-top:auto;height:14px;width:60%;border-radius:4px;background:#3346d3}.tp-dark .tp-button{background:#8c9bff}
+.set-foot{padding:0 6px}
+.danger-zone{margin-top:8px}.danger-zone>h2{color:var(--bad)}
+.danger-card{border:1.5px solid var(--bad)}
+.danger-row{margin:0;color:var(--bad);font-weight:600}.danger-row .muted{font-weight:400}
+.set-about{padding:0 6px 8px}
 
 /* Welcome */
 .welcome{min-height:100vh;display:flex;flex-direction:column;gap:40px;padding:24px clamp(16px,5vw,72px) 56px}
@@ -246,9 +291,34 @@ h1,h2,h3,p{margin:0}h1,h2,h3{line-height:1.15;letter-spacing:-.02em;font-weight:
 .is-wrong .verdict-icon{background:var(--bad-soft);color:var(--bad)}.is-right .verdict-icon{background:var(--ok-soft);color:var(--ok)}
 .verdict{flex:1 1 220px}.verdict h2{font-size:1.1875rem}.verdict p{font-size:.9375rem}
 .sheet-actions{display:flex;flex-wrap:wrap;gap:10px}.sheet-actions .primary{min-height:48px;padding:0 26px;font-size:1rem}.sheet-actions .outline{min-height:48px}
-.why summary{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 4px;font-weight:600;list-style:none}.why summary::-webkit-details-marker{display:none}
-.why summary .icon{transition:transform .16s ease}.why[open] summary .icon{transform:rotate(180deg)}
-.why-body{padding:16px 18px;border-radius:12px;background:var(--surface-2);display:flex;flex-direction:column;gap:8px}.why-body p:first-child{white-space:pre-line;line-height:1.6}
+/* Option card marks: an empty circle that fills with a popping check when selected. */
+.choice{position:relative}
+.choice:active:not(:disabled){transform:scale(.985)}
+.choice{transition:background-color .16s ease,border-color .16s ease,transform .12s ease,box-shadow .16s ease}
+.choice[aria-pressed="true"]:not(:disabled){box-shadow:0 4px 14px rgb(51 70 211 / .16)}
+.choice[aria-pressed="true"]:not(:disabled) .choice-key{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.choice-mark{flex-shrink:0;align-self:center;width:24px;height:24px;display:grid;place-items:center;border-radius:999px;border:2px solid var(--border-strong);color:var(--on-accent)}
+.choice-mark .icon{opacity:0;transform:scale(.4);transition:opacity .16s ease,transform .22s cubic-bezier(.2,.8,.2,1.3)}
+.choice[aria-pressed="true"] .choice-mark{background:var(--accent);border-color:var(--accent)}
+.choice[aria-pressed="true"] .choice-mark .icon,.is-correct .choice-mark .icon,.is-wrong .choice-mark .icon{opacity:1;transform:none}
+.is-correct .choice .choice-mark{background:var(--ok);border-color:var(--ok);color:var(--surface)}.is-wrong .choice .choice-mark{background:var(--bad);border-color:var(--bad);color:var(--surface)}
+.celebrate .choice{animation:pulse-ok .6s ease-out 1}
+@keyframes pulse-ok{0%{box-shadow:0 0 0 0 rgb(29 119 72 / .45)}100%{box-shadow:0 0 0 14px rgb(29 119 72 / 0)}}
+.rail-note{max-width:920px;margin:-4px auto 0;padding:0 clamp(12px,3vw,32px) 8px calc(clamp(12px,3vw,32px) + 58px);font-size:.8125rem;font-weight:600;color:var(--accent-text)}
+.key-hint{margin-top:-6px}
+@media (pointer:coarse){.key-hint{display:none}}
+.check-button:disabled{opacity:1}
+/* Feedback sheet: a handle you can tap or drag, and an explanation that unfolds without moving anything else. */
+.sheet-handle{display:none;width:100%;height:28px;border:0;background:transparent;cursor:grab;touch-action:none;place-items:center}
+.sheet-handle span{display:block;width:40px;height:5px;border-radius:999px;background:var(--border-strong)}
+.why-toggle{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 6px;margin-left:-6px;border:0;border-radius:10px;background:transparent;color:var(--text);font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.why-toggle:hover{background:var(--surface-2)}
+.why-toggle .icon{transition:transform .18s ease}.is-open .why-toggle .icon{transform:rotate(180deg)}
+.why-wrap{display:grid;grid-template-rows:0fr;transition:grid-template-rows .28s cubic-bezier(.2,.8,.2,1)}
+.why-wrap>.why-body{overflow:hidden;min-height:0;visibility:hidden;padding:0 18px;transition:visibility 0s linear .28s,padding .28s ease}
+.is-open .why-wrap{grid-template-rows:1fr}
+.is-open .why-wrap>.why-body{visibility:visible;padding:16px 18px;transition:visibility 0s,padding .28s ease}
+.why-body{border-radius:12px;background:var(--surface-2);display:flex;flex-direction:column;gap:8px}.why-body p:first-child{white-space:pre-line;line-height:1.6}
 .navigator{padding:16px 20px}.navigator summary{font-weight:600;min-height:44px;display:flex;align-items:center}
 .navigator .actions{margin:8px 0}
 .question-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:6px;margin-top:10px}
@@ -297,6 +367,41 @@ dialog .lesson-actions{display:flex;justify-content:flex-end;gap:10px;margin-top
   .answer-review summary{padding:14px 18px}.review-body{padding:0 18px 18px}
   .preview{min-height:500px}.preview-card{inset:0 0 88px 0}.welcome-top .theme-switch{width:auto}
   .stat{flex-basis:150px}
+  /* Compact Today */
+  .mobile-only{display:flex!important}.desktop-only{display:none!important}
+  .today{gap:14px}.today .page-head h1{font-size:1.875rem}
+  .today .hero-card{padding:18px;gap:10px}.today .hero-card h2{font-size:1.3125rem}
+  .today .hero-card .lede,.today .hero-card .actions{display:none}
+  .plan-list{border:0;display:flex;flex-wrap:wrap;gap:6px}.plan-list li{border:0;padding:0;font-size:.8125rem}
+  .plan-list .muted{display:none}.plan-list .count-chip{width:auto;height:auto;padding:4px 8px}
+  .ready-row{align-items:center;gap:14px;padding:12px 16px}.ring-small circle{stroke-width:7}
+  .ready-row-text{display:flex;flex-direction:column;gap:2px}.ready-row-text strong{font-size:1.0625rem}
+  .stats{flex-wrap:nowrap;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:16px;margin:0 -16px;padding:2px 16px;scrollbar-width:none}
+  .stats::-webkit-scrollbar{display:none}
+  .stats .stat{flex:0 0 156px;scroll-snap-align:start;padding:14px}.stats .stat.exam{flex-basis:210px}
+  .stat-value{font-size:1.375rem}
+  .chapter-grid{display:block;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+  .chapter-grid>li+li .chapter-card{border-top:1px solid var(--border)}
+  .chapter-card{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:6px 12px;min-height:60px;padding:10px 14px;border:0;border-radius:0;box-shadow:none}
+  .chapter-card:hover{transform:none;box-shadow:none}
+  .chapter-card .card-top{display:contents}
+  .chapter-card .eyebrow{grid-column:1;grid-row:1/3;font-size:0;letter-spacing:0}.chapter-card .eyebrow::after{content:attr(data-num);font-size:.8125rem}
+  .chapter-card .card-title{grid-column:2;grid-row:1;font-size:.9375rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .chapter-card .bar{grid-column:2;grid-row:2;height:5px}
+  .chapter-card .pct{grid-column:3;grid-row:1/3}
+  .chapter-card>.muted,.chapter-card .card-note{display:none}
+  .review-row{align-items:center;gap:12px;min-height:56px;padding:12px 16px;color:var(--text);text-align:left}
+  .review-row-label{flex-grow:1;font-weight:600}.review-row .count-chip{width:auto;min-width:36px;height:28px;padding:0 8px}
+  .sticky-start{position:fixed;left:0;right:0;bottom:calc(64px + env(safe-area-inset-bottom));z-index:9;padding:10px 16px 8px;background:linear-gradient(to bottom,transparent,var(--bg) 35%)}
+  .cta{flex-grow:1;min-height:52px;border-radius:14px;background:var(--accent);color:var(--on-accent);font-size:1.0625rem;box-shadow:0 6px 20px rgb(51 70 211 / .25)}
+  .today{padding-bottom:84px}
+  .more-actions{margin-top:0;font-size:.875rem}
+  /* Feedback sheet on phones: a real bottom sheet with a drag handle */
+  .sheet{border-radius:22px 22px 0 0;max-height:85vh}
+  .sheet-handle{display:grid}
+  .sheet .sheet-inner{padding-top:0}
+  .is-open .why-wrap>.why-body{max-height:45vh;overflow-y:auto}
+  #notice{bottom:calc(84px + env(safe-area-inset-bottom))}
 }
 @media (max-width:520px){
   .sheet-actions{width:100%}.sheet-actions .button{flex:1 1 140px}
@@ -8031,13 +8136,17 @@ const paths = {
   history: '<path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M22 20H2"/>',
   settings: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>',
   close: '<path d="M6 6l12 12M18 6 6 18"/>', check: '<path d="M20 6 9 17l-5-5"/>', flag: '<path d="M5 21V4h11l-1.5 4L16 12H5"/>',
-  chevron: '<path d="m6 9 6 6 6-6"/>', spark: '<path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/>',
+  chevron: '<path d="m6 9 6 6 6-6"/>', arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>', spark: '<path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/>',
 };
 const icon = (name, size = 20, extra = '') => `<svg class="icon" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"${extra ? ` ${extra}` : ''}>${paths[name]}</svg>`;
 const mark = (size = 28) => `<svg width="${size}" height="${size}" viewBox="0 0 28 28" aria-hidden="true" class="mark"><rect x="2" y="2" width="11" height="11" rx="3" class="m1"/><rect x="15" y="2" width="11" height="11" rx="3" class="m2"/><rect x="2" y="15" width="11" height="11" rx="3" class="m3"/><rect x="15" y="15" width="11" height="11" rx="3" class="m4"/></svg>`;
 const bar = (c, cls = '') => `<span class="bar ${cls}" aria-hidden="true"><span class="bar-correct" style="width:${(c.correct / c.total * 100).toFixed(1)}%"></span><span class="bar-review" style="width:${(c.review / c.total * 100).toFixed(1)}%"></span></span>`;
 const summary = c => c.correct + c.review === 0 ? `Not started · ${plural(c.total, 'question')}` : [c.correct && `${c.correct} correct`, c.review && `${c.review} to review`, c.unseen && `${c.unseen} unseen`].filter(Boolean).join(' · ');
 function ring(c, size = 132) {
+  if (size < 100) {
+    const r = size / 2 - 5, circ = 2 * Math.PI * r, mid = size / 2, a = c.correct / c.total * circ, b = c.review / c.total * circ;
+    return `<svg class="ring ring-small" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" aria-hidden="true"><circle cx="${mid}" cy="${mid}" r="${r}" class="ring-track"/>${c.correct ? `<circle cx="${mid}" cy="${mid}" r="${r}" class="ring-correct" stroke-dasharray="${a.toFixed(1)} ${circ.toFixed(1)}" transform="rotate(-90 ${mid} ${mid})"/>` : ''}${c.review ? `<circle cx="${mid}" cy="${mid}" r="${r}" class="ring-review" stroke-dasharray="${b.toFixed(1)} ${circ.toFixed(1)}" stroke-dashoffset="${(-a).toFixed(1)}" transform="rotate(-90 ${mid} ${mid})"/>` : ''}</svg>`;
+  }
   const r = size * .394, circ = 2 * Math.PI * r, mid = size / 2, a = c.correct / c.total * circ, b = c.review / c.total * circ;
   return `<svg class="ring" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" role="img" aria-label="Readiness ${c.readiness} percent: ${c.correct} correct, ${c.review} to review, ${c.unseen} unseen of ${c.total} questions">
     <circle cx="${mid}" cy="${mid}" r="${r.toFixed(1)}" class="ring-track"/>${c.correct ? `<circle cx="${mid}" cy="${mid}" r="${r.toFixed(1)}" class="ring-correct" stroke-dasharray="${a.toFixed(1)} ${circ.toFixed(1)}" transform="rotate(-90 ${mid} ${mid})"/>` : ''}
@@ -8073,7 +8182,7 @@ function renderStart(progress = {}, chapters = [], questions = [], { theme = 'sy
 }
 
 function chapterCard(c) {
-  return `<li><button type="button" class="card chapter-card" data-action="chapter" data-value="${c.number}"><span class="card-top"><span class="mono eyebrow">Chapter ${c.number}</span><span class="pct">${c.readiness}%</span></span>
+  return `<li><button type="button" class="card chapter-card" data-action="chapter" data-value="${c.number}"><span class="card-top"><span class="mono eyebrow" data-num="${String(c.number).padStart(2, '0')}">Chapter ${c.number}</span><span class="pct">${c.readiness}%</span></span>
     <strong class="card-title">${escape(c.title)}</strong>${bar(c)}<span class="muted small">${summary(c)}</span><span class="small card-note">${escape(c.note)}</span></button></li>`;
 }
 function recentList(progress, now) {
@@ -8095,10 +8204,15 @@ function renderLibrary(chapters, questions, progress, { prefs = {}, now = Date.n
       <ul class="plain plan-list">${plan.review.length ? `<li><span class="count-chip chip-review mono">${plan.review.length}</span><span><strong>To review</strong><span class="muted"> · ${escape(plan.reviewTopics.slice(0, 3).join(', '))}</span></span></li>` : ''}${plan.fresh ? `<li><span class="count-chip chip-accent mono">${plan.fresh}</span><span><strong>Unseen</strong><span class="muted"> · ${plan.focus ? `Chapter ${plan.focus.number} · ${escape(plan.focus.title)}` : 'All five chapters'}</span></span></li>` : ''}</ul>
       <div class="actions">${plan.total ? action('Start session', 'today', 'primary large') : action('Mixed practice', 'mixed', 'primary large')}${action('Choose something else', 'chapters', 'ghost large')}</div></section>`;
   const more = [action('Mixed practice · 10', 'mixed', 'link'), action('Mock test · 20', 'mock', 'link'), total.review && action(`Review all ${total.review}`, 'missed', 'link'), flagged && action(`Flagged · ${flagged}`, 'flags', 'link')].filter(Boolean).join('<span class="sep" aria-hidden="true">·</span>');
-  return `<div class="page today"><header class="page-head"><div><p class="eyebrow">${escape(date)}</p><h1 tabindex="-1">Today</h1></div><p class="muted head-summary">${answered ? `${total.correct} correct · ${total.review} to review · ${total.unseen} unseen` : `${total.total} questions across five chapters. Nothing answered yet.`}</p></header>
-    <div class="row">${sessionCard}<section class="card ready-card" aria-labelledby="ready-title"><h2 id="ready-title">Readiness</h2><div class="ready-body">${ring(total)}${legend(total)}</div><p class="muted small">Readiness is the share of all ${total.total} questions whose latest answer is correct.</p></section></div>
+  const examLine = exam && exam.days >= 0 ? ` · exam ${exam.days === 0 ? 'today' : exam.days === 1 ? 'tomorrow' : `in ${exam.days} days`}` : '';
+  const oldest = list.length ? reviewList(questions, progress, total.review).at(-1) : null;
+  // Phones get a compact Today: one readiness row, swipeable stats, a chapter list, one review row and a start button by the thumb.
+  const ctaLabel = active ? 'Resume session' : plan.total ? 'Start today’s session' : 'Start mixed practice';
+  return `<div class="page today"><header class="page-head"><div><p class="eyebrow">${escape(date)}${escape(examLine)}</p><h1 tabindex="-1">Today</h1></div><p class="muted head-summary">${answered ? `${total.correct} correct · ${total.review} to review · ${total.unseen} unseen` : `${total.total} questions across five chapters. Nothing answered yet.`}</p></header>
+    <div class="row">${sessionCard}<section class="card ready-card desktop-only" aria-labelledby="ready-title"><h2 id="ready-title">Readiness</h2><div class="ready-body">${ring(total)}${legend(total)}</div><p class="muted small">Readiness is the share of all ${total.total} questions whose latest answer is correct.</p></section></div>
+    <section class="card ready-row mobile-only" aria-label="Readiness">${ring(total, 64)}<span class="ready-row-text"><strong>${total.readiness}% ready</strong><span class="muted small">${total.correct} correct · ${total.review} to review · ${total.unseen} unseen</span></span></section>
     <p class="more-actions"><span class="muted">Or start:</span> ${more}</p>
-    <div class="stats">
+    <div class="stats" role="region" aria-label="Your stats" tabindex="0">
       <section class="card stat" aria-label="Answered"><span class="muted">Answered</span><strong class="stat-value">${answered} <small>of ${total.total}</small></strong><span class="muted small">${Math.round(answered / total.total * 100)}% of the bank</span></section>
       <section class="card stat" aria-label="First-try accuracy"><span class="muted">First-try accuracy</span><strong class="stat-value">${ft.answered ? `${ft.rate}%` : '–'}</strong><span class="muted small">${ft.answered ? `${ft.correct} of ${ft.answered} right the first time` : 'Answer a question to start'}</span></section>
       <section class="card stat" aria-label="Study streak"><span class="muted">Study streak</span><strong class="stat-value">${st.days} <small>${st.days === 1 ? 'day' : 'days'}</small></strong><span class="muted small">${st.today ? 'You studied today' : st.days ? `Practice today to make it ${st.days + 1}` : 'Answer a question today to start one'}</span></section>
@@ -8106,7 +8220,9 @@ function renderLibrary(chapters, questions, progress, { prefs = {}, now = Date.n
         <label class="date-field"><span class="${exam ? 'visually-hidden' : 'small muted'}">${exam ? 'Change exam date' : 'Add your exam date'}</span><input id="exam-date" type="date" value="${escape(prefs.examDate || '')}" data-pref></label></section></div>
     <section aria-labelledby="chapters-title" class="block"><div class="block-head"><h2 id="chapters-title">Chapters</h2><span class="muted small">${total.total} questions · ${chapters.length} chapters</span></div>
       <ul class="plain chapter-grid">${cards.map(chapterCard).join('')}</ul></section>
-    <div class="row">
+    ${total.review ? `<button type="button" class="card review-row mobile-only" data-action="missed"><span class="count-chip chip-review mono">${total.review}</span><span class="review-row-label">Review list</span><span class="muted small">${oldest ? `Oldest: ${ago(oldest.at, now)}` : ''}</span><span class="chev-right">${icon('chevron', 16)}</span></button>` : ''}
+    <div class="sticky-start mobile-only"><button type="button" class="button cta" data-action="${active ? 'resume' : plan.total ? 'today' : 'mixed'}">${ctaLabel}${icon('arrow', 18)}</button></div>
+    <div class="row desktop-only">
       <section class="card list-card" aria-labelledby="queue-title"><div class="block-head"><h2 id="queue-title">Review list</h2>${total.review ? action(`Review all ${total.review}`, 'missed', 'link') : ''}</div>
         ${list.length ? `<ul class="plain">${list.map(({ question: q, at }) => `<li class="queue-item"><span class="queue-text"><span class="mono muted small">Ch ${q.chapter} · ${escape(q.topic)} · missed ${ago(at, now)}</span><span class="clamp">${escape(q.prompt)}</span></span>${action('Retry', 'retry-one', 'outline', q.id, `aria-label="Retry ${escape(q.topic)} question ${q.id}"`)}</li>`).join('')}</ul>` : '<p class="muted empty">No misses waiting. Wrong answers land here until you get them right.</p>'}</section>
       <section class="card list-card" aria-labelledby="recent-title"><div class="block-head"><h2 id="recent-title">Recent sessions</h2>${progress.history.length ? action('All history', 'history-list', 'link') : ''}</div>${recentList(progress, now)}</section></div></div>`;
@@ -8143,26 +8259,38 @@ function renderHistory(progress) {
     <section class="card list-card">${list.length ? `<ul class="plain">${list.map(s => `<li class="recent-item"><span class="recent-text"><strong>${escape(s.label)}</strong><span class="muted small">${new Date(s.finished).toLocaleString()} · ${plural(s.items.length, 'question')}</span></span><span class="mono score-pill">${scoreOf(s)}/${s.items.length}</span>${action('View results', 'history', 'outline', s.id)}</li>`).join('')}</ul>` : '<p class="muted empty">No finished sessions yet.</p>'}</section></div>`;
 }
 
+// Settings as grouped rows: one line per setting, value on the right, changes apply instantly (main.js shows a toast with Undo).
 function renderSettings({ progress, questions, storage, prefs, backups = [], archived = 0 }) {
-  const select = (id, label, value, options) => `<label class="field">${label}<select id="${id}" data-pref>${options.map(([v, t]) => `<option value="${v}"${String(v) === String(value) ? ' selected' : ''}>${t}</option>`).join('')}</select></label>`;
-  return `<div class="page settings"><header class="page-head"><div><p class="eyebrow">Settings</p><h1 tabindex="-1">Progress, backups, and defaults</h1></div></header>
-    <section class="card panel" aria-labelledby="save-title"><h2 id="save-title">Saving</h2><p class="save-state save-${storage.tone}">${escape(storage.summary)}</p>${storage.detail ? `<p class="muted small">${escape(storage.detail)}</p>` : ''}
-      <div class="actions">${action('Export progress', 'export', 'outline')}${storage.retry ? action('Try saving again', 'retry-storage', 'outline') : ''}${storage.adopt ? action('Start a new save…', 'adopt', 'outline') : ''}</div>
-      <label class="field file-field">Import a progress backup<input id="import-progress" type="file" accept=".json,application/json"></label>
-      ${backups.length ? `<h3>Preserved copies of earlier saves</h3><ul class="plain">${backups.map(b => `<li class="recent-item"><span>${new Date(b.at).toLocaleString()} · ${Math.max(1, Math.round(b.size / 1024))} KB</span>${action('Export copy', 'export-backup', 'link', b.name)}</li>`).join('')}</ul>` : ''}</section>
-    <section class="card panel" aria-labelledby="sessions-title"><h2 id="sessions-title">Sessions</h2>
-      ${progress.active ? `<p>${escape(progress.active.label)} · question ${progress.active.index + 1} of ${progress.active.items.length}</p>` : '<p class="muted">No session in progress.</p>'}
-      ${archived ? `<p class="muted small">${plural(archived, 'earlier session')} from the midterm archive ${archived === 1 ? 'is' : 'are'} kept in your backup but not shown here.</p>` : ''}
-      <div class="actions">${progress.active ? action('Resume session', 'resume', 'outline') : ''}${action('View history', 'history-list', 'outline')}${progress.flags.length ? action(`Practice ${plural(progress.flags.length, 'flagged question')}`, 'flags', 'outline') : ''}</div></section>
-    <section class="card panel" aria-labelledby="defaults-title"><h2 id="defaults-title">Session defaults</h2><div class="options">
+  const select = (id, label, value, options) => `<li class="set-row"><label for="${id}">${label}</label><span class="set-control"><select id="${id}" data-pref>${options.map(([v, t]) => `<option value="${v}"${String(v) === String(value) ? ' selected' : ''}>${t}</option>`).join('')}</select></span></li>`;
+  const toggle = (key, label, note) => { const on = prefs[key] !== false && (key !== 'vibrate' || prefs.vibrate === true); return `<li class="set-row"><button type="button" class="switch-row" role="switch" aria-checked="${on}" data-action="toggle-pref" data-value="${key}"><span class="set-text"><span>${label}</span><span class="muted small">${note}</span></span><span class="switch" aria-hidden="true"><span></span></span></button></li>`; };
+  const link = (label, act, value = '', detail = '') => `<li class="set-row"><button type="button" class="link-row" data-action="${act}" data-value="${escape(value)}"><span>${label}</span><span class="muted">${detail}</span><span class="chev-right">${icon('chevron', 16)}</span></button></li>`;
+  const theme = prefs.theme || 'system';
+  const swatch = (v, name) => `<button type="button" class="theme-card" role="radio" aria-checked="${theme === v}" data-action="theme" data-value="${v}"><span class="theme-preview tp-${v}" aria-hidden="true"><span class="tp-card"></span><span class="tp-line tp-accent"></span><span class="tp-line"></span><span class="tp-button"></span></span><span>${name}</span></button>`;
+  return `<div class="page settings"><header class="page-head"><div><h1 tabindex="-1">Settings</h1></div></header>
+    <section class="card save-health save-${storage.tone}" aria-label="Saving"><span class="health-dot" aria-hidden="true"></span><span class="set-text"><strong>${escape(storage.title || storage.summary)}</strong><span class="muted small">${escape(storage.line || "")}</span></span>${action('Export', 'export', 'outline')}</section>
+    ${storage.tone === 'ok' ? '' : `<p class="muted small save-detail">${escape(storage.summary)}</p>`}
+    <section class="set-group" aria-labelledby="g-study"><h2 id="g-study">Study</h2><ul class="plain card set-list">
       ${select('length', 'Practice length', prefs.length, [[10, '10 questions'], [20, '20 questions'], [40, '40 questions'], ['all', 'All available']])}
       ${select('mock-length', 'Mock length', prefs.mockLength, [[20, '20 questions'], [40, '40 questions'], ['all', 'All available']])}
-      ${select('minutes', 'Mock timer', prefs.minutes, [[0, 'No timer'], [15, '15 minutes'], [30, '30 minutes'], [60, '60 minutes']])}
-      <label class="field">Exam date<input id="exam-date" type="date" value="${escape(prefs.examDate || '')}" data-pref></label></div>
-      <p class="muted small">Sessions use at most the available questions. Mocks hold feedback until you submit.</p></section>
-    <section class="card panel" aria-labelledby="look-title"><h2 id="look-title">Appearance</h2>${themeSwitch(prefs.theme || 'system')}<p class="muted small">Auto follows your device setting.</p></section>
-    <section class="card panel" aria-labelledby="keys-title"><h2 id="keys-title">Keyboard</h2><p class="muted">A–D, T/F or 1–4 select an answer. Enter checks or continues. S skips, P goes back, R flags, W opens Why?. On a chapter page, arrow keys move between its buttons.</p></section>
-    <section class="card panel" aria-labelledby="reset-title"><h2 id="reset-title">Reset</h2><p class="muted">Clears finals answers, sessions, and flags in this browser. Export first to keep them. Exam coverage, timing, and format are unspecified.</p><div class="actions">${action('Reset finals progress…', 'reset', 'danger')}</div></section></div>`;
+      ${select('minutes', 'Mock timer', prefs.minutes, [[0, 'Off'], [15, '15 minutes'], [30, '30 minutes'], [60, '60 minutes']])}
+      <li class="set-row"><label for="exam-date">Exam date</label><span class="set-control"><input id="exam-date" type="date" value="${escape(prefs.examDate || '')}" data-pref></span></li></ul></section>
+    <section class="set-group" aria-labelledby="g-look"><h2 id="g-look">Appearance</h2><div class="card theme-picker" role="radiogroup" aria-labelledby="g-look">${swatch('system', 'Auto')}${swatch('light', 'Light')}${swatch('dark', 'Dark')}</div><p class="muted small set-foot">Auto follows your device. Animations always respect your device’s reduce-motion setting.</p></section>
+    <section class="set-group" aria-labelledby="g-answer"><h2 id="g-answer">While answering</h2><ul class="plain card set-list">
+      ${toggle('keyHints', 'Show keyboard hints', 'A–D, T/F and Enter shortcuts under each question')}
+      ${toggle('celebrate', 'Celebrate correct answers', 'One soft pulse on the card, never confetti')}
+      ${toggle('vibrate', 'Vibrate on check', 'Phones that support it, mainly Android')}</ul></section>
+    <section class="set-group" aria-labelledby="g-data"><h2 id="g-data">Your data</h2><ul class="plain card set-list">
+      ${progress.active ? link('Resume session', 'resume', '', `Q${progress.active.index + 1} of ${progress.active.items.length}`) : ''}
+      ${link('History', 'history-list', '', `${progress.history.length} ${progress.history.length === 1 ? 'session' : 'sessions'}`)}
+      ${progress.flags.length ? link('Practice flagged questions', 'flags', '', String(progress.flags.length)) : ''}
+      ${link('Export progress', 'export', '', 'JSON file')}
+      <li class="set-row"><label class="link-row file-row"><span>Import a backup</span><span class="muted">Choose file</span><span class="chev-right">${icon('chevron', 16)}</span><input id="import-progress" class="file-input" type="file" accept=".json,application/json"></label></li>
+      ${storage.retry ? link('Try saving again', 'retry-storage') : ''}${storage.adopt ? link('Start a new save…', 'adopt') : ''}
+      ${backups.map(b => link(`Preserved copy · ${new Date(b.at).toLocaleDateString()}`, 'export-backup', b.name, `${Math.max(1, Math.round(b.size / 1024))} KB · export`)).join('')}</ul>
+      ${archived ? `<p class="muted small set-foot">${archived} earlier ${archived === 1 ? 'session' : 'sessions'} from the midterm archive ${archived === 1 ? 'is' : 'are'} kept in your backup but not shown here.</p>` : ''}
+      <p class="muted small set-foot">${escape(storage.detail || '')}</p></section>
+    <section class="set-group danger-zone" aria-labelledby="g-danger"><h2 id="g-danger">Danger zone</h2><div class="card set-list danger-card"><button type="button" class="link-row danger-row" data-action="reset"><span class="set-text"><span>Reset finals progress…</span><span class="muted small">Asks first. Export a backup before you reset.</span></span></button></div></section>
+    <p class="muted small set-about">CIS 4100 Final review · Chapters 7–11 · ${questions.length} questions. Exam coverage, timing, and format are unspecified. Keyboard: A–D, T/F or 1–4 select an answer; Enter checks or continues; S skips, P goes back, R flags, W opens Why?.</p></div>`;
 }
 
 function segment(item, bank, { mock, current }) {
@@ -8170,38 +8298,49 @@ function segment(item, bank, { mock, current }) {
     item.checked ? item.pick === q.answer ? 'ok' : 'bad' : item.skipped ? 'skip' : '';
   return `<li class="seg ${state}${current ? ' current' : ''}${item.flag ? ' flagged' : ''}"></li>`;
 }
-function renderQuiz(session, question, { bank = null, similar = null, fresh = false } = {}) {
+function renderQuiz(session, question, { bank = null, similar = null, fresh = false, whyOpen = false, prefs = {} } = {}) {
   const follow = session.followUp, item = follow || session.items[session.index], feedback = item.checked && (!session.mock || follow);
   const selected = follow ? item.draft ?? item.pick : session.draft ?? item.draft ?? item.pick, last = session.index === session.items.length - 1;
-  const wrong = feedback && item.pick !== question.answer;
+  const wrong = feedback && item.pick !== question.answer, celebrate = prefs.celebrate !== false;
   const choices = item.order.map((choice, position) => {
     const correct = feedback && choice === question.answer, mine = feedback && choice === item.pick, bad = mine && !correct;
     const badge = question.type === 'true-false' ? question.choices[choice][0] : 'ABCD'[position];
     const why = bad && question.whyNot?.[choice];
-    return `<li class="${correct ? 'is-correct' : ''}${bad ? ' is-wrong' : ''}"><button class="choice" type="button" data-action="pick" data-value="${choice}" aria-pressed="${selected === choice}" ${feedback ? 'disabled' : ''}${why ? ' aria-describedby="why-not"' : ''}>
-      <span class="choice-key mono" aria-hidden="true">${badge}</span><span class="choice-body">${correct || bad ? `<span class="answer-status">${icon(correct ? 'check' : 'close', 15)}${correct ? (mine ? 'Your answer · Correct' : 'Correct answer') : 'Your answer · Incorrect'}</span>` : ''}<span class="choice-text">${escape(question.choices[choice])}</span>${why ? `<span class="why-not" id="why-not">${escape(why)}</span>` : ''}</span></button></li>`;
+    return `<li class="${correct ? 'is-correct' : ''}${bad ? ' is-wrong' : ''}${correct && mine && celebrate ? ' celebrate' : ''}"><button class="choice" type="button" data-action="pick" data-value="${choice}" aria-pressed="${selected === choice}" ${feedback ? 'disabled' : ''}${why ? ' aria-describedby="why-not"' : ''}>
+      <span class="choice-key mono" aria-hidden="true">${badge}</span><span class="choice-body">${correct || bad ? `<span class="answer-status">${icon(correct ? 'check' : 'close', 15)}${correct ? (mine ? 'Your answer · Correct' : 'Correct answer') : 'Your answer · Incorrect'}</span>` : ''}<span class="choice-text">${escape(question.choices[choice])}</span>${why ? `<span class="why-not" id="why-not">${escape(why)}</span>` : ''}</span>
+      <span class="choice-mark" aria-hidden="true">${icon(bad ? 'close' : 'check', 14)}</span></button></li>`;
   }).join('');
   const strip = bank ? `<ol class="segments" aria-hidden="true">${session.items.map((i, n) => segment(i, bank, { mock: session.mock, current: n === session.index })).join('')}</ol>` : '<span></span>';
+  // A short milestone note under the progress bar: halfway and the last question.
+  const total = session.items.length, done = session.items.filter(i => i.checked).length;
+  const right = bank && !session.mock ? session.items.filter(i => i.checked && i.pick === bank.get(i.id).answer).length : null;
+  const milestone = follow || total < 4 ? '' : session.index === total - 1 ? 'Last question' : session.index === Math.floor(total / 2) ? 'Halfway there' : '';
+  const note = milestone ? `<p class="rail-note">${milestone}${right !== null && done ? ` · ${right} of ${done} correct so far` : ''}</p>` : '';
+  const keys = question.type === 'true-false' ? 'T or F' : 'A–D';
+  const hint = !feedback && prefs.keyHints !== false ? `<p class="key-hint muted small">Press ${keys} (or 1–${item.order.length}) to choose, Enter to ${session.mock ? 'save' : 'check'}.</p>` : '';
   let bottom;
-  if (feedback) bottom = `<div class="feedback sheet${wrong ? ' is-wrong' : ' is-right'}" tabindex="-1" role="status"><div class="sheet-inner"><div class="sheet-row"><span class="verdict-icon" aria-hidden="true">${icon(wrong ? 'close' : 'check', 22)}</span>
-      <div class="verdict"><h2>${wrong ? 'Not quite.' : 'Correct.'}</h2><p class="muted">${wrong ? 'Your choice and the correct answer are marked above.' : follow ? 'That idea is landing.' : 'Saved to your map as correct.'}</p></div>
+  if (feedback) bottom = `<div class="feedback sheet${wrong ? ' is-wrong' : ' is-right'}${whyOpen ? ' is-open' : ''}" tabindex="-1" role="region" aria-label="Feedback">
+      <button type="button" class="sheet-handle" data-action="why" aria-expanded="${whyOpen}" aria-controls="why-panel" aria-label="${whyOpen ? 'Hide the explanation' : 'Show the explanation'}"><span></span></button>
+      <div class="sheet-inner"><div class="sheet-row"><span class="verdict-icon" aria-hidden="true">${icon(wrong ? 'close' : 'check', 22)}</span>
+      <div class="verdict" role="status"><h2>${wrong ? 'Not quite.' : 'Correct.'}</h2><p class="muted">${wrong ? 'Your choice and the correct answer are marked above.' : follow ? 'That idea is landing.' : 'Saved to your map as correct.'}</p></div>
       <div class="sheet-actions lesson-actions">${wrong && similar && !follow ? action('Try a similar one', 'similar', 'outline') : ''}<button type="button" class="button primary" data-action="next">${follow ? `Back to question ${session.index + 1}` : 'Continue'}</button></div></div>
-      <details class="why"><summary>Why?${icon('chevron', 16)}</summary><div class="why-body"><p>${escape(question.explanation)}</p><p class="mono muted small">Source · Chapter ${question.chapter} · ${escape(question.reference)}</p></div></details>
+      <button type="button" class="why-toggle" data-action="why" aria-expanded="${whyOpen}" aria-controls="why-panel">Why?${icon('chevron', 16)}</button>
+      <div class="why-wrap"><div class="why-body" id="why-panel"><p>${escape(question.explanation)}</p><p class="mono muted small">Source · Chapter ${question.chapter} · ${escape(question.reference)}</p></div></div>
       ${wrong && !follow && !similar ? '<p class="muted small no-similar">No similar question in the bank yet. This one stays on your review list.</p>' : ''}</div></div>`;
   else if (follow) bottom = `<div class="bar-bottom"><div class="bar-inner lesson-actions">${action(`Back to question ${session.index + 1}`, 'leave-follow', 'ghost')}<span class="spacer"></span><button type="button" class="button primary" data-action="next" ${selected === null ? 'disabled' : ''}>Check answer</button></div></div>`;
   else if (session.mock) bottom = `<div class="bar-bottom"><div class="bar-inner lesson-actions">${session.index > 0 ? action('Back', 'previous', 'ghost') : ''}${item.checked ? '' : action('Skip', 'skip', 'ghost')}<span class="spacer"></span>${action('Submit mock', 'submit', 'outline')}<button type="button" class="button primary" data-action="next">${last ? 'Save' : 'Save & next'}</button></div></div>`;
-  else bottom = `<div class="bar-bottom"><div class="bar-inner lesson-actions">${action('End session…', 'submit', 'ghost')}<span class="spacer"></span>${session.index > 0 ? action('Back', 'previous', 'ghost') : ''}${action('Skip', 'skip', 'ghost')}<button type="button" class="button primary" data-action="next" ${selected === null ? 'disabled' : ''}>Check answer</button></div></div>`;
+  else bottom = `<div class="bar-bottom"><div class="bar-inner lesson-actions">${action('End session…', 'submit', 'ghost')}<span class="spacer"></span>${session.index > 0 ? action('Back', 'previous', 'ghost') : ''}${action('Skip', 'skip', 'ghost')}<button type="button" class="button primary check-button" data-action="next" ${selected === null ? 'disabled' : ''}>Check answer</button></div></div>`;
   const nav = session.mock && !follow ? `<details class="navigator card"><summary>All questions</summary><p class="muted small">Answers stay editable until you submit.</p>
       <div class="actions">${action('Next unanswered', 'next-unanswered', 'outline')}${action('Next flagged', 'next-flagged', 'outline')}</div><div class="question-grid">${session.items.map((i, n) => {
         const state = i.checked ? 'Saved' : i.draft !== null ? 'Selected' : i.skipped ? 'Skipped' : 'Unanswered';
         return `<button class="nav-question ${n === session.index ? 'current' : ''}" type="button" data-action="goto" data-value="${n}"${n === session.index ? ' aria-current="step"' : ''}>${n + 1}<small>${state}${i.flag ? ' · Flagged' : ''}</small></button>`;
       }).join('')}</div></details>` : '';
   return `<section class="lesson${fresh ? ' enter' : ''}${session.mock ? ' is-mock' : ''}"><header class="lesson-rail"><div class="rail-inner">
-      <button type="button" class="icon-button" data-action="exit" aria-label="Save and exit">${icon('close', 20)}</button>${strip}<span class="count mono">${session.index + 1} of ${session.items.length}</span>
-      ${follow ? '<span class="rail-spacer"></span>' : `<button type="button" class="button ghost flag-button" data-action="flag" aria-pressed="${item.flag}">${icon('flag', 18, item.flag ? 'fill="currentColor"' : '')}${item.flag ? 'Flagged' : 'Flag'}</button>`}</div></header>
+      <button type="button" class="icon-button" data-action="exit" aria-label="Save and exit">${icon('close', 20)}</button>${strip}<span class="count mono">${session.index + 1} of ${total}</span>
+      ${follow ? '<span class="rail-spacer"></span>' : `<button type="button" class="button ghost flag-button" data-action="flag" aria-pressed="${item.flag}">${icon('flag', 18, item.flag ? 'fill="currentColor"' : '')}${item.flag ? 'Flagged' : 'Flag'}</button>`}</div>${note}</header>
     <div class="lesson-main">${follow ? `<p class="follow-note">Similar question · not part of this session’s score. Your place is saved at question ${session.index + 1}.</p>` : ''}
       <div class="lesson-body"><p class="chips"><span class="chip mono">Chapter ${question.chapter} · ${escape(question.topic)}</span><span class="chip mono">${question.type === 'true-false' ? 'True / False' : 'Single answer'}</span>${session.mock && !follow ? '<span class="chip mono">Mock</span>' : ''}<span id="timer" class="chip mono timer" role="timer" aria-label="Time remaining"></span></p>
-      <h1 tabindex="-1">${escape(question.prompt)}</h1><ul class="plain choices" aria-label="Answers">${choices}</ul></div>${nav}</div>
+      <h1 tabindex="-1">${escape(question.prompt)}</h1><ul class="plain choices" aria-label="Answers">${choices}</ul>${hint}</div>${nav}</div>
     ${bottom}</section>`;
 }
 
@@ -8256,12 +8395,23 @@ let progress = loaded.progress, screen = 'start', currentChapter = 7, result, re
 // Storage state. canWrite=false means writing could destroy something we could not read (or storage is blocked).
 let storageStatus = loaded.status, canWrite = loaded.writable, writeFailed = false, dirty = false, retryTimer = null;
 const prefsKey = `${key}.prefs`;
-let prefs = { length: 10, mockLength: 20, minutes: 0 };
+let prefs = { length: 10, mockLength: 20, minutes: 0, keyHints: true, celebrate: true, vibrate: false };
+let lastSavedAt = null, whyOpen = false, toastTimer = null, dragStart = null, suppressClick = false;
 try { prefs = { ...prefs, ...JSON.parse(localStorage.getItem(prefsKey) || '{}') }; } catch {}
 const parkedArchive = parkArchiveSession(progress, bank);
 const answeredIds = () => new Set(Object.entries(progress.latest).filter(([,r]) => r.status === 'answered').map(([id]) => id));
 
+function savedAgo() {
+  if (!lastSavedAt) return 'nothing changed yet this visit';
+  const s = Math.round((Date.now() - lastSavedAt) / 1000);
+  return s < 45 ? 'just now' : s < 3600 ? `${Math.round(s / 60)} min ago` : new Date(lastSavedAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+}
 function storageInfo() {
+  const info = baseStorageInfo();
+  if (info.tone === 'ok') return { ...info, title: 'Saving automatically', line: lastSavedAt ? `Last saved ${savedAgo()} · this browser` : 'Up to date · this browser' };
+  return { ...info, title: storageStatus === 'blocked' || storageStatus === 'unreadable' ? 'Not saving · in memory only' : 'Save failed · retrying', line: 'Export to keep this visit’s progress' };
+}
+function baseStorageInfo() {
   const exportNote = 'Export saves a JSON backup you can import later.';
   if (storageStatus === 'blocked') return { tone: 'warn', summary: 'Not saving. This browser is blocking storage for this page, so progress from this visit is in memory only and will be lost when the page closes or reloads.', detail: exportNote, retry: true, banner: 'Progress is not being saved: this browser is blocking storage for this page. Export before you close or reload.' };
   if (storageStatus === 'unreadable') return { tone: 'warn', summary: 'Not saving. Your saved progress could not be read, so it has been left untouched. Progress from this visit is in memory only.', detail: `Start a new save keeps a copy of the unreadable data under Preserved copies. ${exportNote}`, adopt: true, banner: 'Your saved progress could not be read and has been left untouched. This visit is in memory only. Export to keep it.' };
@@ -8277,12 +8427,28 @@ function renderBanner() {
 function save() {
   dirty = true;
   if (canWrite) {
-    if (saveProgress(progress)) { dirty = false; if (writeFailed) { writeFailed = false; say('Saved. Your progress is back in this browser.'); } }
+    if (saveProgress(progress)) { dirty = false; lastSavedAt = Date.now(); if (writeFailed) { writeFailed = false; say('Saved. Your progress is back in this browser.'); } }
     else { writeFailed = true; clearTimeout(retryTimer); retryTimer = setTimeout(() => { if (writeFailed) save(); }, 4000); }
   }
   renderBanner();
 }
-function say(message) { notice.textContent = message; notice.hidden = false; }
+// Toast: a short status message at the bottom of the screen, optionally with Undo. It hides itself after a few seconds.
+function say(message, { undo = null, duration = 5000 } = {}) {
+  notice.textContent = message; notice.hidden = false;
+  if (undo && document.createElement && notice.append) {
+    const button = document.createElement('button'); button.type = 'button'; button.className = 'toast-undo'; button.textContent = 'Undo';
+    button.addEventListener('click', () => { undo(); notice.hidden = true; }); notice.append(button);
+  }
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { notice.hidden = true; }, duration);
+}
+// The feedback sheet's explanation opens and closes in place (no re-render, so nothing jumps).
+function setWhy(open) {
+  whyOpen = open;
+  const sheet = root.querySelector('.sheet'); if (!sheet?.classList) return;
+  sheet.classList.toggle('is-open', open);
+  for (const b of root.querySelectorAll('[data-action="why"]')) b.setAttribute('aria-expanded', String(open));
+  root.querySelector('.sheet-handle')?.setAttribute('aria-label', open ? 'Hide the explanation' : 'Show the explanation');
+}
 function ask(title, message, label, callback) {
   originFocus = document.activeElement;
   document.querySelector('#confirm-title').textContent = title;
@@ -8319,7 +8485,8 @@ function render(focus='heading') {
   if(screen==='quiz') {
     const item=currentItem(session), q=bank.get(item.id), questionKey=`${session.id}:${session.index}:${session.followUp?.id||''}`;
     const similar=!session.mock&&!session.followUp&&item.checked&&item.pick!==q.answer?similarQuestion(q,questions,session,answeredIds()):null;
-    root.innerHTML=renderQuiz(session,q,{bank,similar,fresh:questionKey!==lastQuestionKey});lastQuestionKey=questionKey;
+    const fresh=questionKey!==lastQuestionKey; if(fresh||!item.checked) whyOpen=false;
+    root.innerHTML=renderQuiz(session,q,{bank,similar,fresh,whyOpen,prefs});lastQuestionKey=questionKey;
   }
   if(screen==='results') root.innerHTML=wrap(renderResults(result,recommendation,resultLabel,{progress:scoped,chapters,questions,session:resultSession}));
   if(focus==='feedback') { const f=root.querySelector('.feedback'); f?.focus({preventScroll:true}); reveal(root.querySelector('.choices .is-wrong')||root.querySelector('.choices .is-correct')); }
@@ -8369,6 +8536,8 @@ function pick(choice) {
   const next=root.querySelector('[data-action="next"]'); if(next) next.disabled=false;
   updateCurrentStatus();save();
 }
+// Optional haptic tick after checking (browsers without the Vibration API, such as iOS Safari, ignore it).
+function buzz(item) { if(prefs.vibrate) try{ navigator.vibrate?.(item.pick===bank.get(item.id).answer?15:[25,60,25]); }catch{} }
 function updateCurrentStatus() {
   const s=progress.active,item=s.items[s.index];
   const status=root.querySelector(`[data-action="goto"][data-value="${s.index}"] small`);
@@ -8379,7 +8548,7 @@ function step(action) {
   if(s.followUp) {
     const f=s.followUp;
     if(action!=='next') return;
-    if(!f.checked) { if(confirmCurrent(s)) { recordItem(progress,s,f,bank);save();render('feedback'); } return; }
+    if(!f.checked) { if(confirmCurrent(s)) { recordItem(progress,s,f,bank);buzz(f);save();render('feedback'); } return; }
     endFollowUp(s,bank);save();render();say(`Back to question ${s.index+1} of ${s.items.length}.`);return;
   }
   const item=s.items[s.index];
@@ -8388,7 +8557,7 @@ function step(action) {
     if(item.checked) return;
     item.skipped=true;item.draft=null;s.draft=null;
   } else if(!s.mock&&!item.checked) {
-    if(confirmCurrent(s)) { recordItem(progress,s,item,bank);save();render('feedback'); }
+    if(confirmCurrent(s)) { recordItem(progress,s,item,bank);buzz(item);save();render('feedback'); }
     return;
   } else if(s.mock) confirmCurrent(s);
   if(s.index===s.items.length-1) {save();render('none');submit();return;}
@@ -8417,7 +8586,7 @@ async function importProgress(file,legacy) {
       if(!makeWritable()) say('Imported for this visit only: storage is not available, so the import is in memory.');
       save();show('library');if(canWrite)say('Progress imported.');
     });
-  } catch(error) {say(`Import rejected; current progress was kept. ${error.message}`);}
+  } catch(error) {say(`Import rejected; current progress was kept. ${error.message}`,{duration:10000});}
 }
 root.addEventListener('change',event=>{
   const target=event.target;
@@ -8438,7 +8607,13 @@ function onAction(action, value, button) {
     case 'chapter':if(chapters.some(c=>c.number===Number(value))){currentChapter=Number(value);show('chapter');}break;
     case 'chapters':show('chapters');break;
     case 'history-list':show('history');break;
-    case 'theme':prefs.theme=['light','dark'].includes(value)?value:'system';savePrefs();applyTheme();render('[data-action="theme"][aria-pressed="true"]');break;
+    case 'theme':{const before=prefs.theme||'system',next=['light','dark'].includes(value)?value:'system';if(before===next)break;
+      const applyChoice=v=>{prefs.theme=v;savePrefs();applyTheme();render(`[data-action="theme"][data-value="${v}"]`);};
+      applyChoice(next);say(`Appearance: ${{system:'Auto',light:'Light',dark:'Dark'}[next]} · saved`,{undo:()=>applyChoice(before)});break;}
+    case 'toggle-pref':{if(!['keyHints','celebrate','vibrate'].includes(value))break;const was=value==='vibrate'?prefs.vibrate===true:prefs[value]!==false;
+      const set=v=>{prefs[value]=v;savePrefs();render(`[data-action="toggle-pref"][data-value="${value}"]`);};
+      set(!was);say(`${button?.querySelector?.('.set-text span')?.textContent||'Setting'} ${!was?'on':'off'} · saved`,{undo:()=>set(was)});break;}
+    case 'why':if(suppressClick){suppressClick=false;break;}setWhy(!whyOpen);break;
     case 'exam':show('library');root.querySelector('#exam-date')?.focus();break;
     case 'today':{const plan=todayPlan(chapters,questions,scopeProgress(progress,bank));const pool=pickPlan(plan);if(pool.length)start(pool,{label:'Today’s session',size:pool.length,ordered:true});else start(finalsQuestions,{...options(),label:'Mixed practice'});break;}
     case 'retry-one':{const q=bank.get(value);if(q&&isFinals(q))start([q],{label:`Retry · ${q.topic}`});break;}
@@ -8481,6 +8656,12 @@ root.addEventListener('click',event=>{
   const button=event.target.closest('button[data-action]');if(!button) return;
   onAction(button.dataset.action,button.dataset.value,button);
 });
+// Drag the feedback sheet's handle: up opens the explanation, down closes it. A plain tap toggles (via the click handler).
+root.addEventListener('pointerdown',event=>{ if(event.target.closest?.('.sheet-handle')) dragStart=event.clientY; });
+root.addEventListener('pointerup',event=>{
+  if(dragStart===null) return; const dy=event.clientY-dragStart; dragStart=null;
+  if(Math.abs(dy)>12){ suppressClick=true; setWhy(dy<0); setTimeout(()=>{suppressClick=false;},400); }
+});
 banner.addEventListener('click',event=>{
   const button=event.target.closest?.('button[data-action]');if(button) onAction(button.dataset.action,button.dataset.value,button);
 });
@@ -8499,7 +8680,7 @@ document.addEventListener('keydown',event=>{
   else if(key==='s'&&!item.checked&&!follow){event.preventDefault();step('skip');}
   else if(key==='p'&&s.index>0&&!follow){event.preventDefault();step('previous');}
   else if(key==='r'&&!follow){event.preventDefault();root.querySelector('[data-action="flag"]')?.click();}
-  else if(key==='w'){const why=root.querySelector('details.why');if(why){event.preventDefault();why.open=!why.open;}}
+  else if(key==='w'&&root.querySelector('.sheet')){event.preventDefault();setWhy(!whyOpen);}
 });
 function tick() {
   const s=progress.active;if(!s?.deadline||!isFinalsSession(s,bank)) return;
