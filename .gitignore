@@ -1,0 +1,8 @@
+node_modules/
+dist/
+sources/
+.DS_Store
+*.pdf
+*.pptx
+*.ppt
+*.zip

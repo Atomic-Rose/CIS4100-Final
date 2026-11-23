@@ -1,0 +1,17 @@
+{
+  "name": "smartprep-finals",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "node scripts/serve.mjs",
+    "test": "node --test tests/*.test.js",
+    "import:midterm": "node scripts/import-midterm.mjs",
+    "build": "node scripts/build-offline.mjs",
+    "pretest": "node scripts/build-offline.mjs",
+    "coverage": "node scripts/report-bank.mjs"
+  }
+}

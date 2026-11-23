@@ -1,0 +1,17 @@
+:root {
+  color-scheme: light;
+  --canvas: #f4f4f2;
+  --paper: #fff;
+  --ink: #0f1216;
+  --quiet: #505a66;
+  --line: #d6d8d3;
+  --accent: #2346d1;
+  --accent-hover: #1939b6;
+  --selected: #edf0ff;
+  --correct: #145b37;
+  --correct-bg: #e8f5ed;
+  --wrong: #9d2b22;
+  --wrong-bg: #fbecea;
+  --radius: 12px;
+  --font: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+}
