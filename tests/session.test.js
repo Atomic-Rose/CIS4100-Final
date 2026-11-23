@@ -4,7 +4,7 @@ import {questions} from '../src/data/questions.js';
 import {archiveQuestions} from '../src/data/archive.js';
 import {balancedSample,createSession,setDraft,confirmCurrent,navigate,score,recommend,recordItem,finishSession,savedMocks,mockOverlap,cramPool} from '../src/logic/session.js';
 import {freshProgress,loadProgress,saveProgress,validateProgress,importLegacy,key} from '../src/logic/storage.js';
-import {renderQuiz,renderLibrary,renderResults} from '../src/views/screens.js';
+import {renderQuiz,renderLibrary,renderResults,renderSettings} from '../src/views/screens.js';
 import {chapters} from '../src/data/chapters.js';
 const all=[...questions,...archiveQuestions],bank=new Map(all.map(q=>[q.id,q]));
 test('bank integrity: stable IDs, canonical zero, two formats, provenance and balanced T/F',()=>{
@@ -41,11 +41,11 @@ test('first attempts stay fixed, correct retries clear latest missed and repeate
  p.active=createSession([q]);setDraft(p.active,q.answer);confirmCurrent(p.active);recordItem(p,p.active,p.active.items[0],bank);finishSession(p,bank);
  assert.equal(p.first[q.id].correct,false);assert.equal(p.latest[q.id].correct,true);assert.deepEqual(p.retries,{correct:1,total:1});
 });
-test('finalized skips and unanswered are distinct and tracked as first outcomes',()=>{
- const p=freshProgress();p.active=createSession(questions,{size:2});p.active.items[0].skipped=true;const ids=p.active.items.map(i=>i.id),r=finishSession(p,bank);assert.equal(r.unanswered,2);assert.equal(r.skipped,1);assert.equal(p.first[ids[0]].status,'skipped');assert.equal(p.first[ids[1]].status,'unanswered');
+test('finalized skips and unanswered are distinct in results but never become progress',()=>{
+ const p=freshProgress();p.active=createSession(questions,{size:2});p.active.items[0].skipped=true;const r=finishSession(p,bank);assert.equal(r.unanswered,2);assert.equal(r.skipped,1);assert.deepEqual(p.first,{});assert.deepEqual(p.latest,{});assert.equal(p.history.length,1);
 });
 test('recommendation prefers globally unseen same-topic items and falls back to missed',()=>{
- const q=questions.find(q=>questions.filter(x=>x.chapter===q.chapter&&x.topic===q.topic).length>1),entries=[{question:q,pick:null,correct:false}];
+ const q=questions.find(q=>questions.filter(x=>x.chapter===q.chapter&&x.topic===q.topic).length>1),entries=[{question:q,pick:(q.answer+1)%q.choices.length,correct:false,status:'answered'}];assert.equal(recommend([{question:q,pick:null,correct:false,status:'unanswered'}],questions),null);
  const fresh=recommend(entries,questions);assert.ok(fresh.fresh);assert.ok(fresh.pool.every(x=>x.id!==q.id&&x.topic===q.topic));const retry=recommend(entries,questions,new Set(questions.map(q=>q.id)));assert.equal(retry.fresh,false);assert.deepEqual(retry.pool,[q]);assert.equal(recommend([{...entries[0],correct:true}],questions),null);
 });
 test('six deterministic saved mocks are balanced and have measured zero overlap',()=>{
@@ -65,8 +65,8 @@ test('progress round trips with absolute deadline, flags, mappings and drafts',(
 test('storage handles corruption and denied writes without overwriting the original',()=>{
  const original=Object.getOwnPropertyDescriptor(globalThis,'localStorage'),values=new Map();
  Object.defineProperty(globalThis,'localStorage',{configurable:true,value:{getItem:k=>values.get(k),setItem:(k,v)=>values.set(k,v)}});
- try{const p=freshProgress();p.active=createSession(questions,{size:2});assert.ok(saveProgress(p));assert.deepEqual(loadProgress(bank),{progress:p,writable:true});values.set(key,'{broken');assert.equal(loadProgress(bank).writable,false);assert.equal(values.get(key),'{broken');
- Object.defineProperty(globalThis,'localStorage',{configurable:true,value:{getItem(){throw Error('blocked')},setItem(){throw Error('blocked')}}});assert.equal(loadProgress(bank).writable,false);assert.equal(saveProgress(p),false);
+ try{const p=freshProgress();p.active=createSession(questions,{size:2});assert.ok(saveProgress(p));const ok=loadProgress(bank);assert.deepEqual(ok.progress,p);assert.equal(ok.status,'ok');assert.equal(ok.writable,true);values.set(key,'{broken');const bad=loadProgress(bank);assert.equal(bad.writable,false);assert.equal(bad.status,'unreadable');assert.equal(values.get(key),'{broken');
+ Object.defineProperty(globalThis,'localStorage',{configurable:true,value:{getItem(){throw Error('blocked')},setItem(){throw Error('blocked')}}});assert.equal(loadProgress(bank).writable,false);assert.equal(loadProgress(bank).status,'blocked');assert.equal(saveProgress(p),false);
  }finally{if(original)Object.defineProperty(globalThis,'localStorage',original);else delete globalThis.localStorage;}
 });
 test('starter v1 progress migrates without inventing first-attempt history',()=>{
@@ -80,7 +80,7 @@ test('legacy content IDs stay fixed; separate progress import preserves first an
 });
 test('views expose native controls, no-feedback mocks and expandable answer review',()=>{
  const s=createSession(questions,{size:1}),q=bank.get(s.items[0].id);let html=renderQuiz(s,q);assert.ok(html.includes('Check answer'));setDraft(s,q.answer);confirmCurrent(s);html=renderQuiz(s,q);assert.ok(html.includes(q.explanation));assert.ok(html.includes('Chapter '+q.chapter));
- const r=score(s,bank);assert.ok(renderResults(r,null).includes('<details>'));const library=renderLibrary(chapters,questions,freshProgress(),mockOverlap(savedMocks(questions)));assert.ok(library.includes('Session options'));assert.ok(library.includes('Exam coverage, timing, and format are unspecified'));
+ const r=score(s,bank);assert.ok(renderResults(r,null).includes('<details>'));const library=renderLibrary(chapters,questions,freshProgress());assert.ok(library.includes('data-action="settings"'));const settings=renderSettings({progress:freshProgress(),questions,storage:{tone:'ok',summary:'Saving'},prefs:{length:10,mockLength:20,minutes:0}});assert.ok(settings.includes('Practice length'));assert.ok(settings.includes('Exam coverage, timing, and format are unspecified'));
 });
 test('worked calculation answers are independently checked',()=>{
  const byId=new Map(questions.map(q=>[q.id,q]));

@@ -29,46 +29,72 @@ export function createSession(pool, { label = 'Practice', mock = false, size = p
   return { id: `${started}-${Math.random().toString(36).slice(2)}`, label, mock, seed: String(seed), started,
     deadline: minutes > 0 ? started + minutes * 60000 : null, index: 0, draft: null,
     items: selected.map(q => ({ id: q.id, order: q.type === 'true-false' ? [0, 1] : shuffle(q.choices.map((_, i) => i), random),
-      pick: null, draft: null, checked: false, skipped: false, flag: false, recorded: false })) };
+      pick: null, draft: null, checked: false, skipped: false, flag: false, recorded: false, shown: false })) };
 }
+// A follow-up ("Try a similar one") temporarily replaces the current item without moving the session.
+export const currentItem = session => session.followUp || session.items[session.index];
 export function setDraft(session, pick) {
-  const item = session.items[session.index];
-  if (item.checked && !session.mock || !item.order.includes(pick)) return false;
-  item.draft = pick; session.draft = pick; return true;
+  const item = currentItem(session), follow = !!session.followUp;
+  if (item.checked && (follow || !session.mock) || !item.order.includes(pick)) return false;
+  item.draft = pick; if (!follow) session.draft = pick; return true;
 }
 export function confirmCurrent(session) {
-  const item = session.items[session.index], pick = session.draft ?? item.draft;
-  if (pick === null || item.checked && !session.mock || !item.order.includes(pick)) return false;
-  item.pick = pick; item.checked = true; item.skipped = false; item.draft = null; session.draft = null; return true;
+  const follow = !!session.followUp, item = currentItem(session), pick = follow ? item.draft : session.draft ?? item.draft;
+  if (pick === null || item.checked && (follow || !session.mock) || !item.order.includes(pick)) return false;
+  item.pick = pick; item.checked = true; item.skipped = false; item.draft = null; if (!follow) session.draft = null; return true;
 }
 export function navigate(session, index) {
   if (!Number.isInteger(index) || index < 0 || index >= session.items.length) return false;
   if (session.mock) confirmCurrent(session);
-  session.index = index; session.draft = session.items[index].draft; return true;
+  session.index = index; session.draft = session.items[index].draft; session.items[index].shown = true; return true;
 }
 export function score(session, bank) {
   const entries = session.items.map(item => {
     const question = bank.get(item.id), pick = item.checked ? item.pick : null;
-    return { question, pick, correct: pick === question.answer, status: pick !== null ? 'answered' : item.skipped ? 'skipped' : 'unanswered' };
+    return { question, pick, correct: pick === question.answer, status: pick !== null ? 'answered' : item.skipped ? 'skipped' : 'unanswered', shown: item.shown !== false || pick !== null };
   });
   return { entries, correct: entries.filter(e => e.correct).length, unanswered: entries.filter(e => e.pick === null).length,
     skipped: entries.filter(e => e.status === 'skipped').length, total: entries.length };
 }
 export function recommend(entries, questions, seen = new Set()) {
-  const missed = entries.filter(e => !e.correct);
+  const missed = entries.filter(e => e.status === 'answered' && !e.correct);
+  if (!missed.length) return null;
   const topics = Map.groupBy(missed, ({ question: q }) => `${q.chapter}:${q.topic}`);
   const top = [...topics.values()].sort((a, b) => b.length - a.length)[0];
-  if (!top) return null;
   const { chapter, topic } = top[0].question;
   const used = new Set([...seen, ...entries.map(e => e.question.id)]);
+  const single = new Set(entries.map(e => `${e.question.chapter}:${e.question.topic}`)).size === 1;
+  const concepts = new Set(missed.map(e => e.question.concept).filter(Boolean));
+  const conceptPool = questions.filter(q => q.concept && concepts.has(q.concept) && !used.has(q.id));
   const fresh = questions.filter(q => q.chapter === chapter && q.topic === topic && !used.has(q.id));
-  return { chapter, topic, missed: top.length, total: entries.filter(e => e.question.chapter === chapter && e.question.topic === topic).length,
-    fresh: fresh.length > 0, pool: fresh.length ? fresh : top.map(e => e.question) };
+  return { chapter, topic, single, missed: top.length, missedAll: missed.map(e => e.question),
+    total: entries.filter(e => e.status === 'answered' && e.question.chapter === chapter && e.question.topic === topic).length,
+    fresh: fresh.length > 0, pool: fresh.length ? fresh : top.map(e => e.question), conceptPool };
+}
+// Similar question: same concept first, then same topic; never one already in this session or used as a follow-up.
+export function similarQuestion(question, questions, session, answered = new Set()) {
+  const taken = new Set([...session.items.map(i => i.id), ...(session.followUps || []).map(f => f.id)]);
+  const open = questions.filter(q => q.id !== question.id && !taken.has(q.id) && q.chapter === question.chapter);
+  const unseenFirst = list => [...list.filter(q => !answered.has(q.id)), ...list.filter(q => answered.has(q.id))];
+  const tiers = [question.concept ? open.filter(q => q.concept === question.concept) : [], open.filter(q => q.topic === question.topic && q.concept !== question.concept)];
+  for (const [index, tier] of tiers.entries()) { const pick = unseenFirst(tier)[0]; if (pick) return { question: pick, match: index === 0 ? 'concept' : 'topic' }; }
+  return null;
+}
+export function startFollowUp(session, question, random = Math.random) {
+  if (session.mock || session.followUp) return false;
+  session.followUp = { id: question.id, order: question.type === 'true-false' ? [0, 1] : shuffle(question.choices.map((_, i) => i), random),
+    pick: null, draft: null, checked: false, skipped: false, flag: false, recorded: false, shown: true, from: session.index };
+  return true;
+}
+export function endFollowUp(session, bank) {
+  const f = session.followUp; if (!f) return false;
+  if (f.checked) (session.followUps ??= []).push({ id: f.id, correct: f.pick === bank.get(f.id).answer, from: f.from });
+  session.followUp = null; return true;
 }
 export function recordItem(progress, session, item, bank, final = false) {
-  if (item.recorded || !final && (session.mock || !item.checked)) return;
-  const correct = item.checked && item.pick === bank.get(item.id).answer;
-  const outcome = { correct, status: item.checked ? 'answered' : item.skipped ? 'skipped' : 'unanswered', at: Date.now() };
+  if (item.recorded || !item.checked || !final && session.mock) return;
+  const correct = item.pick === bank.get(item.id).answer;
+  const outcome = { correct, status: 'answered', at: Date.now() };
   if (!progress.first[item.id]) progress.first[item.id] = { ...outcome };
   else { progress.retries.total++; if (correct) progress.retries.correct++; }
   progress.latest[item.id] = outcome;
@@ -77,6 +103,7 @@ export function recordItem(progress, session, item, bank, final = false) {
 export function finishSession(progress, bank, reason = 'submitted') {
   const s = progress.active;
   if (!s) return null;
+  if (s.followUp) endFollowUp(s, bank);
   if (s.mock) confirmCurrent(s);
   for (const item of s.items) recordItem(progress, s, item, bank, true);
   for (const item of s.items) item.draft = null;

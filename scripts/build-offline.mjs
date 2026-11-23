@@ -19,7 +19,9 @@ async function bundle(file) {
 }
 await bundle('src/main.js');
 let html=await readFile(path.join(root,'index.html'),'utf8');
-for(const file of ['styles/tokens.css','styles/app.css']) html=html.replace(`<link rel="stylesheet" href="./${file}">`,`<style>${await readFile(path.join(root,file),'utf8')}</style>`);
+// Fonts are inlined as data URIs so the single file needs nothing at runtime.
+async function inlineFonts(css){for(const m of [...css.matchAll(/url\("(fonts\/[\w.-]+\.woff2)"\)/g)])css=css.replace(m[0],`url("data:font/woff2;base64,${(await readFile(path.join(root,'styles',m[1]))).toString('base64')}")`);return css;}
+for(const file of ['styles/tokens.css','styles/app.css']) html=html.replace(`<link rel="stylesheet" href="./${file}">`,`<style>${await inlineFonts(await readFile(path.join(root,file),'utf8'))}</style>`);
 html=html.replace('<script type="module" src="./src/main.js"></script>','');
 html=html.replace('</body>',`<script>${code.join('\n').replace(/<\/script/gi,'<\\/script')}</script></body>`);
 await mkdir(path.join(root,'offline'),{recursive:true});

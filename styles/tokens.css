@@ -1,17 +1,27 @@
+/* Geist and Geist Mono (SIL Open Font License 1.1, see fonts/OFL-Geist.txt). Bundled locally; the offline build inlines them. */
+@font-face { font-family: "Geist"; src: url("fonts/Geist-Variable.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+@font-face { font-family: "Geist Mono"; src: url("fonts/GeistMono-Variable.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
 :root {
   color-scheme: light;
-  --canvas: #f4f4f2;
-  --paper: #fff;
-  --ink: #0f1216;
-  --quiet: #505a66;
-  --line: #d6d8d3;
-  --accent: #2346d1;
-  --accent-hover: #1939b6;
-  --selected: #edf0ff;
-  --correct: #145b37;
-  --correct-bg: #e8f5ed;
-  --wrong: #9d2b22;
-  --wrong-bg: #fbecea;
-  --radius: 12px;
-  --font: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  /* Memory Map: warm paper, near-black ink, one ultramarine. Green and red are reserved for answer feedback. */
+  --paper: #f3f1ec;
+  --sheet: #fbfaf7;
+  --ink: #14161a;
+  --quiet: #575b63;
+  --rule: #dcd8cf;
+  --rule-strong: #aaa598;
+  --accent: #2a3bd6;
+  --accent-hover: #1f2db0;
+  --accent-tint: #e6e8fa;
+  --correct: #17683f;
+  --correct-tint: #e2f0e6;
+  --wrong: #a3261c;
+  --wrong-tint: #f8e5e2;
+  --cell-review: #c2412f;
+  --warn-tint: #f6e7c8;
+  --warn-line: #a8691a;
+  --radius: 6px;
+  --font: "Geist", "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  --mono: "Geist Mono", "Cascadia Mono", Consolas, ui-monospace, monospace;
+  --bar: 76px;
 }

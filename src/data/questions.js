@@ -1,5 +1,6 @@
 import { expandedQuestions } from './questions-expanded.js';
 import { revisions } from './question-revisions.js';
+import { rationales } from './rationales/index.js';
 const trueFalse = ['True', 'False'];
 
 function makeQuestion(id, topic, prompt, choices, answer, explanation, reference) {
@@ -101,4 +102,8 @@ const starterQuestions = [
   makeQuestion('C11-008', 'System architecture', 'A smartphone and a mainframe can both be described in terms of components, controllers, and interconnections.', null, true,
     'Both need processing, memory, and I/O, along with ways to move data among those parts. Their implementations serve different workloads.', 'Slides 3–6'),
 ];
-export const questions = [...starterQuestions, ...expandedQuestions].map(question => ({ ...question, ...revisions[question.id] }));
+function teaching(id) {
+  const r = rationales[id];
+  return r ? { concept: r.concept, whyNot: r.whyNot, whyNotCheck: r.verify || [] } : {};
+}
+export const questions = [...starterQuestions, ...expandedQuestions].map(question => ({ ...question, ...revisions[question.id], ...teaching(question.id) }));

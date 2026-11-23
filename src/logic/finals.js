@@ -21,6 +21,13 @@ export function scopeProgress(progress, bank) {
     flags: progress.flags.filter(id => isFinals(bank.get(id))), history,
     active: isFinalsSession(progress.active, bank) ? progress.active : null };
 }
+// Map state of one question: its latest real answer decides correct / to review; no answer means unseen.
+// Flags are independent and never change this state.
+export function cellState(q, progress) {
+  const r = progress.latest[q.id];
+  return r?.status === 'answered' ? r.correct ? 'correct' : 'review' : 'unseen';
+}
+const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
 export function studyStatus(pool, progress) {
   const ids = new Set(pool.map(q => q.id)), practiced = new Set();
   for (const records of [progress.first, progress.latest]) {
@@ -29,9 +36,12 @@ export function studyStatus(pool, progress) {
   for (const session of [...progress.history, ...(progress.active && !progress.active.mock ? [progress.active] : [])]) {
     for (const item of session.items) if (ids.has(item.id) && item.checked && item.recorded) practiced.add(item.id);
   }
-  const missed = pool.filter(q => progress.latest[q.id] && !progress.latest[q.id].correct).length;
-  return { practiced: practiced.size, missed, total: pool.length,
-    text: missed ? `${missed} to review` : practiced.size ? `${practiced.size} of ${pool.length} practiced` : 'Not started' };
+  const states = pool.map(q => cellState(q, progress));
+  const correct = states.filter(s => s === 'correct').length, missed = states.filter(s => s === 'review').length, unseen = states.filter(s => s === 'unseen').length;
+  const flagged = pool.filter(q => progress.flags.includes(q.id)).length;
+  const parts = [correct && `${correct} correct`, missed && `${missed} to review`, unseen && `${unseen} unseen`].filter(Boolean);
+  return { practiced: practiced.size, missed, correct, unseen, flagged, total: pool.length,
+    text: unseen === pool.length ? `Not started · ${plural(pool.length, 'question')}` : parts.join(' · ') };
 }
 export function resetFinalsProgress(progress, bank) {
   const archiveOnly = records => Object.fromEntries(Object.entries(records).filter(([id]) => !isFinals(bank.get(id))));

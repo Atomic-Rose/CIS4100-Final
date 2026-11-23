@@ -1,39 +1,33 @@
-# Validation — second pass
+# Validation — Memory Map pass (2026-11-22)
 
-## Results actually obtained
+## Automated
 
-- `npm test`: **36 passed, zero failures**. Pretest regenerated the self-contained offline artifact with ten modules, approximately 517 KiB.
-- `npm run coverage`: regenerated locators and concept/exercise mapping for 171 finals records.
-- `node --check src/main.js` and `node --check src/views/screens.js`: passed.
-- Existing preview `http://127.0.0.1:3000/`: HTTP 200 for the root, controller, new finals-scope module, and stylesheet. This is the pre-existing VS Code preview; it was not started or stopped by this pass.
-- `git diff --check`: checked for whitespace errors. Windows LF/CRLF advisories do not indicate a test failure.
+- `npm test`: **41 passed, 0 failed**. Pretest rebuilds `offline/SmartPrep.html` (757 KiB, 17 modules, both fonts inlined).
+- New tests in `tests/app.test.js`:
+  - the audit case (one correct answer, end early, empty mock) creates no misses;
+  - a legacy save migrates, removing phantom misses, recovering the latest real answer from history, keeping first attempts, and keeping a backup copy;
+  - wrong-answer rationale, similar question, unchanged score and place;
+  - every distractor has a rationale and every question a concept;
+  - record-by-record recovery, and a failed write that later succeeds.
+- Existing tests were updated where the old rule was the defect. Skipped and unanswered items used to become `first`/`latest` misses, and recommendations used unanswered items.
 
-The 24 pre-existing tests passed before edits. Their screen-label and chapter-navigation expectations were updated for the requested new flow; functional scoring/storage checks were retained. Twelve regression tests bring the current total to 36.
+## Browser (headless Chrome, throwaway profiles, dev server on port 5199)
 
-## Requested journeys exercised by the actual bundled controller
+67 of 67 scripted checks passed with no page errors. Viewports were 1280×900 desktop and 390×844 with mobile emulation.
 
-The controller is executed in an isolated Node VM with a minimal DOM adapter. These are integration checks of actual application code, **not browser tests**.
+- **Welcome:** no brand or header course code; one action; 5 rows and 171 cells; Geist loaded; action before the map on mobile; no horizontal scroll; the reveal is off under reduced motion.
+- **Study map:** Chapter 9 opens to its topics with plain labels. Arrow keys move from the chapter row into its panel and topics. Enter toggles the row and keeps focus. No horizontal scroll on mobile.
+- **Audit case:** only the one real answer is stored; results say nothing was answered; the hub shows no misses.
+- **Legacy save:** Chapter 7 phantom misses are removed; the latest real DMA answer is recovered from history; first attempts and history are preserved; a backup copy is made; chapters 1–6 are absent.
+- **DMA miss in Chapter 9 practice:** the chosen option's rationale is shown and others are hidden; Why? is collapsed; Continue is primary. Try a similar one gives a same-topic DMA question not in the session (C9-020 → C9-003). The follow-up survives a reload and returns to the same question. Session order and count are unchanged; results read 9 / 10, plus "You also tried 1 similar question".
+- **Mobile action bar:** right after checking, the rationale and verdict sit above the bar. Opening Why? scrolls the explanation clear of it. At the end of the page the explanation is fully above it.
+- **DMA-only session:** no similar question is eligible (all six are in the session), so Continue stays and the miss remains on the review list. Results offer "Retry the 1 question you missed", and the retry holds exactly that question.
+- **Mock:** after a reload, position, draft, flag and skip are restored. Submit is in the main bar; there is no feedback before submission; only submitted answers become progress.
+- **Storage:** blocked access shows an in-memory banner with Export. A malformed save is never overwritten while studying, and "Start a new save" copies it first. A save with one bad record is recovered with a notice. A failed write shows a retrying banner, then auto-recovers.
+- **Offline file:** renders with Geist, has no external resources, and runs a session from `file://`.
 
-1. Fresh start → study screen → Chapter 9 → DMA. Scope is exactly Chapter 9/DMA and caps at six questions. Select/check reveals the corresponding explanation. Finish with misses, get session-specific DMA evidence, start retry, answer correctly, and verify latest missed clears while the first incorrect outcome/history remain.
-2. Mock → flag → skip → save/reload → resume. Index, item order, choice order, skip, and flag survive. Jump to flagged, save an answer, return and edit it, submit, then see explanations and the final edited result.
-3. Existing progress containing pure midterm history and a mixed active attempt. The original attempt is parked unchanged, the fresh start offers Start studying, all five chapter rows are finals, midterm records stay out of review counts, and a new mixed practice contains only finals IDs.
-4. Existing pure finals active saves round-trip with session ID, absolute deadline, current question, draft, flag, and displayed mapping intact.
+## Not verified
 
-## Other regression coverage
-
-- One primary decision in Start/Study/Chapter: resume before missed before mixed; topic rows start focused sessions.
-- Practiced counts use distinct scored answers, never drafts, skips, unanswered outcomes, or unfinished mock picks. Repeated attempts do not inflate counts.
-- Balanced practice gives unseen items priority within each chapter quota, avoids duplicates, and caps small pools.
-- Recommendations show the session’s missed/total evidence; unseen topic pool and missed fallback are scoped correctly.
-- Finals-only projections filter old first/latest records, flags, mixed history items, and aggregate totals without deleting archive data.
-- Finals reset preserves archive records, flags, history, and parked attempts.
-- All 171 IDs, question types, answer indexes, and correct choice texts match the pre-audit answer manifest. Every false finals statement now has an audited corrective explanation. Bank integrity and numerical checks remain in place.
-- Existing immediate/deferred scoring, first/retry idempotence, corrected latest misses, draft navigation, timer expiry (including an open modal), no-pool handling, backup validation/confirmation, corrupt and blocked storage, and generated offline dependency checks pass.
-
-## Visual/browser evidence and limitation
-
-All three user-supplied screenshots were inspected before edits: oversized start typography, a long study selection screen with competing actions, and a selected True/False question. The redesign uses one 760px content width, smaller typography, compact divided rows, one primary decision, reserved feedback-label space, and a single-column quiz on desktop/mobile. CSS includes a 480px breakpoint, wrapping, visible focus, native controls, and reduced motion.
-
-The final retry to open the updated preview in the in-app browser again returned “The browser access host is unavailable.” Native Chrome inspection then stopped because the tool could not establish the current Windows browser URL confidently enough to enforce policy. Consequently, **no live desktop/mobile screenshot or real browser journey is claimed as passed**. The actual preview responds over HTTP, but HTTP availability is not visual QA.
-
-Remaining manual checks: open the updated modular/offline app at desktop, 390×844, and 320×640; run the three user journeys; verify no page overflow, readable long options, focus and Tab/Enter behavior, native file import/export, actual refresh persistence, reduced motion, and network-free use of the offline file. These limits do not affect the recorded automated results.
+- Physical phones (only emulation), Safari/Firefox, and screen-reader output.
+- Export/import file dialogs in a real browser (covered by controller tests only).
+- The 50 rationales listed in `docs/RATIONALES.md` still need a human source check.

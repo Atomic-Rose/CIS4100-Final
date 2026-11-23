@@ -1,5 +1,5 @@
 {
-  "name": "smartprep-finals",
+  "name": "cis4100-finals",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -12,6 +12,7 @@
     "import:midterm": "node scripts/import-midterm.mjs",
     "build": "node scripts/build-offline.mjs",
     "pretest": "node scripts/build-offline.mjs",
-    "coverage": "node scripts/report-bank.mjs"
+    "coverage": "node scripts/report-bank.mjs",
+    "rationales": "node scripts/report-rationales.mjs"
   }
 }
