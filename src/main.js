@@ -1,4 +1,4 @@
-import { chapters as finalsChapters } from './data/chapters.js';
+import { chapters as finalsChapters, finalExamDate } from './data/chapters.js';
 import { questions as finalsQuestions } from './data/questions.js';
 import { archiveQuestions } from './data/archive.js';
 import { createSession, confirmCurrent, setDraft, navigate, score, recommend, recordItem, finishSession, currentItem, similarQuestion, startFollowUp, endFollowUp } from './logic/session.js';
@@ -18,6 +18,7 @@ const prefsKey = `${key}.prefs`;
 let prefs = { length: 10, mockLength: 20, minutes: 0, keyHints: true, celebrate: true, vibrate: false };
 let lastSavedAt = null, whyOpen = false, toastTimer = null, dragStart = null, suppressClick = false;
 try { prefs = { ...prefs, ...JSON.parse(localStorage.getItem(prefsKey) || '{}') }; } catch {}
+prefs.examDate = finalExamDate; // fixed by the course, not a user setting
 const parkedArchive = parkArchiveSession(progress, bank);
 const answeredIds = () => new Set(Object.entries(progress.latest).filter(([,r]) => r.status === 'answered').map(([id]) => id));
 
@@ -214,7 +215,6 @@ root.addEventListener('change',event=>{
   const target=event.target;
   if(target.id==='import-progress'||target.id==='import-legacy') importProgress(target.files[0],target.id==='import-legacy');
   if(target.dataset&&'pref' in target.dataset) {
-    if(target.id==='exam-date'){prefs.examDate=/^\d{4}-\d{2}-\d{2}$/.test(target.value)?target.value:'';savePrefs();render('#exam-date');say(prefs.examDate?'Exam date saved.':'Exam date cleared.');return;}
     const name={length:'length','mock-length':'mockLength',minutes:'minutes'}[target.id];
     if(name){prefs[name]=target.value==='all'?'all':Number(target.value);savePrefs();say('Default saved.');}
   }
@@ -238,7 +238,6 @@ function onAction(action, value, button) {
       const set=v=>{prefs[value]=v;savePrefs();render(`[data-action="toggle-pref"][data-value="${value}"]`);};
       set(!was);say(`${button?.querySelector?.('.set-text span')?.textContent||'Setting'} ${!was?'on':'off'} · saved`,{undo:()=>set(was)});break;}
     case 'why':if(suppressClick){suppressClick=false;break;}setWhy(!whyOpen);break;
-    case 'exam':show('settings');root.querySelector('#exam-date')?.focus();break;
     case 'today':{const plan=todayPlan(chapters,questions,scopeProgress(progress,bank));const pool=pickPlan(plan);if(pool.length)start(pool,{label:'Today’s session',size:pool.length,ordered:true});else start(finalsQuestions,{...options(),label:'Mixed practice'});break;}
     case 'retry-one':{const q=bank.get(value);if(q&&isFinals(q))start([q],{label:`Retry · ${q.topic}`});break;}
     case 'chapter-practice':start(questions.filter(q=>q.chapter===Number(value)),{...options(),label:`Chapter ${value} practice`});break;

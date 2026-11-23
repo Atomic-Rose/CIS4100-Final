@@ -4,7 +4,7 @@ A focused study site for Computer Organization Chapters 7–11. Open [offline/Sm
 
 ## The flow
 
-- **Welcome (first visit only).** "Load what you know." with one Start action, an optional exam date, and a preview of your five chapters. Anyone with finals progress opens straight on Today.
+- **Welcome (first visit only).** "Ready for your final?", one line of context (CIS 4100 · Chapters 7–11 · 171 questions), Start studying, an Add exam date link, and a "What’s covered" card listing each chapter’s main topics and question count. Anyone with finals progress opens straight on Today.
 - **Today (study desk).** The next session on the left: **Today’s session** is built for you (your 4 oldest misses, then unseen questions from the started chapter with the most left) with one Start button, and three tiles under it: Review misses, Pick a chapter, Mock test. On the right, **This week**: seven day dots and your streak, readiness with "+N correct this week", and the exam countdown. Nothing shows a zero just to fill space.
 - **Progress.** Every number in one place: readiness ring, first-try accuracy, streak, exam countdown, answered count, readiness by chapter, and recent sessions (with a link to full history).
 - **Review.** All current misses grouped by chapter with one-tap Retry, **Review all**, and flagged questions.

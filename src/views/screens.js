@@ -1,4 +1,7 @@
 import { cellState } from '../logic/finals.js';
+import { finalExamDate } from '../data/chapters.js';
+// The final's date as words, e.g. "December 11" or "Friday, December 11".
+const examWords = opts => new Date(`${finalExamDate}T12:00:00`).toLocaleDateString(undefined, opts);
 import { counts, chapterCards, todayPlan, firstTry, streak, examCountdown, reviewList, ago, weekDays, correctThisWeek } from '../logic/dashboard.js';
 export function escape(text) {
   return String(text).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -48,16 +51,15 @@ export function renderShell(active, content, { reviewCount = 0 } = {}) {
     <div class="content">${content}</div></div>`;
 }
 
+// Welcome (first visit): one line of context, one action, and a plain list of what the final covers.
 export function renderStart(progress = {}, chapters = [], questions = [], { theme = 'system' } = {}) {
-  const resume = progress.active, cards = questions.length ? chapterCards(chapters, questions, progress) : [], total = questions.length ? counts(questions, progress) : null;
-  const lede = !total ? 'Chapters 7–11' : total.correct + total.review === 0 ? `${total.total} questions built from your slides and assignments. Practice a chapter, learn from every miss, and see exactly how ready you are.` : `${total.correct} correct · ${total.review} to review · ${total.unseen} unseen. Pick up where you left off.`;
+  const resume = progress.active;
+  const covered = chapters.length ? `<section class="card covered" aria-labelledby="covered-title"><div class="covered-head"><h2 id="covered-title">What’s covered</h2><span class="mono muted small">${questions.length} questions</span></div>
+      <ol class="plain covered-list">${chapters.map((c, i) => `<li style="--i:${i}"><span class="mono covered-num" aria-hidden="true">${String(c.number).padStart(2, '0')}</span><span class="covered-text"><strong><span class="visually-hidden">Chapter ${c.number}: </span>${escape(c.title)}</strong><span class="muted small">${escape(c.subtitle || '')}</span></span><span class="mono muted small covered-count">${questions.filter(q => q.chapter === c.number).length}</span></li>`).join('')}</ol></section>` : '';
   return `<section class="welcome"><header class="welcome-top"><span class="brand">${mark()}<strong>Final review</strong></span>${themeSwitch(theme)}</header>
-    <div class="welcome-body"><div class="invite"><p class="eyebrow">CIS 4100 · Computer organization · Chapters 7–11</p><h1 tabindex="-1">Load what you know.</h1><p class="lede">${escape(lede)}</p>
-      <div class="actions">${action(resume ? 'Resume session' : 'Start studying', resume ? 'resume' : 'library', 'primary large')}${resume ? action('Open dashboard', 'library', 'ghost large') : action('Add exam date', 'exam', 'ghost large')}</div>
-      ${resume ? `<p class="muted">${escape(resume.label)} · question ${resume.index + 1} of ${resume.items.length}</p>` : `<ul class="ticks"><li>${icon('check', 18)}Feedback on the exact option you chose</li><li>${icon('check', 18)}A review list that only holds real misses</li><li>${icon('check', 18)}Works offline and saves in this browser</li></ul>`}</div>
-      ${cards.length ? `<div class="preview" aria-hidden="true"><div class="card preview-card"><div class="preview-head"><strong>Your chapters</strong><span class="mono muted small">${total.correct + total.review} of ${total.total} answered</span></div>
-        ${cards.map((c, i) => `<div class="preview-row" style="--i:${i}"><div class="preview-line"><span><span class="mono muted">${String(c.number).padStart(2, '0')}</span> <strong>${escape(c.title)}</strong></span><span class="muted small">${c.total} questions</span></div>${bar(c, 'grow')}</div>`).join('')}</div>
-        <div class="card preview-note"><span class="mono muted small">Ch 9 · DMA</span><div class="note-wrong">${icon('close', 18)}<span><strong>Increasing the block length until transfers overlap</strong><span>Longer blocks make overlap more likely; overlap is the conflict, not a way to coordinate access.</span></span></div></div></div>` : ''}</div></section>`;
+    <div class="welcome-body"><div class="invite"><h1 tabindex="-1">Ready for your final?</h1><p class="lede">CIS 4100 · Chapters 7–11 · Final on ${escape(examWords({ month: 'long', day: 'numeric' }))}</p>
+      <div class="actions">${action(resume ? 'Resume session' : 'Start studying', resume ? 'resume' : 'library', 'primary large')}${resume ? action('Open Today', 'library', 'link') : ''}</div></div>
+      ${covered}</div></section>`;
 }
 
 function chapterCard(c) {
@@ -95,7 +97,7 @@ export function renderLibrary(chapters, questions, progress, { prefs = {}, now =
       <section class="side-block" aria-labelledby="ready-title"><div class="side-head"><h2 id="ready-title">Readiness</h2>${gained ? `<span class="gain">+${gained} correct this week</span>` : ''}</div>
         ${answered ? `<strong class="side-big">${total.readiness}%</strong>${bar(total)}<span class="muted small">${total.correct} correct · ${total.review} to review · ${total.unseen} unseen</span>` : '<p class="muted small">Your readiness appears here after your first session.</p>'}
         ${action('See progress', 'progress', 'link')}</section>
-      <section class="side-block side-row" aria-labelledby="exam-title"><h2 id="exam-title">Final exam</h2>${exam && exam.days >= 0 ? `<span><strong>${exam.days === 0 ? 'Today' : exam.days === 1 ? 'Tomorrow' : `${exam.days} days`}</strong><span class="muted"> · ${escape(exam.label)}</span></span>` : action('Add date', 'settings', 'link')}</section>
+      <section class="side-block side-row" aria-labelledby="exam-title"><h2 id="exam-title">Final exam</h2>${exam && exam.days >= 0 ? `<span><strong>${exam.days === 0 ? 'Today' : exam.days === 1 ? 'Tomorrow' : `${exam.days} days`}</strong><span class="muted"> · ${escape(exam.label)}</span></span>` : '<span class="muted">Finished</span>'}</section>
     </aside></div>`;
 }
 
@@ -107,7 +109,7 @@ export function renderProgress(chapters, questions, progress, { prefs = {}, now 
       <div class="stat-grid">
         <section class="card stat" aria-label="First-try accuracy"><span class="muted">First-try accuracy</span><strong class="stat-value">${ft.answered ? `${ft.rate}%` : '–'}</strong><span class="muted small">${ft.answered ? `${ft.correct} of ${ft.answered} right the first time` : 'Appears after your first answers'}</span></section>
         <section class="card stat" aria-label="Study streak"><span class="muted">Study streak</span><strong class="stat-value">${st.days} <small>${st.days === 1 ? 'day' : 'days'}</small></strong><span class="muted small">${st.today ? 'You studied today' : st.days ? `Practice today to make it ${st.days + 1}` : 'Answer a question to start one'}</span></section>
-        <section class="card stat" aria-label="Final exam"><span class="muted">Final exam</span>${exam && exam.days >= 0 ? `<strong class="stat-value">${exam.days} <small>${exam.days === 1 ? 'day' : 'days'}</small></strong><span class="muted small">${escape(exam.label)}</span>` : `<strong class="stat-empty">No date yet</strong>${action('Add in Settings', 'settings', 'link')}`}</section>
+        <section class="card stat" aria-label="Final exam"><span class="muted">Final exam</span>${exam && exam.days >= 0 ? `<strong class="stat-value">${exam.days} <small>${exam.days === 1 ? 'day' : 'days'}</small></strong><span class="muted small">${escape(exam.label)}</span>` : `<strong class="stat-empty">Finished</strong><span class="muted small">${escape(examWords({ month: 'long', day: 'numeric' }))}</span>`}</section>
         <section class="card stat" aria-label="Answered"><span class="muted">Answered</span><strong class="stat-value">${answered} <small>of ${total.total}</small></strong><span class="muted small">${total.unseen} still unseen</span></section></div></div>
     <section class="block" aria-labelledby="by-chapter"><div class="block-head"><h2 id="by-chapter">By chapter</h2></div>
       <ul class="plain card chapter-lines">${cards.map(c => `<li><button type="button" class="chapter-line" data-action="chapter" data-value="${c.number}"><span class="mono muted">${String(c.number).padStart(2, '0')}</span><span class="line-title"><strong>${escape(c.title)}</strong><span class="muted small">${summary(c)}</span></span>${bar(c)}<span class="pct">${c.correct + c.review ? `${c.readiness}%` : 'New'}</span></button></li>`).join('')}</ul></section>
@@ -169,7 +171,7 @@ export function renderSettings({ progress, questions, storage, prefs, backups = 
       ${select('length', 'Practice length', prefs.length, [[10, '10 questions'], [20, '20 questions'], [40, '40 questions'], ['all', 'All available']])}
       ${select('mock-length', 'Mock length', prefs.mockLength, [[20, '20 questions'], [40, '40 questions'], ['all', 'All available']])}
       ${select('minutes', 'Mock timer', prefs.minutes, [[0, 'Off'], [15, '15 minutes'], [30, '30 minutes'], [60, '60 minutes']])}
-      <li class="set-row"><label for="exam-date">Exam date</label><span class="set-control"><input id="exam-date" type="date" value="${escape(prefs.examDate || '')}" data-pref></span></li></ul></section>
+      <li class="set-row"><span class="set-label">Final exam</span><span class="muted">${escape(examWords({ weekday: 'long', month: 'long', day: 'numeric' }))}</span></li></ul></section>
     <section class="set-group" aria-labelledby="g-look"><h2 id="g-look">Appearance</h2><div class="card theme-picker" role="radiogroup" aria-labelledby="g-look">${swatch('system', 'Auto')}${swatch('light', 'Light')}${swatch('dark', 'Dark')}</div><p class="muted small set-foot">Auto follows your device. Animations always respect your device’s reduce-motion setting.</p></section>
     <section class="set-group" aria-labelledby="g-answer"><h2 id="g-answer">While answering</h2><ul class="plain card set-list">
       ${toggle('keyHints', 'Show keyboard hints', 'A–D, T/F and Enter shortcuts under each question')}

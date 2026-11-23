@@ -1,3 +1,5 @@
+// CIS 4100 final exam: Friday, December 11, 2026.
+export const finalExamDate = '2026-12-11';
 export const chapters = [
   { number: 7, title: 'CPU and memory', subtitle: 'Registers, instructions, and the fetch–execute cycle' },
   { number: 8, title: 'CPU performance', subtitle: 'Pipelines, caches, and multiprocessing' },

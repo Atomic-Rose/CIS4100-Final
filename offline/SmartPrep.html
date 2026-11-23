@@ -205,7 +205,7 @@ body[data-screen="quiz"] #notice{bottom:auto;top:72px}
 .set-list{overflow:hidden;padding:0}
 .set-row{display:flex;align-items:center;gap:12px;min-height:56px;padding:0 18px;border-top:1px solid var(--border);font-size:1rem}
 .set-row:first-child{border-top:0}
-.set-row>label:first-child{flex-grow:1;font-weight:500}
+.set-row>label:first-child,.set-row>.set-label{flex-grow:1;font-weight:500}
 .set-control select,.set-control input{min-height:40px;padding:6px 10px;border:1.5px solid var(--border-strong);border-radius:10px;background:var(--surface);color:var(--text);font-size:.9375rem}
 .switch-row,.link-row{flex-grow:1;align-self:stretch;display:flex;align-items:center;gap:12px;min-height:56px;margin:0 -18px;padding:8px 18px;border:0;background:transparent;color:var(--text);font-size:1rem;text-align:left;cursor:pointer}
 .switch-row:hover,.link-row:hover{background:var(--surface-2)}
@@ -284,19 +284,19 @@ body[data-screen="quiz"] #notice{bottom:auto;top:72px}
 .welcome{min-height:100vh;display:flex;flex-direction:column;gap:40px;padding:24px clamp(16px,5vw,72px) 56px}
 .welcome-top{display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%;max-width:1240px;margin:0 auto}
 .welcome-top .brand{padding:0}.welcome-top .theme-switch{width:220px}
-.welcome-body{flex-grow:1;display:flex;flex-wrap:wrap;align-items:center;gap:56px;width:100%;max-width:1240px;margin:0 auto}
-.invite{flex:1 1 420px;display:flex;flex-direction:column;gap:24px}
-.invite h1{font-size:clamp(3rem,6vw,4.75rem);line-height:1;letter-spacing:-.045em}.invite .lede{font-size:1.1875rem;max-width:520px}
-.ticks{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:12px;color:var(--text-2)}.ticks li{display:flex;align-items:center;gap:12px}.ticks .icon{color:var(--accent-text)}
-.preview{flex:1 1 500px;position:relative;min-height:540px}
-.preview-card{position:absolute;inset:0 0 72px 40px;padding:28px;display:flex;flex-direction:column;gap:16px;box-shadow:var(--shadow);animation:rise .5s cubic-bezier(.2,.7,.2,1) both}
-.preview-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
-.preview-row{display:flex;flex-direction:column;gap:8px;padding-top:14px;border-top:1px solid var(--border);animation:rise .45s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--i) * 50ms + 80ms)}
-.preview-line{display:flex;justify-content:space-between;gap:12px;font-size:.9375rem}
-.bar.grow .bar-correct,.bar.grow .bar-review{transform-origin:left;animation:fill .8s cubic-bezier(.2,.7,.2,1) .35s both}
-.preview-note{position:absolute;left:0;bottom:0;width:min(340px,90%);padding:18px 20px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow);animation:rise .5s cubic-bezier(.2,.7,.2,1) .25s both}
-.note-wrong{display:flex;gap:12px;align-items:flex-start;padding:12px;border-radius:12px;background:var(--bad-soft);border:1.5px solid var(--bad)}
-.note-wrong .icon{color:var(--bad);margin-top:2px}.note-wrong>span{display:flex;flex-direction:column;gap:4px;font-size:.875rem}.note-wrong>span>span{color:var(--text-2);line-height:1.45}
+.welcome-body{flex-grow:1;display:flex;flex-wrap:wrap;align-items:center;gap:64px;width:100%;max-width:1160px;margin:0 auto}
+.invite{flex:1 1 400px;display:flex;flex-direction:column;gap:16px;animation:rise .45s cubic-bezier(.2,.7,.2,1) both}
+.invite h1{font-size:clamp(2.75rem,5.6vw,4.5rem);line-height:1.02;letter-spacing:-.045em;max-width:9.5em}.invite .lede{font-size:1.125rem}
+.invite .actions{margin-top:16px;gap:12px 24px}.invite .primary.large{min-height:54px;padding:0 30px;font-size:1.0625rem}.invite .link{font-size:1rem}
+/* What’s covered: the five chapters, their main topics and question counts. */
+.covered{flex:1 1 440px;padding:28px 28px 12px;box-shadow:var(--shadow);border-radius:22px;animation:rise .5s cubic-bezier(.2,.7,.2,1) .08s both}
+.covered-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding-bottom:8px}.covered-head h2{font-size:1.0625rem}
+.covered-list li{display:grid;grid-template-columns:32px minmax(0,1fr) auto;align-items:center;gap:14px;padding:14px 0;border-top:1px solid var(--border);animation:rise .4s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--i) * 45ms + 120ms)}
+.covered-num{font-size:.8125rem;color:var(--accent-text);font-weight:600}
+.covered-text{display:flex;flex-direction:column;gap:2px;min-width:0}.covered-text strong{font-size:1rem;font-weight:600}
+.covered-count{text-align:right}
+
+
 
 /* Question */
 .lesson{min-height:100vh;display:flex;flex-direction:column}
@@ -413,7 +413,7 @@ dialog .lesson-actions{display:flex;justify-content:flex-end;gap:10px;margin-top
   .hero-card,.chapter-hero,.score-card{padding:22px 20px}.ready-card,.list-card,.ready-change,.panel{padding:20px}
   .next-card{padding:22px 20px}.topic-row{padding:14px 18px}.block-head.pad{padding:18px 18px 8px}
   .answer-review summary{padding:14px 18px}.review-body{padding:0 18px 18px}
-  .preview{min-height:500px}.preview-card{inset:0 0 88px 0}.welcome-top .theme-switch{width:auto}
+  .welcome-body{gap:32px;align-items:flex-start}.covered{padding:20px 20px 6px}.welcome-top .theme-switch{width:auto}
   .stat{flex-basis:150px}
   /* Compact Today */
   .mobile-only{display:flex!important}.desktop-only{display:none!important}
@@ -465,7 +465,7 @@ dialog .lesson-actions{display:flex;justify-content:flex-end;gap:10px;margin-top
   .sheet-actions{width:100%}.sheet-actions .button{flex:1 1 140px}
   .bar-inner .button{padding:0 12px}
   .choice{padding:14px;gap:12px;font-size:1rem}
-  .preview{display:none}
+
 }
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 </style></head>
@@ -475,6 +475,8 @@ dialog .lesson-actions{display:flex;justify-content:flex-end;gap:10px;margin-top
 <dialog id="confirm-dialog" aria-labelledby="confirm-title" aria-describedby="confirm-message"><form method="dialog"><h2 id="confirm-title"></h2><p id="confirm-message"></p><div class="lesson-actions"><button class="button outline" value="cancel" autofocus>Cancel</button><button id="confirm-ok" class="button primary" value="confirm">Confirm</button></div></form></dialog>
 <script>const __modules = {};
 __modules["src/data/chapters.js"] = (() => {
+// CIS 4100 final exam: Friday, December 11, 2026.
+const finalExamDate = '2026-12-11';
 const chapters = [
   { number: 7, title: 'CPU and memory', subtitle: 'Registers, instructions, and the fetch–execute cycle' },
   { number: 8, title: 'CPU performance', subtitle: 'Pipelines, caches, and multiprocessing' },
@@ -483,7 +485,7 @@ const chapters = [
   { number: 11, title: 'Modern computer systems', subtitle: 'System interconnects, PCIe, USB, and I/O channels' },
 ];
 
-return {chapters};
+return {finalExamDate,chapters};
 })();
 __modules["src/data/questions-expanded.js"] = (() => {
 // Original scenarios derived from the supplied course materials. Locators are chapter-local.
@@ -8195,6 +8197,9 @@ return {counts,chapterCards,todayPlan,pickPlan,firstTry,weekDays,correctThisWeek
 })();
 __modules["src/views/screens.js"] = (() => {
 const { cellState } = __modules["src/logic/finals.js"];
+const { finalExamDate } = __modules["src/data/chapters.js"];
+// The final's date as words, e.g. "December 11" or "Friday, December 11".
+const examWords = opts => new Date(`${finalExamDate}T12:00:00`).toLocaleDateString(undefined, opts);
 const { counts, chapterCards, todayPlan, firstTry, streak, examCountdown, reviewList, ago, weekDays, correctThisWeek } = __modules["src/logic/dashboard.js"];
 function escape(text) {
   return String(text).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -8244,16 +8249,15 @@ function renderShell(active, content, { reviewCount = 0 } = {}) {
     <div class="content">${content}</div></div>`;
 }
 
+// Welcome (first visit): one line of context, one action, and a plain list of what the final covers.
 function renderStart(progress = {}, chapters = [], questions = [], { theme = 'system' } = {}) {
-  const resume = progress.active, cards = questions.length ? chapterCards(chapters, questions, progress) : [], total = questions.length ? counts(questions, progress) : null;
-  const lede = !total ? 'Chapters 7–11' : total.correct + total.review === 0 ? `${total.total} questions built from your slides and assignments. Practice a chapter, learn from every miss, and see exactly how ready you are.` : `${total.correct} correct · ${total.review} to review · ${total.unseen} unseen. Pick up where you left off.`;
+  const resume = progress.active;
+  const covered = chapters.length ? `<section class="card covered" aria-labelledby="covered-title"><div class="covered-head"><h2 id="covered-title">What’s covered</h2><span class="mono muted small">${questions.length} questions</span></div>
+      <ol class="plain covered-list">${chapters.map((c, i) => `<li style="--i:${i}"><span class="mono covered-num" aria-hidden="true">${String(c.number).padStart(2, '0')}</span><span class="covered-text"><strong><span class="visually-hidden">Chapter ${c.number}: </span>${escape(c.title)}</strong><span class="muted small">${escape(c.subtitle || '')}</span></span><span class="mono muted small covered-count">${questions.filter(q => q.chapter === c.number).length}</span></li>`).join('')}</ol></section>` : '';
   return `<section class="welcome"><header class="welcome-top"><span class="brand">${mark()}<strong>Final review</strong></span>${themeSwitch(theme)}</header>
-    <div class="welcome-body"><div class="invite"><p class="eyebrow">CIS 4100 · Computer organization · Chapters 7–11</p><h1 tabindex="-1">Load what you know.</h1><p class="lede">${escape(lede)}</p>
-      <div class="actions">${action(resume ? 'Resume session' : 'Start studying', resume ? 'resume' : 'library', 'primary large')}${resume ? action('Open dashboard', 'library', 'ghost large') : action('Add exam date', 'exam', 'ghost large')}</div>
-      ${resume ? `<p class="muted">${escape(resume.label)} · question ${resume.index + 1} of ${resume.items.length}</p>` : `<ul class="ticks"><li>${icon('check', 18)}Feedback on the exact option you chose</li><li>${icon('check', 18)}A review list that only holds real misses</li><li>${icon('check', 18)}Works offline and saves in this browser</li></ul>`}</div>
-      ${cards.length ? `<div class="preview" aria-hidden="true"><div class="card preview-card"><div class="preview-head"><strong>Your chapters</strong><span class="mono muted small">${total.correct + total.review} of ${total.total} answered</span></div>
-        ${cards.map((c, i) => `<div class="preview-row" style="--i:${i}"><div class="preview-line"><span><span class="mono muted">${String(c.number).padStart(2, '0')}</span> <strong>${escape(c.title)}</strong></span><span class="muted small">${c.total} questions</span></div>${bar(c, 'grow')}</div>`).join('')}</div>
-        <div class="card preview-note"><span class="mono muted small">Ch 9 · DMA</span><div class="note-wrong">${icon('close', 18)}<span><strong>Increasing the block length until transfers overlap</strong><span>Longer blocks make overlap more likely; overlap is the conflict, not a way to coordinate access.</span></span></div></div></div>` : ''}</div></section>`;
+    <div class="welcome-body"><div class="invite"><h1 tabindex="-1">Ready for your final?</h1><p class="lede">CIS 4100 · Chapters 7–11 · Final on ${escape(examWords({ month: 'long', day: 'numeric' }))}</p>
+      <div class="actions">${action(resume ? 'Resume session' : 'Start studying', resume ? 'resume' : 'library', 'primary large')}${resume ? action('Open Today', 'library', 'link') : ''}</div></div>
+      ${covered}</div></section>`;
 }
 
 function chapterCard(c) {
@@ -8291,7 +8295,7 @@ function renderLibrary(chapters, questions, progress, { prefs = {}, now = Date.n
       <section class="side-block" aria-labelledby="ready-title"><div class="side-head"><h2 id="ready-title">Readiness</h2>${gained ? `<span class="gain">+${gained} correct this week</span>` : ''}</div>
         ${answered ? `<strong class="side-big">${total.readiness}%</strong>${bar(total)}<span class="muted small">${total.correct} correct · ${total.review} to review · ${total.unseen} unseen</span>` : '<p class="muted small">Your readiness appears here after your first session.</p>'}
         ${action('See progress', 'progress', 'link')}</section>
-      <section class="side-block side-row" aria-labelledby="exam-title"><h2 id="exam-title">Final exam</h2>${exam && exam.days >= 0 ? `<span><strong>${exam.days === 0 ? 'Today' : exam.days === 1 ? 'Tomorrow' : `${exam.days} days`}</strong><span class="muted"> · ${escape(exam.label)}</span></span>` : action('Add date', 'settings', 'link')}</section>
+      <section class="side-block side-row" aria-labelledby="exam-title"><h2 id="exam-title">Final exam</h2>${exam && exam.days >= 0 ? `<span><strong>${exam.days === 0 ? 'Today' : exam.days === 1 ? 'Tomorrow' : `${exam.days} days`}</strong><span class="muted"> · ${escape(exam.label)}</span></span>` : '<span class="muted">Finished</span>'}</section>
     </aside></div>`;
 }
 
@@ -8303,7 +8307,7 @@ function renderProgress(chapters, questions, progress, { prefs = {}, now = Date.
       <div class="stat-grid">
         <section class="card stat" aria-label="First-try accuracy"><span class="muted">First-try accuracy</span><strong class="stat-value">${ft.answered ? `${ft.rate}%` : '–'}</strong><span class="muted small">${ft.answered ? `${ft.correct} of ${ft.answered} right the first time` : 'Appears after your first answers'}</span></section>
         <section class="card stat" aria-label="Study streak"><span class="muted">Study streak</span><strong class="stat-value">${st.days} <small>${st.days === 1 ? 'day' : 'days'}</small></strong><span class="muted small">${st.today ? 'You studied today' : st.days ? `Practice today to make it ${st.days + 1}` : 'Answer a question to start one'}</span></section>
-        <section class="card stat" aria-label="Final exam"><span class="muted">Final exam</span>${exam && exam.days >= 0 ? `<strong class="stat-value">${exam.days} <small>${exam.days === 1 ? 'day' : 'days'}</small></strong><span class="muted small">${escape(exam.label)}</span>` : `<strong class="stat-empty">No date yet</strong>${action('Add in Settings', 'settings', 'link')}`}</section>
+        <section class="card stat" aria-label="Final exam"><span class="muted">Final exam</span>${exam && exam.days >= 0 ? `<strong class="stat-value">${exam.days} <small>${exam.days === 1 ? 'day' : 'days'}</small></strong><span class="muted small">${escape(exam.label)}</span>` : `<strong class="stat-empty">Finished</strong><span class="muted small">${escape(examWords({ month: 'long', day: 'numeric' }))}</span>`}</section>
         <section class="card stat" aria-label="Answered"><span class="muted">Answered</span><strong class="stat-value">${answered} <small>of ${total.total}</small></strong><span class="muted small">${total.unseen} still unseen</span></section></div></div>
     <section class="block" aria-labelledby="by-chapter"><div class="block-head"><h2 id="by-chapter">By chapter</h2></div>
       <ul class="plain card chapter-lines">${cards.map(c => `<li><button type="button" class="chapter-line" data-action="chapter" data-value="${c.number}"><span class="mono muted">${String(c.number).padStart(2, '0')}</span><span class="line-title"><strong>${escape(c.title)}</strong><span class="muted small">${summary(c)}</span></span>${bar(c)}<span class="pct">${c.correct + c.review ? `${c.readiness}%` : 'New'}</span></button></li>`).join('')}</ul></section>
@@ -8365,7 +8369,7 @@ function renderSettings({ progress, questions, storage, prefs, backups = [], arc
       ${select('length', 'Practice length', prefs.length, [[10, '10 questions'], [20, '20 questions'], [40, '40 questions'], ['all', 'All available']])}
       ${select('mock-length', 'Mock length', prefs.mockLength, [[20, '20 questions'], [40, '40 questions'], ['all', 'All available']])}
       ${select('minutes', 'Mock timer', prefs.minutes, [[0, 'Off'], [15, '15 minutes'], [30, '30 minutes'], [60, '60 minutes']])}
-      <li class="set-row"><label for="exam-date">Exam date</label><span class="set-control"><input id="exam-date" type="date" value="${escape(prefs.examDate || '')}" data-pref></span></li></ul></section>
+      <li class="set-row"><span class="set-label">Final exam</span><span class="muted">${escape(examWords({ weekday: 'long', month: 'long', day: 'numeric' }))}</span></li></ul></section>
     <section class="set-group" aria-labelledby="g-look"><h2 id="g-look">Appearance</h2><div class="card theme-picker" role="radiogroup" aria-labelledby="g-look">${swatch('system', 'Auto')}${swatch('light', 'Light')}${swatch('dark', 'Dark')}</div><p class="muted small set-foot">Auto follows your device. Animations always respect your device’s reduce-motion setting.</p></section>
     <section class="set-group" aria-labelledby="g-answer"><h2 id="g-answer">While answering</h2><ul class="plain card set-list">
       ${toggle('keyHints', 'Show keyboard hints', 'A–D, T/F and Enter shortcuts under each question')}
@@ -8470,7 +8474,7 @@ function renderResults(result, recommendation, label = 'Session complete', { pro
 return {escape,action,address,icon,mark,themeSwitch,setScorer,renderShell,renderStart,renderLibrary,renderProgress,renderReview,renderChapters,renderChapter,renderHistory,renderSettings,renderQuiz,renderResults};
 })();
 __modules["src/main.js"] = (() => {
-const { chapters: finalsChapters } = __modules["src/data/chapters.js"];
+const { chapters: finalsChapters, finalExamDate } = __modules["src/data/chapters.js"];
 const { questions: finalsQuestions } = __modules["src/data/questions.js"];
 const { archiveQuestions } = __modules["src/data/archive.js"];
 const { createSession, confirmCurrent, setDraft, navigate, score, recommend, recordItem, finishSession, currentItem, similarQuestion, startFollowUp, endFollowUp } = __modules["src/logic/session.js"];
@@ -8490,6 +8494,7 @@ const prefsKey = `${key}.prefs`;
 let prefs = { length: 10, mockLength: 20, minutes: 0, keyHints: true, celebrate: true, vibrate: false };
 let lastSavedAt = null, whyOpen = false, toastTimer = null, dragStart = null, suppressClick = false;
 try { prefs = { ...prefs, ...JSON.parse(localStorage.getItem(prefsKey) || '{}') }; } catch {}
+prefs.examDate = finalExamDate; // fixed by the course, not a user setting
 const parkedArchive = parkArchiveSession(progress, bank);
 const answeredIds = () => new Set(Object.entries(progress.latest).filter(([,r]) => r.status === 'answered').map(([id]) => id));
 
@@ -8686,7 +8691,6 @@ root.addEventListener('change',event=>{
   const target=event.target;
   if(target.id==='import-progress'||target.id==='import-legacy') importProgress(target.files[0],target.id==='import-legacy');
   if(target.dataset&&'pref' in target.dataset) {
-    if(target.id==='exam-date'){prefs.examDate=/^\d{4}-\d{2}-\d{2}$/.test(target.value)?target.value:'';savePrefs();render('#exam-date');say(prefs.examDate?'Exam date saved.':'Exam date cleared.');return;}
     const name={length:'length','mock-length':'mockLength',minutes:'minutes'}[target.id];
     if(name){prefs[name]=target.value==='all'?'all':Number(target.value);savePrefs();say('Default saved.');}
   }
@@ -8710,7 +8714,6 @@ function onAction(action, value, button) {
       const set=v=>{prefs[value]=v;savePrefs();render(`[data-action="toggle-pref"][data-value="${value}"]`);};
       set(!was);say(`${button?.querySelector?.('.set-text span')?.textContent||'Setting'} ${!was?'on':'off'} · saved`,{undo:()=>set(was)});break;}
     case 'why':if(suppressClick){suppressClick=false;break;}setWhy(!whyOpen);break;
-    case 'exam':show('settings');root.querySelector('#exam-date')?.focus();break;
     case 'today':{const plan=todayPlan(chapters,questions,scopeProgress(progress,bank));const pool=pickPlan(plan);if(pool.length)start(pool,{label:'Today’s session',size:pool.length,ordered:true});else start(finalsQuestions,{...options(),label:'Mixed practice'});break;}
     case 'retry-one':{const q=bank.get(value);if(q&&isFinals(q))start([q],{label:`Retry · ${q.topic}`});break;}
     case 'chapter-practice':start(questions.filter(q=>q.chapter===Number(value)),{...options(),label:`Chapter ${value} practice`});break;
