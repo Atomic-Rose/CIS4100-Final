@@ -112,19 +112,19 @@ body[data-screen="quiz"] #notice{bottom:auto;top:72px}
 .legend{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:.8125rem;color:var(--text-2)}.legend>span{display:inline-flex;align-items:center;gap:6px}
 
 /* Shell */
-.shell{display:grid;grid-template-columns:248px minmax(0,1fr);min-height:100vh}
-.sidebar{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:28px;padding:28px 18px;background:var(--surface);border-right:1px solid var(--border)}
+.shell{min-height:100vh;display:flex;flex-direction:column}
+.topbar{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}.topbar-inner{max-width:1200px;margin:0 auto;padding:10px clamp(16px,4vw,48px);display:flex;align-items:center;justify-content:space-between;gap:16px}
 .brand{display:flex;align-items:center;gap:12px;padding:0 8px}.brand-text{display:flex;flex-direction:column}.brand-text strong{font-size:.9375rem}.brand-text small{font-size:.75rem;color:var(--text-2)}
 .mark .m1,.mark .m2{fill:var(--accent)}.mark .m2{opacity:.45}.mark .m3{fill:var(--review)}.mark .m4{fill:none;stroke:var(--border-strong);stroke-width:1.5}
-.nav-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
-.nav-item{position:relative;width:100%;display:flex;align-items:center;gap:12px;min-height:44px;padding:0 12px;border:0;border-radius:10px;background:transparent;color:var(--text);font-size:.9375rem;text-align:left}
-.nav-item:hover{background:var(--surface-2)}.nav-item.is-active{background:var(--accent-soft);color:var(--accent-text);font-weight:600}
-.nav-label{flex-grow:1}.badge{min-width:28px;padding:2px 8px;border-radius:999px;background:var(--review-soft);color:var(--review-text);font-size:.75rem;font-weight:600;text-align:center}
-.sidebar-foot{margin-top:auto;display:flex;flex-direction:column;gap:8px;padding:0 8px}.foot-label{font-size:.8125rem;color:var(--text-2)}
+.nav-list{list-style:none;margin:0;padding:0;display:flex;gap:4px}
+.nav-item{position:relative;display:flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;border:1px solid transparent;border-radius:999px;background:transparent;color:var(--text-2);font-size:.9375rem;text-align:left}.tabs .nav-item .icon{display:none}
+.nav-item:hover{background:var(--surface-2);color:var(--text)}.nav-item.is-active{background:var(--surface);border-color:var(--border);color:var(--text);font-weight:600;box-shadow:0 1px 2px rgb(0 0 0 / .05)}
+.badge{min-width:24px;padding:1px 7px;border-radius:999px;background:var(--review-soft);color:var(--review-text);font-size:.75rem;font-weight:600;text-align:center}
+
 .theme-switch{display:flex;gap:4px;padding:4px;border-radius:12px;background:var(--surface-2);border:1px solid var(--border)}
 .theme-switch button{flex:1;min-height:36px;padding:0 10px;border:0;border-radius:9px;background:transparent;color:var(--text);font-size:.8125rem;font-weight:600}
 .theme-switch button[aria-pressed="true"]{background:var(--surface);box-shadow:0 1px 2px rgb(0 0 0 / .15);outline:1px solid var(--border)}
-.content{min-width:0;padding:36px clamp(16px,4vw,56px) 72px}
+.content{flex-grow:1;min-width:0;padding:32px clamp(16px,4vw,48px) 72px}
 .page{max-width:1120px;margin:0 auto;display:flex;flex-direction:column;gap:24px}
 .page-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:8px 16px}
 .page-head h1{margin-top:8px;font-size:clamp(2rem,4vw,2.5rem);letter-spacing:-.03em}
@@ -231,6 +231,54 @@ body[data-screen="quiz"] #notice{bottom:auto;top:72px}
 .danger-card{border:1.5px solid var(--bad)}
 .danger-row{margin:0;color:var(--bad);font-weight:600}.danger-row .muted{font-weight:400}
 .set-about{padding:0 6px 8px}
+
+/* Today · study desk */
+.desk.page{max-width:1160px;flex-direction:row;flex-wrap:wrap;align-items:flex-start;gap:24px}
+.desk-main{flex:2 1 560px;min-width:0;display:flex;flex-direction:column;gap:20px}
+.desk-main h1{font-size:clamp(1.9rem,3.4vw,2.25rem);letter-spacing:-.03em;margin-bottom:4px}
+.desk-session{padding:36px;min-height:300px;display:flex;flex-direction:column;gap:16px;border-radius:24px;box-shadow:var(--shadow)}
+.desk-session .kicker{font-size:.875rem;font-weight:600;color:var(--accent-text)}
+.desk-session h2{font-size:clamp(1.6rem,3vw,2.125rem);line-height:1.15;letter-spacing:-.03em;max-width:600px}
+.desk-detail{color:var(--text-2);font-size:1rem}.strong{font-weight:600}
+.desk-session .actions{margin-top:auto;padding-top:8px}.desk-session .primary.large{min-height:54px;padding:0 28px}
+.desk-tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.desk-tile{padding:18px;display:flex;flex-direction:column;align-items:flex-start;gap:6px;border-radius:18px;color:var(--text);text-align:left;transition:border-color .15s ease,transform .15s ease}
+.desk-tile:hover{border-color:var(--border-strong);transform:translateY(-1px)}
+.desk-tile strong{font-size:.9375rem;font-weight:600}
+.desk-tile .count-chip{width:auto;height:auto;min-width:32px;padding:2px 8px;border-radius:999px;font-size:.75rem}
+.chip-plain{background:var(--surface-2);color:var(--text)}
+.desk-side{flex:1 1 300px;margin-top:62px;padding:24px;border-radius:22px;display:flex;flex-direction:column}
+.side-block{display:flex;flex-direction:column;gap:10px;padding:20px 0;border-top:1px solid var(--border)}
+.side-block:first-child{padding-top:0;border-top:0}.side-block:last-child{padding-bottom:0}
+.side-block h2{font-size:.9375rem}
+.side-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.gain{font-size:.75rem;font-weight:650;color:var(--ok)}
+.side-big{font-size:2.125rem;font-weight:650;letter-spacing:-.03em;line-height:1}
+.side-block .link{align-self:flex-start;min-height:36px;padding:0}
+.side-row{flex-direction:row;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;text-align:center}
+.week li{display:flex;flex-direction:column;align-items:center;gap:6px}
+.day-dot{width:30px;height:30px;border-radius:999px;border:1.5px solid var(--border-strong)}
+.day-dot.is-done{background:var(--accent);border-color:var(--accent)}
+.day-dot.is-today{border:2px dashed var(--accent)}
+.day-letter{font-size:.6875rem;color:var(--text-2)}
+/* Progress */
+.progress .ready-card{flex:1 1 360px}
+.progress>.list-card{flex:none}
+.stat .link{align-self:flex-start;min-height:36px;padding:0}
+.stat-grid{flex:1 1 420px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.stat-grid .stat{flex:none}
+.chapter-lines{overflow:hidden;padding:0}
+.chapter-lines li+li{border-top:1px solid var(--border)}
+.chapter-line{width:100%;display:grid;grid-template-columns:32px minmax(0,1fr) minmax(100px,220px) 52px;align-items:center;gap:16px;min-height:68px;padding:10px 22px;border:0;background:transparent;color:var(--text);text-align:left}
+.chapter-line:hover{background:var(--surface-2)}
+.line-title{display:flex;flex-direction:column;gap:2px;min-width:0}
+.chapter-line .pct{text-align:right}
+/* Review */
+.review-page .page-head{align-items:center}
+.review-group{padding:0 20px}
+.empty-card{padding:28px;display:flex;flex-direction:column;align-items:flex-start;gap:16px}
+.flag-line{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 
 /* Welcome */
 .welcome{min-height:100vh;display:flex;flex-direction:column;gap:40px;padding:24px clamp(16px,5vw,72px) 56px}
@@ -355,13 +403,13 @@ dialog .lesson-actions{display:flex;justify-content:flex-end;gap:10px;margin-top
 
 /* Phones and small tablets: the sidebar becomes a bottom tab bar. */
 @media (max-width:900px){
-  .shell{grid-template-columns:minmax(0,1fr)}
-  .sidebar{position:fixed;top:auto;bottom:0;left:0;right:0;z-index:10;height:auto;flex-direction:row;padding:4px 6px calc(6px + env(safe-area-inset-bottom));border-right:0;border-top:1px solid var(--border)}
-  .sidebar .brand,.sidebar-foot{display:none}
-  .nav-list{flex-direction:row;width:100%}.nav-list li{flex:1;min-width:0}.nav-list li:nth-child(4){display:none}
-  .nav-item{flex-direction:column;justify-content:center;gap:3px;min-height:56px;padding:4px 2px;font-size:.75rem;text-align:center}
-  .nav-label{flex-grow:0}.nav-item .badge{position:absolute;top:4px;left:calc(50% + 6px);min-width:20px;padding:1px 5px;font-size:.6875rem}
-  .content{padding:24px 16px 104px}
+  .topbar{position:static;background:var(--bg);backdrop-filter:none;border-bottom:0}.topbar-inner{padding:14px 16px 0}
+  .tabs{position:fixed;left:0;right:0;bottom:0;z-index:10;padding:4px 6px calc(6px + env(safe-area-inset-bottom));background:var(--surface);border-top:1px solid var(--border)}
+  .tabs .nav-item .icon{display:block}
+  .nav-list{width:100%}.nav-list li{flex:1;min-width:0}
+  .nav-item{width:100%;flex-direction:column;justify-content:center;gap:3px;min-height:56px;padding:4px 2px;border:0;border-radius:12px;font-size:.75rem;text-align:center}.nav-item.is-active{background:var(--accent-soft);color:var(--accent-text);box-shadow:none}
+  .nav-item .badge{position:absolute;top:4px;left:calc(50% + 6px);min-width:20px;padding:1px 5px;font-size:.6875rem}
+  .content{padding:20px 16px 104px}
   .hero-card,.chapter-hero,.score-card{padding:22px 20px}.ready-card,.list-card,.ready-change,.panel{padding:20px}
   .next-card{padding:22px 20px}.topic-row{padding:14px 18px}.block-head.pad{padding:18px 18px 8px}
   .answer-review summary{padding:14px 18px}.review-body{padding:0 18px 18px}
@@ -402,6 +450,16 @@ dialog .lesson-actions{display:flex;justify-content:flex-end;gap:10px;margin-top
   .sheet .sheet-inner{padding-top:0}
   .is-open .why-wrap>.why-body{max-height:45vh;overflow-y:auto}
   #notice{bottom:calc(84px + env(safe-area-inset-bottom))}
+  /* Desk on phones: everything stacks; the week panel follows the tiles. */
+  .desk.page{gap:16px}.desk-main{gap:14px}
+  .desk-session{padding:22px 20px;min-height:0;gap:12px}
+  .desk-session .primary.large{width:100%}
+  .desk-tiles{gap:8px}.desk-tile{padding:12px;border-radius:14px}.desk-tile .muted{display:none}
+  .desk-side{margin-top:0;padding:20px}
+  .day-dot{width:26px;height:26px}
+  .stat-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .chapter-line{grid-template-columns:26px minmax(0,1fr) 44px;row-gap:6px;padding:10px 16px}.chapter-line .bar{grid-column:2;grid-row:2}.chapter-line>.mono{grid-row:1/3}.chapter-line .pct{grid-column:3;grid-row:1/3}
+  .review-group{padding:0 16px}
 }
 @media (max-width:520px){
   .sheet-actions{width:100%}.sheet-actions .button{flex:1 1 140px}
@@ -8086,11 +8144,29 @@ function firstTry(questions, progress) {
   return { answered: firsts.length, correct: firsts.filter(([, r]) => r.correct).length, rate: pct(firsts.filter(([, r]) => r.correct).length, firsts.length) };
 }
 const day = t => { const d = new Date(t); return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`; };
-// Consecutive local days with at least one real answer, ending today (or yesterday, so the streak survives until tonight).
-function streak(questions, progress, now = Date.now()) {
+// Local days with at least one real answer (from latest outcomes and finished sessions).
+function studyDays(questions, progress) {
   const ids = new Set(questions.map(q => q.id)), days = new Set();
   for (const [id, r] of Object.entries(progress.latest)) if (ids.has(id) && r.status === 'answered' && r.at > 0) days.add(day(r.at));
   for (const s of progress.history) if (s.items.some(i => i.checked && ids.has(i.id))) days.add(day(s.finished));
+  return days;
+}
+// Monday-to-Sunday view of the current week for the "This week" panel.
+function weekDays(questions, progress, now = Date.now()) {
+  const days = studyDays(questions, progress), today = new Date(now), dow = (today.getDay() + 6) % 7;
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(today); d.setDate(today.getDate() - dow + i);
+    return { letter: 'MTWTFSS'[i], name: d.toLocaleDateString(undefined, { weekday: 'long' }), studied: days.has(day(d.getTime())), today: i === dow, future: i > dow };
+  });
+}
+// Questions whose latest answer is correct and was given in the last 7 days.
+function correctThisWeek(questions, progress, now = Date.now()) {
+  const ids = new Set(questions.map(q => q.id)), since = now - 7 * 86400000;
+  return Object.entries(progress.latest).filter(([id, r]) => ids.has(id) && r.status === 'answered' && r.correct && r.at >= since).length;
+}
+// Consecutive local days with at least one real answer, ending today (or yesterday, so the streak survives until tonight).
+function streak(questions, progress, now = Date.now()) {
+  const days = studyDays(questions, progress);
   let cursor = new Date(now), count = 0, today = days.has(day(now));
   if (!today) cursor.setDate(cursor.getDate() - 1);
   while (days.has(day(cursor.getTime()))) { count++; cursor.setDate(cursor.getDate() - 1); }
@@ -8115,11 +8191,11 @@ function snapshot(chapters, questions, progress) {
   return { overall: counts(questions, progress).correct, chapters: Object.fromEntries(chapters.map(ch => [ch.number, counts(questions.filter(q => q.chapter === ch.number), progress).correct])) };
 }
 
-return {counts,chapterCards,todayPlan,pickPlan,firstTry,streak,examCountdown,reviewList,ago,snapshot};
+return {counts,chapterCards,todayPlan,pickPlan,firstTry,weekDays,correctThisWeek,streak,examCountdown,reviewList,ago,snapshot};
 })();
 __modules["src/views/screens.js"] = (() => {
 const { cellState } = __modules["src/logic/finals.js"];
-const { counts, chapterCards, todayPlan, firstTry, streak, examCountdown, reviewList, ago } = __modules["src/logic/dashboard.js"];
+const { counts, chapterCards, todayPlan, firstTry, streak, examCountdown, reviewList, ago, weekDays, correctThisWeek } = __modules["src/logic/dashboard.js"];
 function escape(text) {
   return String(text).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 }
@@ -8159,13 +8235,12 @@ let scoreOf = () => 0;
 // main.js registers the scorer so views can show a session's score without holding the question bank.
 function setScorer(fn) { scoreOf = fn; }
 
-// App shell: a sidebar on desktop, a tab bar on phones. Session screens (welcome, quiz) render without it.
-function renderShell(active, content, { reviewCount = 0, theme = 'system' } = {}) {
-  const item = (key, label, act, extra = '') => `<li><button type="button" class="nav-item${active === key ? ' is-active' : ''}" data-action="${act}"${active === key ? ' aria-current="page"' : ''}>${icon(key, 22)}<span class="nav-label">${label}</span>${extra}</button></li>`;
-  return `<div class="shell"><nav class="sidebar" aria-label="Main">
-    <div class="brand">${mark()}<span class="brand-text"><strong>Final review</strong><small class="mono">CIS 4100 · Ch 7–11</small></span></div>
-    <ul class="nav-list">${item('today', 'Today', 'library')}${item('chapters', 'Chapters', 'chapters')}${item('review', 'Review', 'missed', reviewCount ? `<span class="badge mono"><span class="visually-hidden">, </span>${reviewCount}<span class="visually-hidden"> to review</span></span>` : '')}${item('mock', 'Mock test', 'mock')}${item('history', 'History', 'history-list')}${item('settings', 'Settings', 'settings')}</ul>
-    <div class="sidebar-foot"><span class="foot-label">Appearance</span>${themeSwitch(theme)}</div></nav>
+// App shell: a top tab bar on desktop that becomes a bottom tab bar on phones. Session screens (welcome, quiz) render without it.
+function renderShell(active, content, { reviewCount = 0 } = {}) {
+  const item = (key, label, act, iconName, extra = '') => `<li><button type="button" class="nav-item${active === key ? ' is-active' : ''}" data-action="${act}"${active === key ? ' aria-current="page"' : ''}>${icon(iconName, 22)}<span class="nav-label">${label}</span>${extra}</button></li>`;
+  const badge = reviewCount ? `<span class="badge mono"><span class="visually-hidden">, </span>${reviewCount}<span class="visually-hidden"> to review</span></span>` : '';
+  return `<div class="shell"><header class="topbar"><div class="topbar-inner"><span class="brand">${mark(26)}<span class="brand-text"><strong>Final review</strong><small class="mono">CIS 4100 · Ch 7–11</small></span></span>
+    <nav class="tabs" aria-label="Main"><ul class="nav-list">${item('today', 'Today', 'library', 'today')}${item('chapters', 'Chapters', 'chapters', 'chapters')}${item('progress', 'Progress', 'progress', 'history')}${item('review', 'Review', 'review-list', 'review', badge)}${item('settings', 'Settings', 'settings', 'settings')}</ul></nav></div></header>
     <div class="content">${content}</div></div>`;
 }
 
@@ -8191,41 +8266,58 @@ function recentList(progress, now) {
   return `<ul class="plain">${recent.map(s => `<li class="recent-item"><span class="recent-text"><strong>${escape(s.label)}</strong><span class="muted small">${ago(s.finished, now)} · ${plural(s.items.length, 'question')}</span></span><button type="button" class="score-link mono" data-action="history" data-value="${escape(s.id)}" aria-label="View results for ${escape(s.label)}, ${scoreOf(s)} of ${s.items.length}">${scoreOf(s)}/${s.items.length}</button></li>`).join('')}</ul>`;
 }
 
+// Today as a study desk: the next session on the left with three ways to switch, and this week on the right.
 function renderLibrary(chapters, questions, progress, { prefs = {}, now = Date.now() } = {}) {
-  const total = counts(questions, progress), cards = chapterCards(chapters, questions, progress), plan = todayPlan(chapters, questions, progress);
-  const ft = firstTry(questions, progress), st = streak(questions, progress, now), exam = examCountdown(prefs.examDate, now), list = reviewList(questions, progress);
-  const flagged = questions.filter(q => progress.flags.includes(q.id)).length, active = progress.active, answered = total.correct + total.review;
-  const date = new Date(now).toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' });
-  const sessionCard = active ? `<section class="card hero-card" aria-labelledby="today-title"><span class="pill pill-accent">${icon('spark', 14)}In progress</span>
-      <h2 id="today-title">${escape(active.label)}</h2><p class="lede">Question ${active.index + 1} of ${active.items.length}. Your answers so far are saved.</p>
-      <div class="actions">${action('Resume session', 'resume', 'primary large')}${action('Choose something else', 'chapters', 'ghost large')}</div></section>`
-    : `<section class="card hero-card" aria-labelledby="today-title"><span class="pill pill-accent">${icon('spark', 14)}Today’s session</span>
-      <h2 id="today-title">${escape(plan.title)}</h2><p class="lede">${plan.review.length || plan.focus ? 'Built from your review list and the started chapter with the most unseen questions.' : 'A balanced first look across the whole final.'} ${plural(plan.total || 10, 'question')}, feedback after each one.</p>
-      <ul class="plain plan-list">${plan.review.length ? `<li><span class="count-chip chip-review mono">${plan.review.length}</span><span><strong>To review</strong><span class="muted"> · ${escape(plan.reviewTopics.slice(0, 3).join(', '))}</span></span></li>` : ''}${plan.fresh ? `<li><span class="count-chip chip-accent mono">${plan.fresh}</span><span><strong>Unseen</strong><span class="muted"> · ${plan.focus ? `Chapter ${plan.focus.number} · ${escape(plan.focus.title)}` : 'All five chapters'}</span></span></li>` : ''}</ul>
-      <div class="actions">${plan.total ? action('Start session', 'today', 'primary large') : action('Mixed practice', 'mixed', 'primary large')}${action('Choose something else', 'chapters', 'ghost large')}</div></section>`;
-  const more = [action('Mixed practice · 10', 'mixed', 'link'), action('Mock test · 20', 'mock', 'link'), total.review && action(`Review all ${total.review}`, 'missed', 'link'), flagged && action(`Flagged · ${flagged}`, 'flags', 'link')].filter(Boolean).join('<span class="sep" aria-hidden="true">·</span>');
-  const examLine = exam && exam.days >= 0 ? ` · exam ${exam.days === 0 ? 'today' : exam.days === 1 ? 'tomorrow' : `in ${exam.days} days`}` : '';
-  const oldest = list.length ? reviewList(questions, progress, total.review).at(-1) : null;
-  // Phones get a compact Today: one readiness row, swipeable stats, a chapter list, one review row and a start button by the thumb.
-  const ctaLabel = active ? 'Resume session' : plan.total ? 'Start today’s session' : 'Start mixed practice';
-  return `<div class="page today"><header class="page-head"><div><p class="eyebrow">${escape(date)}${escape(examLine)}</p><h1 tabindex="-1">Today</h1></div><p class="muted head-summary">${answered ? `${total.correct} correct · ${total.review} to review · ${total.unseen} unseen` : `${total.total} questions across five chapters. Nothing answered yet.`}</p></header>
-    <div class="row">${sessionCard}<section class="card ready-card desktop-only" aria-labelledby="ready-title"><h2 id="ready-title">Readiness</h2><div class="ready-body">${ring(total)}${legend(total)}</div><p class="muted small">Readiness is the share of all ${total.total} questions whose latest answer is correct.</p></section></div>
-    <section class="card ready-row mobile-only" aria-label="Readiness">${ring(total, 64)}<span class="ready-row-text"><strong>${total.readiness}% ready</strong><span class="muted small">${total.correct} correct · ${total.review} to review · ${total.unseen} unseen</span></span></section>
-    <p class="more-actions"><span class="muted">Or start:</span> ${more}</p>
-    <div class="stats" role="region" aria-label="Your stats" tabindex="0">
-      <section class="card stat" aria-label="Answered"><span class="muted">Answered</span><strong class="stat-value">${answered} <small>of ${total.total}</small></strong><span class="muted small">${Math.round(answered / total.total * 100)}% of the bank</span></section>
-      <section class="card stat" aria-label="First-try accuracy"><span class="muted">First-try accuracy</span><strong class="stat-value">${ft.answered ? `${ft.rate}%` : '–'}</strong><span class="muted small">${ft.answered ? `${ft.correct} of ${ft.answered} right the first time` : 'Answer a question to start'}</span></section>
-      <section class="card stat" aria-label="Study streak"><span class="muted">Study streak</span><strong class="stat-value">${st.days} <small>${st.days === 1 ? 'day' : 'days'}</small></strong><span class="muted small">${st.today ? 'You studied today' : st.days ? `Practice today to make it ${st.days + 1}` : 'Answer a question today to start one'}</span></section>
-      <section class="card stat exam${exam ? '' : ' is-empty'}" aria-labelledby="exam-title"><h2 id="exam-title" class="stat-title muted">Final exam</h2>${exam ? `<strong class="stat-value">${exam.days > 1 ? `${exam.days} <small>days</small>` : exam.days === 1 ? 'Tomorrow' : exam.days === 0 ? 'Today' : 'Passed'}</strong><span class="muted small">${escape(exam.label)}</span>` : '<strong class="stat-empty">No date yet</strong>'}
-        <label class="date-field"><span class="${exam ? 'visually-hidden' : 'small muted'}">${exam ? 'Change exam date' : 'Add your exam date'}</span><input id="exam-date" type="date" value="${escape(prefs.examDate || '')}" data-pref></label></section></div>
-    <section aria-labelledby="chapters-title" class="block"><div class="block-head"><h2 id="chapters-title">Chapters</h2><span class="muted small">${total.total} questions · ${chapters.length} chapters</span></div>
-      <ul class="plain chapter-grid">${cards.map(chapterCard).join('')}</ul></section>
-    ${total.review ? `<button type="button" class="card review-row mobile-only" data-action="missed"><span class="count-chip chip-review mono">${total.review}</span><span class="review-row-label">Review list</span><span class="muted small">${oldest ? `Oldest: ${ago(oldest.at, now)}` : ''}</span><span class="chev-right">${icon('chevron', 16)}</span></button>` : ''}
-    <div class="sticky-start mobile-only"><button type="button" class="button cta" data-action="${active ? 'resume' : plan.total ? 'today' : 'mixed'}">${ctaLabel}${icon('arrow', 18)}</button></div>
-    <div class="row desktop-only">
-      <section class="card list-card" aria-labelledby="queue-title"><div class="block-head"><h2 id="queue-title">Review list</h2>${total.review ? action(`Review all ${total.review}`, 'missed', 'link') : ''}</div>
-        ${list.length ? `<ul class="plain">${list.map(({ question: q, at }) => `<li class="queue-item"><span class="queue-text"><span class="mono muted small">Ch ${q.chapter} · ${escape(q.topic)} · missed ${ago(at, now)}</span><span class="clamp">${escape(q.prompt)}</span></span>${action('Retry', 'retry-one', 'outline', q.id, `aria-label="Retry ${escape(q.topic)} question ${q.id}"`)}</li>`).join('')}</ul>` : '<p class="muted empty">No misses waiting. Wrong answers land here until you get them right.</p>'}</section>
-      <section class="card list-card" aria-labelledby="recent-title"><div class="block-head"><h2 id="recent-title">Recent sessions</h2>${progress.history.length ? action('All history', 'history-list', 'link') : ''}</div>${recentList(progress, now)}</section></div></div>`;
+  const total = counts(questions, progress), plan = todayPlan(chapters, questions, progress), active = progress.active;
+  const exam = examCountdown(prefs.examDate, now), st = streak(questions, progress, now), week = weekDays(questions, progress, now), gained = correctThisWeek(questions, progress, now);
+  const answered = total.correct + total.review, cards = chapterCards(chapters, questions, progress);
+  const weakest = cards.flatMap(c => c.topics.filter(t => t.review).map(t => ({ ...t, chapter: c.number }))).sort((a, b) => b.review - a.review || a.readiness - b.readiness)[0];
+  const hour = new Date(now).getHours(), greeting = hour < 12 ? 'Good morning.' : hour < 18 ? 'Good afternoon.' : 'Good evening.';
+  const session = active ? `<section class="card desk-session" aria-labelledby="today-title"><span class="kicker">In progress · question ${active.index + 1} of ${active.items.length}</span>
+      <h2 id="today-title">${escape(active.label)}</h2><p class="desk-detail">Your answers so far are saved.</p>
+      <div class="actions">${action('Resume session', 'resume', 'primary large')}</div></section>`
+    : `<section class="card desk-session" aria-labelledby="today-title"><span class="kicker">Your next session · ${plural(plan.total || 10, 'question')} · about ${Math.max(2, Math.round((plan.total || 10) * 1.2))} min</span>
+      <h2 id="today-title">${escape(plan.title)}</h2>
+      <p class="desk-detail">${plan.review.length ? `<span class="review-text strong">${plan.review.length} to review</span> from ${escape(plan.reviewTopics.slice(0, 3).join(', '))}` : ''}${plan.review.length && plan.fresh ? ' · ' : ''}${plan.fresh ? `<span class="accent-text strong">${plan.fresh} new</span> ${plan.focus ? `from Chapter ${plan.focus.number}` : 'across all five chapters'}` : ''}${!plan.total ? 'Every question answered correctly. Keep it fresh with a mix.' : ''}</p>
+      <div class="actions">${plan.total ? action('Start session', 'today', 'primary large') : action('Mixed practice', 'mixed', 'primary large')}</div></section>`;
+  const tile = (act, count, tone, title, note) => `<button type="button" class="card desk-tile" data-action="${act}"><span class="count-chip mono ${tone}">${count}</span><strong>${title}</strong><span class="muted small">${note}</span></button>`;
+  const studiedDays = week.filter(d => d.studied).length;
+  return `<div class="page desk"><div class="desk-main"><h1 tabindex="-1">${greeting}</h1>${session}
+      <div class="desk-tiles">${tile('review-list', total.review || 'All clear', total.review ? 'chip-review' : 'chip-plain', 'Review misses', total.review ? 'Retry what you got wrong' : 'Nothing to fix yet')}${tile('chapters', chapters.length, 'chip-accent', 'Pick a chapter', weakest ? `Weakest: ${escape(weakest.topic)}` : 'Or a single topic')}${tile('mock', 20, 'chip-plain', 'Mock test', 'Answers at the end')}</div></div>
+    <aside class="card desk-side" aria-label="This week">
+      <section class="side-block" aria-labelledby="week-title"><h2 id="week-title">This week${st.days >= 2 ? ` · ${st.days}-day streak` : ''}</h2>
+        <ol class="plain week" aria-label="Days studied this week">${week.map(d => `<li aria-label="${d.name}${d.today ? ', today' : ''}: ${d.studied ? 'studied' : d.future ? 'coming up' : d.today ? 'not yet' : 'no study'}"><span class="day-dot${d.studied ? ' is-done' : ''}${d.today && !d.studied ? ' is-today' : ''}" aria-hidden="true"></span><span class="mono day-letter" aria-hidden="true">${d.letter}</span></li>`).join('')}</ol>
+        <p class="muted small">${studiedDays ? `Studied ${plural(studiedDays, 'day')} this week.` : 'Answer one question today to start a streak.'}</p></section>
+      <section class="side-block" aria-labelledby="ready-title"><div class="side-head"><h2 id="ready-title">Readiness</h2>${gained ? `<span class="gain">+${gained} correct this week</span>` : ''}</div>
+        ${answered ? `<strong class="side-big">${total.readiness}%</strong>${bar(total)}<span class="muted small">${total.correct} correct · ${total.review} to review · ${total.unseen} unseen</span>` : '<p class="muted small">Your readiness appears here after your first session.</p>'}
+        ${action('See progress', 'progress', 'link')}</section>
+      <section class="side-block side-row" aria-labelledby="exam-title"><h2 id="exam-title">Final exam</h2>${exam && exam.days >= 0 ? `<span><strong>${exam.days === 0 ? 'Today' : exam.days === 1 ? 'Tomorrow' : `${exam.days} days`}</strong><span class="muted"> · ${escape(exam.label)}</span></span>` : action('Add date', 'settings', 'link')}</section>
+    </aside></div>`;
+}
+
+function renderProgress(chapters, questions, progress, { prefs = {}, now = Date.now() } = {}) {
+  const total = counts(questions, progress), cards = chapterCards(chapters, questions, progress), ft = firstTry(questions, progress), st = streak(questions, progress, now), exam = examCountdown(prefs.examDate, now), gained = correctThisWeek(questions, progress, now);
+  const answered = total.correct + total.review;
+  return `<div class="page progress"><header class="page-head"><div><h1 tabindex="-1">Progress</h1></div><p class="muted head-summary">${answered ? `${answered} of ${total.total} questions answered` : 'Nothing answered yet'}</p></header>
+    <div class="row"><section class="card ready-card" aria-labelledby="ready-title"><div class="side-head"><h2 id="ready-title">Readiness</h2>${gained ? `<span class="gain">+${gained} correct this week</span>` : ''}</div><div class="ready-body">${ring(total)}${legend(total)}</div><p class="muted small">Readiness is the share of all ${total.total} questions whose latest answer is correct.</p></section>
+      <div class="stat-grid">
+        <section class="card stat" aria-label="First-try accuracy"><span class="muted">First-try accuracy</span><strong class="stat-value">${ft.answered ? `${ft.rate}%` : '–'}</strong><span class="muted small">${ft.answered ? `${ft.correct} of ${ft.answered} right the first time` : 'Appears after your first answers'}</span></section>
+        <section class="card stat" aria-label="Study streak"><span class="muted">Study streak</span><strong class="stat-value">${st.days} <small>${st.days === 1 ? 'day' : 'days'}</small></strong><span class="muted small">${st.today ? 'You studied today' : st.days ? `Practice today to make it ${st.days + 1}` : 'Answer a question to start one'}</span></section>
+        <section class="card stat" aria-label="Final exam"><span class="muted">Final exam</span>${exam && exam.days >= 0 ? `<strong class="stat-value">${exam.days} <small>${exam.days === 1 ? 'day' : 'days'}</small></strong><span class="muted small">${escape(exam.label)}</span>` : `<strong class="stat-empty">No date yet</strong>${action('Add in Settings', 'settings', 'link')}`}</section>
+        <section class="card stat" aria-label="Answered"><span class="muted">Answered</span><strong class="stat-value">${answered} <small>of ${total.total}</small></strong><span class="muted small">${total.unseen} still unseen</span></section></div></div>
+    <section class="block" aria-labelledby="by-chapter"><div class="block-head"><h2 id="by-chapter">By chapter</h2></div>
+      <ul class="plain card chapter-lines">${cards.map(c => `<li><button type="button" class="chapter-line" data-action="chapter" data-value="${c.number}"><span class="mono muted">${String(c.number).padStart(2, '0')}</span><span class="line-title"><strong>${escape(c.title)}</strong><span class="muted small">${summary(c)}</span></span>${bar(c)}<span class="pct">${c.correct + c.review ? `${c.readiness}%` : 'New'}</span></button></li>`).join('')}</ul></section>
+    <section class="card list-card" aria-labelledby="recent-title"><div class="block-head"><h2 id="recent-title">Recent sessions</h2>${progress.history.length ? action('All history', 'history-list', 'link') : ''}</div>${recentList(progress, now)}</section></div>`;
+}
+
+function renderReview(questions, progress, { now = Date.now() } = {}) {
+  const misses = reviewList(questions, progress, Infinity), flagged = questions.filter(q => progress.flags.includes(q.id));
+  const oldest = misses.at(-1);
+  const groups = [...Map.groupBy(misses, m => m.question.chapter)].sort((a, b) => a[0] - b[0]);
+  return `<div class="page review-page"><header class="page-head"><div><h1 tabindex="-1">Review</h1><p class="muted">${misses.length ? `${plural(misses.length, 'miss', 'misses')} · oldest from ${ago(oldest.at, now)}` : 'Nothing to review right now'}</p></div>${misses.length ? action(`Review all ${misses.length}`, 'missed', 'primary large') : ''}</header>
+    ${misses.length ? groups.map(([ch, items]) => `<section class="block" aria-labelledby="rv-${ch}"><h2 class="eyebrow" id="rv-${ch}">Chapter ${ch} · ${items.length}</h2><ul class="plain card review-group">${items.map(({ question: q, at }) => `<li class="queue-item"><span class="queue-text"><span class="small review-text strong">${escape(q.topic)} · missed ${ago(at, now)}</span><span>${escape(q.prompt)}</span></span>${action('Retry', 'retry-one', 'outline', q.id, `aria-label="Retry ${q.id}"`)}</li>`).join('')}</ul></section>`).join('')
+      : '<section class="card empty-card"><p>Wrong answers land here until you get them right. Start today’s session and anything you miss will show up for review.</p>' + action('Back to Today', 'library', 'outline') + '</section>'}
+    ${flagged.length ? `<p class="muted flag-line">Flagged · ${plural(flagged.length, 'question')} · ${action('Practice flagged', 'flags', 'link')}</p>` : ''}</div>`;
 }
 
 function renderChapters(chapters, questions, progress) {
@@ -8375,7 +8467,7 @@ function renderResults(result, recommendation, label = 'Session complete', { pro
     <div class="actions">${action('Back to Today', 'library', 'ghost')}</div></div>`;
 }
 
-return {escape,action,address,icon,mark,themeSwitch,setScorer,renderShell,renderStart,renderLibrary,renderChapters,renderChapter,renderHistory,renderSettings,renderQuiz,renderResults};
+return {escape,action,address,icon,mark,themeSwitch,setScorer,renderShell,renderStart,renderLibrary,renderProgress,renderReview,renderChapters,renderChapter,renderHistory,renderSettings,renderQuiz,renderResults};
 })();
 __modules["src/main.js"] = (() => {
 const { chapters: finalsChapters } = __modules["src/data/chapters.js"];
@@ -8383,7 +8475,7 @@ const { questions: finalsQuestions } = __modules["src/data/questions.js"];
 const { archiveQuestions } = __modules["src/data/archive.js"];
 const { createSession, confirmCurrent, setDraft, navigate, score, recommend, recordItem, finishSession, currentItem, similarQuestion, startFollowUp, endFollowUp } = __modules["src/logic/session.js"];
 const { loadProgress, saveProgress, validateProgress, importLegacy, listBackups, adoptUnreadable, key } = __modules["src/logic/storage.js"];
-const { renderStart, renderLibrary, renderSettings, renderQuiz, renderResults, renderShell, renderChapters, renderChapter, renderHistory, setScorer } = __modules["src/views/screens.js"];
+const { renderStart, renderLibrary, renderSettings, renderQuiz, renderResults, renderShell, renderChapters, renderChapter, renderHistory, renderProgress, renderReview, setScorer } = __modules["src/views/screens.js"];
 const { todayPlan, pickPlan, snapshot } = __modules["src/logic/dashboard.js"];
 const { isFinals, isFinalsSession, parkArchiveSession, scopeProgress, resetFinalsProgress } = __modules["src/logic/finals.js"];
 const chapters = finalsChapters, questions = finalsQuestions;
@@ -8471,7 +8563,7 @@ function reveal(element) {
 // Theme: 'system' follows the device; 'light'/'dark' are stored per browser.
 function applyTheme() { const html=document.documentElement; if(html?.dataset){ if(prefs.theme==='light'||prefs.theme==='dark') html.dataset.theme=prefs.theme; else delete html.dataset.theme; } }
 function savePrefs() { try{localStorage.setItem(prefsKey,JSON.stringify(prefs));}catch{} }
-const shellFor = { library:'today', chapters:'chapters', chapter:'chapters', history:'history', settings:'settings', results:'history' };
+const shellFor = { library:'today', chapters:'chapters', chapter:'chapters', progress:'progress', history:'progress', results:'progress', review:'review', settings:'settings' };
 function render(focus='heading') {
   document.body.dataset.screen=screen;
   const scoped=scopeProgress(progress,bank), session=progress.active;
@@ -8481,6 +8573,8 @@ function render(focus='heading') {
   if(screen==='chapters') root.innerHTML=wrap(renderChapters(chapters,questions,scoped));
   if(screen==='chapter') root.innerHTML=wrap(renderChapter(chapters.find(c=>c.number===currentChapter),questions,scoped));
   if(screen==='history') root.innerHTML=wrap(renderHistory(scoped));
+  if(screen==='progress') root.innerHTML=wrap(renderProgress(chapters,questions,scoped,{prefs}));
+  if(screen==='review') root.innerHTML=wrap(renderReview(questions,scoped));
   if(screen==='settings') root.innerHTML=wrap(renderSettings({progress:scoped,questions,storage:storageInfo(),prefs,backups:listBackups(),archived:(progress.archivedSessions||[]).length}));
   if(screen==='quiz') {
     const item=currentItem(session), q=bank.get(item.id), questionKey=`${session.id}:${session.index}:${session.followUp?.id||''}`;
@@ -8607,6 +8701,8 @@ function onAction(action, value, button) {
     case 'chapter':if(chapters.some(c=>c.number===Number(value))){currentChapter=Number(value);show('chapter');}break;
     case 'chapters':show('chapters');break;
     case 'history-list':show('history');break;
+    case 'progress':show('progress');break;
+    case 'review-list':show('review');break;
     case 'theme':{const before=prefs.theme||'system',next=['light','dark'].includes(value)?value:'system';if(before===next)break;
       const applyChoice=v=>{prefs.theme=v;savePrefs();applyTheme();render(`[data-action="theme"][data-value="${v}"]`);};
       applyChoice(next);say(`Appearance: ${{system:'Auto',light:'Light',dark:'Dark'}[next]} · saved`,{undo:()=>applyChoice(before)});break;}
@@ -8614,7 +8710,7 @@ function onAction(action, value, button) {
       const set=v=>{prefs[value]=v;savePrefs();render(`[data-action="toggle-pref"][data-value="${value}"]`);};
       set(!was);say(`${button?.querySelector?.('.set-text span')?.textContent||'Setting'} ${!was?'on':'off'} · saved`,{undo:()=>set(was)});break;}
     case 'why':if(suppressClick){suppressClick=false;break;}setWhy(!whyOpen);break;
-    case 'exam':show('library');root.querySelector('#exam-date')?.focus();break;
+    case 'exam':show('settings');root.querySelector('#exam-date')?.focus();break;
     case 'today':{const plan=todayPlan(chapters,questions,scopeProgress(progress,bank));const pool=pickPlan(plan);if(pool.length)start(pool,{label:'Today’s session',size:pool.length,ordered:true});else start(finalsQuestions,{...options(),label:'Mixed practice'});break;}
     case 'retry-one':{const q=bank.get(value);if(q&&isFinals(q))start([q],{label:`Retry · ${q.topic}`});break;}
     case 'chapter-practice':start(questions.filter(q=>q.chapter===Number(value)),{...options(),label:`Chapter ${value} practice`});break;

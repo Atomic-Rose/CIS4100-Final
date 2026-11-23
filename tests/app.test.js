@@ -37,7 +37,7 @@ test('offline file contains all local data and no runtime external dependencies'
  assert.ok(html.includes('C1-001'));assert.ok(html.includes('C11-'));assert.ok(!/<script[^>]+src=|<link[^>]+rel="stylesheet"/.test(html));assert.ok(!/\bimport\s*\{/.test(script));
 });
 test('actual app: Start, chapter, select, check, stable first result, continue, save and resume',()=>{
- const h=harness();assert.ok(h.root.innerHTML.includes('Start studying'));h.click('library');assert.ok(h.root.innerHTML.includes('>Today</h1>'));h.click('chapter',7);h.click('chapter-practice',7);let s=h.state().active;assert.equal(s.items.length,10);const q=questions.find(q=>q.id===s.items[0].id);h.click('pick',q.answer);assert.ok(!h.root.innerHTML.includes(q.explanation));h.click('next');assert.ok(h.root.innerHTML.includes(q.explanation));assert.equal(h.state().first[q.id].correct,true);h.click('next');assert.equal(h.state().active.index,1);h.click('pick',0);h.click('exit');assert.ok(h.root.innerHTML.includes('Resume session'));
+ const h=harness();assert.ok(h.root.innerHTML.includes('Start studying'));h.click('library');assert.ok(h.root.innerHTML.includes('class="page desk"'));h.click('chapter',7);h.click('chapter-practice',7);let s=h.state().active;assert.equal(s.items.length,10);const q=questions.find(q=>q.id===s.items[0].id);h.click('pick',q.answer);assert.ok(!h.root.innerHTML.includes(q.explanation));h.click('next');assert.ok(h.root.innerHTML.includes(q.explanation));assert.equal(h.state().first[q.id].correct,true);h.click('next');assert.equal(h.state().active.index,1);h.click('pick',0);h.click('exit');assert.ok(h.root.innerHTML.includes('Resume session'));
  const resumed=harness(h.values.get('smartprep-finals-v1'));resumed.click('library');resumed.click('resume');assert.equal(resumed.state().active.index,1);assert.equal(resumed.state().active.draft,0);assert.ok(resumed.root.innerHTML.includes('aria-pressed="true"'));
 });
 test('actual app: skip/revisit, T/F and MC keyboard selection, mock edit and deferred reveal',()=>{
@@ -84,7 +84,7 @@ test('requested journey: existing midterm data is retained but absent from all f
  const archive=archiveQuestions[0],p=freshProgress(),bank=new Map([...questions,...archiveQuestions].map(q=>[q.id,q]));
  p.active=createSession([archive]);setDraft(p.active,archive.answer);confirmCurrent(p.active);finishSession(p,bank);p.active=createSession([archive,questions[0]],{size:2});const original=structuredClone(p.active);
  const h=harness(JSON.stringify({version:2,...p}));assert.ok(h.root.innerHTML.includes('Start studying'));assert.ok(!h.root.innerHTML.includes('Resume session'));assert.deepEqual(h.state().archivedSessions,[original]);assert.equal(h.state().history.length,1);
- h.click('library');assert.ok(!h.root.innerHTML.includes('midterm'));assert.ok(!h.root.innerHTML.includes('Review missed'));assert.equal((h.root.innerHTML.match(/data-action="chapter"/g)||[]).length,5);
+ h.click('library');assert.ok(!h.root.innerHTML.includes('midterm'));assert.ok(!h.root.innerHTML.includes('Review missed'));h.click('chapters');assert.equal((h.root.innerHTML.match(/data-action="chapter"/g)||[]).length,5);
  h.click('mixed');assert.ok(h.state().active.items.every(i=>questions.some(q=>q.id===i.id)));assert.deepEqual(h.state().archivedSessions,[original]);
  h.click('exit');h.click('chapter',1);assert.ok(!h.root.innerHTML.includes('CHAPTER 1</p>'));h.click('missed');assert.ok(h.notice.textContent.includes('No questions'));
 });
@@ -98,7 +98,7 @@ test('learner: audit case — one correct answer, end early, empty mock creates 
  const h=harness();h.click('library');h.click('chapter',7);h.click('chapter-practice',7);const s=h.state().active,q=questions.find(q=>q.id===s.items[0].id);
  h.click('pick',q.answer);h.click('next');h.click('next');h.click('mock');h.confirm();h.click('submit');h.confirm();
  const p=h.state();assert.deepEqual(Object.keys(p.latest),[q.id]);assert.deepEqual(Object.keys(p.first),[q.id]);assert.equal(p.latest[q.id].correct,true);assert.equal(p.history.length,2);
- assert.ok(h.root.innerHTML.includes('Nothing was answered'));h.click('library');assert.ok(h.root.innerHTML.includes('<strong>0</strong> to review'));assert.ok(!h.root.innerHTML.includes('data-action="retry-one"'));assert.match(h.root.innerHTML,/class="button primary large" data-action="today"/);
+ assert.ok(h.root.innerHTML.includes('Nothing was answered'));h.click('library');assert.ok(h.root.innerHTML.includes('· 0 to review ·'));assert.ok(!h.root.innerHTML.includes('data-action="retry-one"'));assert.match(h.root.innerHTML,/class="button primary large" data-action="today"/);
 });
 test('learner: legacy save — unanswered records stop counting, real answers are recovered from history',()=>{
  const dma=questions.filter(q=>q.chapter===9&&q.topic==='DMA'),[a,b]=dma,archive=archiveQuestions[0];
@@ -112,7 +112,7 @@ test('learner: legacy save — unanswered records stop counting, real answers ar
  assert.equal(p.version,3);assert.deepEqual(p.latest,{[a.id]:{correct:true,status:'answered',at:2}});assert.deepEqual(p.first,{[a.id]:{correct:true,status:'answered',at:2}});assert.equal(p.history.length,2);
  assert.ok([...h.values.keys()].some(k=>k.startsWith(backupPrefix)));assert.ok(h.notice.textContent.includes('no longer count as misses'));
  const status=studyStatus(dma,p);assert.equal(status.correct,1);assert.equal(status.missed,0);assert.equal(status.unseen,5);
- h.click('library');assert.ok(h.root.innerHTML.includes('<strong>0</strong> to review'));assert.ok(!h.root.innerHTML.includes(archive.id));
+ h.click('library');assert.ok(h.root.innerHTML.includes('· 0 to review ·'));assert.ok(!h.root.innerHTML.includes(archive.id));
 });
 test('learner: wrong DMA answer shows its own rationale, a similar question, and returns to the same place',()=>{
  const c20=questions.find(q=>q.id==='C9-020'),others=questions.filter(q=>q.chapter===9&&q.topic!=='DMA').slice(0,3);

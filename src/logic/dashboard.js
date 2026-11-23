@@ -48,11 +48,29 @@ export function firstTry(questions, progress) {
   return { answered: firsts.length, correct: firsts.filter(([, r]) => r.correct).length, rate: pct(firsts.filter(([, r]) => r.correct).length, firsts.length) };
 }
 const day = t => { const d = new Date(t); return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`; };
-// Consecutive local days with at least one real answer, ending today (or yesterday, so the streak survives until tonight).
-export function streak(questions, progress, now = Date.now()) {
+// Local days with at least one real answer (from latest outcomes and finished sessions).
+function studyDays(questions, progress) {
   const ids = new Set(questions.map(q => q.id)), days = new Set();
   for (const [id, r] of Object.entries(progress.latest)) if (ids.has(id) && r.status === 'answered' && r.at > 0) days.add(day(r.at));
   for (const s of progress.history) if (s.items.some(i => i.checked && ids.has(i.id))) days.add(day(s.finished));
+  return days;
+}
+// Monday-to-Sunday view of the current week for the "This week" panel.
+export function weekDays(questions, progress, now = Date.now()) {
+  const days = studyDays(questions, progress), today = new Date(now), dow = (today.getDay() + 6) % 7;
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(today); d.setDate(today.getDate() - dow + i);
+    return { letter: 'MTWTFSS'[i], name: d.toLocaleDateString(undefined, { weekday: 'long' }), studied: days.has(day(d.getTime())), today: i === dow, future: i > dow };
+  });
+}
+// Questions whose latest answer is correct and was given in the last 7 days.
+export function correctThisWeek(questions, progress, now = Date.now()) {
+  const ids = new Set(questions.map(q => q.id)), since = now - 7 * 86400000;
+  return Object.entries(progress.latest).filter(([id, r]) => ids.has(id) && r.status === 'answered' && r.correct && r.at >= since).length;
+}
+// Consecutive local days with at least one real answer, ending today (or yesterday, so the streak survives until tonight).
+export function streak(questions, progress, now = Date.now()) {
+  const days = studyDays(questions, progress);
   let cursor = new Date(now), count = 0, today = days.has(day(now));
   if (!today) cursor.setDate(cursor.getDate() - 1);
   while (days.has(day(cursor.getTime()))) { count++; cursor.setDate(cursor.getDate() - 1); }

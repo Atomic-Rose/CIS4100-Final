@@ -1,5 +1,5 @@
 import { cellState } from '../logic/finals.js';
-import { counts, chapterCards, todayPlan, firstTry, streak, examCountdown, reviewList, ago } from '../logic/dashboard.js';
+import { counts, chapterCards, todayPlan, firstTry, streak, examCountdown, reviewList, ago, weekDays, correctThisWeek } from '../logic/dashboard.js';
 export function escape(text) {
   return String(text).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 }
@@ -39,13 +39,12 @@ let scoreOf = () => 0;
 // main.js registers the scorer so views can show a session's score without holding the question bank.
 export function setScorer(fn) { scoreOf = fn; }
 
-// App shell: a sidebar on desktop, a tab bar on phones. Session screens (welcome, quiz) render without it.
-export function renderShell(active, content, { reviewCount = 0, theme = 'system' } = {}) {
-  const item = (key, label, act, extra = '') => `<li><button type="button" class="nav-item${active === key ? ' is-active' : ''}" data-action="${act}"${active === key ? ' aria-current="page"' : ''}>${icon(key, 22)}<span class="nav-label">${label}</span>${extra}</button></li>`;
-  return `<div class="shell"><nav class="sidebar" aria-label="Main">
-    <div class="brand">${mark()}<span class="brand-text"><strong>Final review</strong><small class="mono">CIS 4100 · Ch 7–11</small></span></div>
-    <ul class="nav-list">${item('today', 'Today', 'library')}${item('chapters', 'Chapters', 'chapters')}${item('review', 'Review', 'missed', reviewCount ? `<span class="badge mono"><span class="visually-hidden">, </span>${reviewCount}<span class="visually-hidden"> to review</span></span>` : '')}${item('mock', 'Mock test', 'mock')}${item('history', 'History', 'history-list')}${item('settings', 'Settings', 'settings')}</ul>
-    <div class="sidebar-foot"><span class="foot-label">Appearance</span>${themeSwitch(theme)}</div></nav>
+// App shell: a top tab bar on desktop that becomes a bottom tab bar on phones. Session screens (welcome, quiz) render without it.
+export function renderShell(active, content, { reviewCount = 0 } = {}) {
+  const item = (key, label, act, iconName, extra = '') => `<li><button type="button" class="nav-item${active === key ? ' is-active' : ''}" data-action="${act}"${active === key ? ' aria-current="page"' : ''}>${icon(iconName, 22)}<span class="nav-label">${label}</span>${extra}</button></li>`;
+  const badge = reviewCount ? `<span class="badge mono"><span class="visually-hidden">, </span>${reviewCount}<span class="visually-hidden"> to review</span></span>` : '';
+  return `<div class="shell"><header class="topbar"><div class="topbar-inner"><span class="brand">${mark(26)}<span class="brand-text"><strong>Final review</strong><small class="mono">CIS 4100 · Ch 7–11</small></span></span>
+    <nav class="tabs" aria-label="Main"><ul class="nav-list">${item('today', 'Today', 'library', 'today')}${item('chapters', 'Chapters', 'chapters', 'chapters')}${item('progress', 'Progress', 'progress', 'history')}${item('review', 'Review', 'review-list', 'review', badge)}${item('settings', 'Settings', 'settings', 'settings')}</ul></nav></div></header>
     <div class="content">${content}</div></div>`;
 }
 
@@ -71,41 +70,58 @@ function recentList(progress, now) {
   return `<ul class="plain">${recent.map(s => `<li class="recent-item"><span class="recent-text"><strong>${escape(s.label)}</strong><span class="muted small">${ago(s.finished, now)} · ${plural(s.items.length, 'question')}</span></span><button type="button" class="score-link mono" data-action="history" data-value="${escape(s.id)}" aria-label="View results for ${escape(s.label)}, ${scoreOf(s)} of ${s.items.length}">${scoreOf(s)}/${s.items.length}</button></li>`).join('')}</ul>`;
 }
 
+// Today as a study desk: the next session on the left with three ways to switch, and this week on the right.
 export function renderLibrary(chapters, questions, progress, { prefs = {}, now = Date.now() } = {}) {
-  const total = counts(questions, progress), cards = chapterCards(chapters, questions, progress), plan = todayPlan(chapters, questions, progress);
-  const ft = firstTry(questions, progress), st = streak(questions, progress, now), exam = examCountdown(prefs.examDate, now), list = reviewList(questions, progress);
-  const flagged = questions.filter(q => progress.flags.includes(q.id)).length, active = progress.active, answered = total.correct + total.review;
-  const date = new Date(now).toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' });
-  const sessionCard = active ? `<section class="card hero-card" aria-labelledby="today-title"><span class="pill pill-accent">${icon('spark', 14)}In progress</span>
-      <h2 id="today-title">${escape(active.label)}</h2><p class="lede">Question ${active.index + 1} of ${active.items.length}. Your answers so far are saved.</p>
-      <div class="actions">${action('Resume session', 'resume', 'primary large')}${action('Choose something else', 'chapters', 'ghost large')}</div></section>`
-    : `<section class="card hero-card" aria-labelledby="today-title"><span class="pill pill-accent">${icon('spark', 14)}Today’s session</span>
-      <h2 id="today-title">${escape(plan.title)}</h2><p class="lede">${plan.review.length || plan.focus ? 'Built from your review list and the started chapter with the most unseen questions.' : 'A balanced first look across the whole final.'} ${plural(plan.total || 10, 'question')}, feedback after each one.</p>
-      <ul class="plain plan-list">${plan.review.length ? `<li><span class="count-chip chip-review mono">${plan.review.length}</span><span><strong>To review</strong><span class="muted"> · ${escape(plan.reviewTopics.slice(0, 3).join(', '))}</span></span></li>` : ''}${plan.fresh ? `<li><span class="count-chip chip-accent mono">${plan.fresh}</span><span><strong>Unseen</strong><span class="muted"> · ${plan.focus ? `Chapter ${plan.focus.number} · ${escape(plan.focus.title)}` : 'All five chapters'}</span></span></li>` : ''}</ul>
-      <div class="actions">${plan.total ? action('Start session', 'today', 'primary large') : action('Mixed practice', 'mixed', 'primary large')}${action('Choose something else', 'chapters', 'ghost large')}</div></section>`;
-  const more = [action('Mixed practice · 10', 'mixed', 'link'), action('Mock test · 20', 'mock', 'link'), total.review && action(`Review all ${total.review}`, 'missed', 'link'), flagged && action(`Flagged · ${flagged}`, 'flags', 'link')].filter(Boolean).join('<span class="sep" aria-hidden="true">·</span>');
-  const examLine = exam && exam.days >= 0 ? ` · exam ${exam.days === 0 ? 'today' : exam.days === 1 ? 'tomorrow' : `in ${exam.days} days`}` : '';
-  const oldest = list.length ? reviewList(questions, progress, total.review).at(-1) : null;
-  // Phones get a compact Today: one readiness row, swipeable stats, a chapter list, one review row and a start button by the thumb.
-  const ctaLabel = active ? 'Resume session' : plan.total ? 'Start today’s session' : 'Start mixed practice';
-  return `<div class="page today"><header class="page-head"><div><p class="eyebrow">${escape(date)}${escape(examLine)}</p><h1 tabindex="-1">Today</h1></div><p class="muted head-summary">${answered ? `${total.correct} correct · ${total.review} to review · ${total.unseen} unseen` : `${total.total} questions across five chapters. Nothing answered yet.`}</p></header>
-    <div class="row">${sessionCard}<section class="card ready-card desktop-only" aria-labelledby="ready-title"><h2 id="ready-title">Readiness</h2><div class="ready-body">${ring(total)}${legend(total)}</div><p class="muted small">Readiness is the share of all ${total.total} questions whose latest answer is correct.</p></section></div>
-    <section class="card ready-row mobile-only" aria-label="Readiness">${ring(total, 64)}<span class="ready-row-text"><strong>${total.readiness}% ready</strong><span class="muted small">${total.correct} correct · ${total.review} to review · ${total.unseen} unseen</span></span></section>
-    <p class="more-actions"><span class="muted">Or start:</span> ${more}</p>
-    <div class="stats" role="region" aria-label="Your stats" tabindex="0">
-      <section class="card stat" aria-label="Answered"><span class="muted">Answered</span><strong class="stat-value">${answered} <small>of ${total.total}</small></strong><span class="muted small">${Math.round(answered / total.total * 100)}% of the bank</span></section>
-      <section class="card stat" aria-label="First-try accuracy"><span class="muted">First-try accuracy</span><strong class="stat-value">${ft.answered ? `${ft.rate}%` : '–'}</strong><span class="muted small">${ft.answered ? `${ft.correct} of ${ft.answered} right the first time` : 'Answer a question to start'}</span></section>
-      <section class="card stat" aria-label="Study streak"><span class="muted">Study streak</span><strong class="stat-value">${st.days} <small>${st.days === 1 ? 'day' : 'days'}</small></strong><span class="muted small">${st.today ? 'You studied today' : st.days ? `Practice today to make it ${st.days + 1}` : 'Answer a question today to start one'}</span></section>
-      <section class="card stat exam${exam ? '' : ' is-empty'}" aria-labelledby="exam-title"><h2 id="exam-title" class="stat-title muted">Final exam</h2>${exam ? `<strong class="stat-value">${exam.days > 1 ? `${exam.days} <small>days</small>` : exam.days === 1 ? 'Tomorrow' : exam.days === 0 ? 'Today' : 'Passed'}</strong><span class="muted small">${escape(exam.label)}</span>` : '<strong class="stat-empty">No date yet</strong>'}
-        <label class="date-field"><span class="${exam ? 'visually-hidden' : 'small muted'}">${exam ? 'Change exam date' : 'Add your exam date'}</span><input id="exam-date" type="date" value="${escape(prefs.examDate || '')}" data-pref></label></section></div>
-    <section aria-labelledby="chapters-title" class="block"><div class="block-head"><h2 id="chapters-title">Chapters</h2><span class="muted small">${total.total} questions · ${chapters.length} chapters</span></div>
-      <ul class="plain chapter-grid">${cards.map(chapterCard).join('')}</ul></section>
-    ${total.review ? `<button type="button" class="card review-row mobile-only" data-action="missed"><span class="count-chip chip-review mono">${total.review}</span><span class="review-row-label">Review list</span><span class="muted small">${oldest ? `Oldest: ${ago(oldest.at, now)}` : ''}</span><span class="chev-right">${icon('chevron', 16)}</span></button>` : ''}
-    <div class="sticky-start mobile-only"><button type="button" class="button cta" data-action="${active ? 'resume' : plan.total ? 'today' : 'mixed'}">${ctaLabel}${icon('arrow', 18)}</button></div>
-    <div class="row desktop-only">
-      <section class="card list-card" aria-labelledby="queue-title"><div class="block-head"><h2 id="queue-title">Review list</h2>${total.review ? action(`Review all ${total.review}`, 'missed', 'link') : ''}</div>
-        ${list.length ? `<ul class="plain">${list.map(({ question: q, at }) => `<li class="queue-item"><span class="queue-text"><span class="mono muted small">Ch ${q.chapter} · ${escape(q.topic)} · missed ${ago(at, now)}</span><span class="clamp">${escape(q.prompt)}</span></span>${action('Retry', 'retry-one', 'outline', q.id, `aria-label="Retry ${escape(q.topic)} question ${q.id}"`)}</li>`).join('')}</ul>` : '<p class="muted empty">No misses waiting. Wrong answers land here until you get them right.</p>'}</section>
-      <section class="card list-card" aria-labelledby="recent-title"><div class="block-head"><h2 id="recent-title">Recent sessions</h2>${progress.history.length ? action('All history', 'history-list', 'link') : ''}</div>${recentList(progress, now)}</section></div></div>`;
+  const total = counts(questions, progress), plan = todayPlan(chapters, questions, progress), active = progress.active;
+  const exam = examCountdown(prefs.examDate, now), st = streak(questions, progress, now), week = weekDays(questions, progress, now), gained = correctThisWeek(questions, progress, now);
+  const answered = total.correct + total.review, cards = chapterCards(chapters, questions, progress);
+  const weakest = cards.flatMap(c => c.topics.filter(t => t.review).map(t => ({ ...t, chapter: c.number }))).sort((a, b) => b.review - a.review || a.readiness - b.readiness)[0];
+  const hour = new Date(now).getHours(), greeting = hour < 12 ? 'Good morning.' : hour < 18 ? 'Good afternoon.' : 'Good evening.';
+  const session = active ? `<section class="card desk-session" aria-labelledby="today-title"><span class="kicker">In progress · question ${active.index + 1} of ${active.items.length}</span>
+      <h2 id="today-title">${escape(active.label)}</h2><p class="desk-detail">Your answers so far are saved.</p>
+      <div class="actions">${action('Resume session', 'resume', 'primary large')}</div></section>`
+    : `<section class="card desk-session" aria-labelledby="today-title"><span class="kicker">Your next session · ${plural(plan.total || 10, 'question')} · about ${Math.max(2, Math.round((plan.total || 10) * 1.2))} min</span>
+      <h2 id="today-title">${escape(plan.title)}</h2>
+      <p class="desk-detail">${plan.review.length ? `<span class="review-text strong">${plan.review.length} to review</span> from ${escape(plan.reviewTopics.slice(0, 3).join(', '))}` : ''}${plan.review.length && plan.fresh ? ' · ' : ''}${plan.fresh ? `<span class="accent-text strong">${plan.fresh} new</span> ${plan.focus ? `from Chapter ${plan.focus.number}` : 'across all five chapters'}` : ''}${!plan.total ? 'Every question answered correctly. Keep it fresh with a mix.' : ''}</p>
+      <div class="actions">${plan.total ? action('Start session', 'today', 'primary large') : action('Mixed practice', 'mixed', 'primary large')}</div></section>`;
+  const tile = (act, count, tone, title, note) => `<button type="button" class="card desk-tile" data-action="${act}"><span class="count-chip mono ${tone}">${count}</span><strong>${title}</strong><span class="muted small">${note}</span></button>`;
+  const studiedDays = week.filter(d => d.studied).length;
+  return `<div class="page desk"><div class="desk-main"><h1 tabindex="-1">${greeting}</h1>${session}
+      <div class="desk-tiles">${tile('review-list', total.review || 'All clear', total.review ? 'chip-review' : 'chip-plain', 'Review misses', total.review ? 'Retry what you got wrong' : 'Nothing to fix yet')}${tile('chapters', chapters.length, 'chip-accent', 'Pick a chapter', weakest ? `Weakest: ${escape(weakest.topic)}` : 'Or a single topic')}${tile('mock', 20, 'chip-plain', 'Mock test', 'Answers at the end')}</div></div>
+    <aside class="card desk-side" aria-label="This week">
+      <section class="side-block" aria-labelledby="week-title"><h2 id="week-title">This week${st.days >= 2 ? ` · ${st.days}-day streak` : ''}</h2>
+        <ol class="plain week" aria-label="Days studied this week">${week.map(d => `<li aria-label="${d.name}${d.today ? ', today' : ''}: ${d.studied ? 'studied' : d.future ? 'coming up' : d.today ? 'not yet' : 'no study'}"><span class="day-dot${d.studied ? ' is-done' : ''}${d.today && !d.studied ? ' is-today' : ''}" aria-hidden="true"></span><span class="mono day-letter" aria-hidden="true">${d.letter}</span></li>`).join('')}</ol>
+        <p class="muted small">${studiedDays ? `Studied ${plural(studiedDays, 'day')} this week.` : 'Answer one question today to start a streak.'}</p></section>
+      <section class="side-block" aria-labelledby="ready-title"><div class="side-head"><h2 id="ready-title">Readiness</h2>${gained ? `<span class="gain">+${gained} correct this week</span>` : ''}</div>
+        ${answered ? `<strong class="side-big">${total.readiness}%</strong>${bar(total)}<span class="muted small">${total.correct} correct · ${total.review} to review · ${total.unseen} unseen</span>` : '<p class="muted small">Your readiness appears here after your first session.</p>'}
+        ${action('See progress', 'progress', 'link')}</section>
+      <section class="side-block side-row" aria-labelledby="exam-title"><h2 id="exam-title">Final exam</h2>${exam && exam.days >= 0 ? `<span><strong>${exam.days === 0 ? 'Today' : exam.days === 1 ? 'Tomorrow' : `${exam.days} days`}</strong><span class="muted"> · ${escape(exam.label)}</span></span>` : action('Add date', 'settings', 'link')}</section>
+    </aside></div>`;
+}
+
+export function renderProgress(chapters, questions, progress, { prefs = {}, now = Date.now() } = {}) {
+  const total = counts(questions, progress), cards = chapterCards(chapters, questions, progress), ft = firstTry(questions, progress), st = streak(questions, progress, now), exam = examCountdown(prefs.examDate, now), gained = correctThisWeek(questions, progress, now);
+  const answered = total.correct + total.review;
+  return `<div class="page progress"><header class="page-head"><div><h1 tabindex="-1">Progress</h1></div><p class="muted head-summary">${answered ? `${answered} of ${total.total} questions answered` : 'Nothing answered yet'}</p></header>
+    <div class="row"><section class="card ready-card" aria-labelledby="ready-title"><div class="side-head"><h2 id="ready-title">Readiness</h2>${gained ? `<span class="gain">+${gained} correct this week</span>` : ''}</div><div class="ready-body">${ring(total)}${legend(total)}</div><p class="muted small">Readiness is the share of all ${total.total} questions whose latest answer is correct.</p></section>
+      <div class="stat-grid">
+        <section class="card stat" aria-label="First-try accuracy"><span class="muted">First-try accuracy</span><strong class="stat-value">${ft.answered ? `${ft.rate}%` : '–'}</strong><span class="muted small">${ft.answered ? `${ft.correct} of ${ft.answered} right the first time` : 'Appears after your first answers'}</span></section>
+        <section class="card stat" aria-label="Study streak"><span class="muted">Study streak</span><strong class="stat-value">${st.days} <small>${st.days === 1 ? 'day' : 'days'}</small></strong><span class="muted small">${st.today ? 'You studied today' : st.days ? `Practice today to make it ${st.days + 1}` : 'Answer a question to start one'}</span></section>
+        <section class="card stat" aria-label="Final exam"><span class="muted">Final exam</span>${exam && exam.days >= 0 ? `<strong class="stat-value">${exam.days} <small>${exam.days === 1 ? 'day' : 'days'}</small></strong><span class="muted small">${escape(exam.label)}</span>` : `<strong class="stat-empty">No date yet</strong>${action('Add in Settings', 'settings', 'link')}`}</section>
+        <section class="card stat" aria-label="Answered"><span class="muted">Answered</span><strong class="stat-value">${answered} <small>of ${total.total}</small></strong><span class="muted small">${total.unseen} still unseen</span></section></div></div>
+    <section class="block" aria-labelledby="by-chapter"><div class="block-head"><h2 id="by-chapter">By chapter</h2></div>
+      <ul class="plain card chapter-lines">${cards.map(c => `<li><button type="button" class="chapter-line" data-action="chapter" data-value="${c.number}"><span class="mono muted">${String(c.number).padStart(2, '0')}</span><span class="line-title"><strong>${escape(c.title)}</strong><span class="muted small">${summary(c)}</span></span>${bar(c)}<span class="pct">${c.correct + c.review ? `${c.readiness}%` : 'New'}</span></button></li>`).join('')}</ul></section>
+    <section class="card list-card" aria-labelledby="recent-title"><div class="block-head"><h2 id="recent-title">Recent sessions</h2>${progress.history.length ? action('All history', 'history-list', 'link') : ''}</div>${recentList(progress, now)}</section></div>`;
+}
+
+export function renderReview(questions, progress, { now = Date.now() } = {}) {
+  const misses = reviewList(questions, progress, Infinity), flagged = questions.filter(q => progress.flags.includes(q.id));
+  const oldest = misses.at(-1);
+  const groups = [...Map.groupBy(misses, m => m.question.chapter)].sort((a, b) => a[0] - b[0]);
+  return `<div class="page review-page"><header class="page-head"><div><h1 tabindex="-1">Review</h1><p class="muted">${misses.length ? `${plural(misses.length, 'miss', 'misses')} · oldest from ${ago(oldest.at, now)}` : 'Nothing to review right now'}</p></div>${misses.length ? action(`Review all ${misses.length}`, 'missed', 'primary large') : ''}</header>
+    ${misses.length ? groups.map(([ch, items]) => `<section class="block" aria-labelledby="rv-${ch}"><h2 class="eyebrow" id="rv-${ch}">Chapter ${ch} · ${items.length}</h2><ul class="plain card review-group">${items.map(({ question: q, at }) => `<li class="queue-item"><span class="queue-text"><span class="small review-text strong">${escape(q.topic)} · missed ${ago(at, now)}</span><span>${escape(q.prompt)}</span></span>${action('Retry', 'retry-one', 'outline', q.id, `aria-label="Retry ${q.id}"`)}</li>`).join('')}</ul></section>`).join('')
+      : '<section class="card empty-card"><p>Wrong answers land here until you get them right. Start today’s session and anything you miss will show up for review.</p>' + action('Back to Today', 'library', 'outline') + '</section>'}
+    ${flagged.length ? `<p class="muted flag-line">Flagged · ${plural(flagged.length, 'question')} · ${action('Practice flagged', 'flags', 'link')}</p>` : ''}</div>`;
 }
 
 export function renderChapters(chapters, questions, progress) {

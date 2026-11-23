@@ -8,7 +8,7 @@ import {chapters} from '../src/data/chapters.js';
 import {createSession,confirmCurrent,setDraft,recordItem,finishSession,recommend} from '../src/logic/session.js';
 import {freshProgress,validateProgress} from '../src/logic/storage.js';
 import {scopeProgress,parkArchiveSession,isFinalsSession,studyStatus,resetFinalsProgress} from '../src/logic/finals.js';
-import {renderStart,renderLibrary,renderChapter,renderResults} from '../src/views/screens.js';
+import {renderStart,renderLibrary,renderChapter,renderChapters,renderResults} from '../src/views/screens.js';
 const bank=new Map([...questions,...archiveQuestions].map(q=>[q.id,q]));
 const manifest=JSON.parse(await readFile(new URL('./fixtures/finals-answers.json',import.meta.url),'utf8'));
 test('audit preserves all 171 IDs, question types, answer indexes and correct choices for saved progress',()=>{
@@ -54,7 +54,7 @@ test('recommendation gives session-specific evidence and fresh topic questions, 
 });
 test('archive-only history and aggregate counters cannot leak into visible finals progress or results',()=>{
  const p=freshProgress(),archive=archiveQuestions[0];p.active=createSession([archive]);setDraft(p.active,1-archive.answer);confirmCurrent(p.active);finishSession(p,bank);p.retries={total:999,correct:999};
- const visible=scopeProgress(p,bank),html=renderLibrary(chapters,questions,visible);assert.equal(visible.history.length,0);assert.ok(!html.includes('999'));assert.ok(!html.includes('Midterm'));assert.ok(!html.includes(archive.topic));assert.equal((html.match(/data-action="chapter"/g)||[]).length,5);
+ const visible=scopeProgress(p,bank),html=renderLibrary(chapters,questions,visible);assert.equal(visible.history.length,0);assert.ok(!html.includes('999'));assert.ok(!html.includes('Midterm'));assert.ok(!html.includes(archive.topic));assert.equal((renderChapters(chapters,questions,visible).match(/data-action="chapter"/g)||[]).length,5);
  assert.equal(isFinalsSession(createSession([archive]),bank),false);
 });
 

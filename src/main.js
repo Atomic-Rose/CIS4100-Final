@@ -3,7 +3,7 @@ import { questions as finalsQuestions } from './data/questions.js';
 import { archiveQuestions } from './data/archive.js';
 import { createSession, confirmCurrent, setDraft, navigate, score, recommend, recordItem, finishSession, currentItem, similarQuestion, startFollowUp, endFollowUp } from './logic/session.js';
 import { loadProgress, saveProgress, validateProgress, importLegacy, listBackups, adoptUnreadable, key } from './logic/storage.js';
-import { renderStart, renderLibrary, renderSettings, renderQuiz, renderResults, renderShell, renderChapters, renderChapter, renderHistory, setScorer } from './views/screens.js';
+import { renderStart, renderLibrary, renderSettings, renderQuiz, renderResults, renderShell, renderChapters, renderChapter, renderHistory, renderProgress, renderReview, setScorer } from './views/screens.js';
 import { todayPlan, pickPlan, snapshot } from './logic/dashboard.js';
 import { isFinals, isFinalsSession, parkArchiveSession, scopeProgress, resetFinalsProgress } from './logic/finals.js';
 const chapters = finalsChapters, questions = finalsQuestions;
@@ -91,7 +91,7 @@ function reveal(element) {
 // Theme: 'system' follows the device; 'light'/'dark' are stored per browser.
 function applyTheme() { const html=document.documentElement; if(html?.dataset){ if(prefs.theme==='light'||prefs.theme==='dark') html.dataset.theme=prefs.theme; else delete html.dataset.theme; } }
 function savePrefs() { try{localStorage.setItem(prefsKey,JSON.stringify(prefs));}catch{} }
-const shellFor = { library:'today', chapters:'chapters', chapter:'chapters', history:'history', settings:'settings', results:'history' };
+const shellFor = { library:'today', chapters:'chapters', chapter:'chapters', progress:'progress', history:'progress', results:'progress', review:'review', settings:'settings' };
 function render(focus='heading') {
   document.body.dataset.screen=screen;
   const scoped=scopeProgress(progress,bank), session=progress.active;
@@ -101,6 +101,8 @@ function render(focus='heading') {
   if(screen==='chapters') root.innerHTML=wrap(renderChapters(chapters,questions,scoped));
   if(screen==='chapter') root.innerHTML=wrap(renderChapter(chapters.find(c=>c.number===currentChapter),questions,scoped));
   if(screen==='history') root.innerHTML=wrap(renderHistory(scoped));
+  if(screen==='progress') root.innerHTML=wrap(renderProgress(chapters,questions,scoped,{prefs}));
+  if(screen==='review') root.innerHTML=wrap(renderReview(questions,scoped));
   if(screen==='settings') root.innerHTML=wrap(renderSettings({progress:scoped,questions,storage:storageInfo(),prefs,backups:listBackups(),archived:(progress.archivedSessions||[]).length}));
   if(screen==='quiz') {
     const item=currentItem(session), q=bank.get(item.id), questionKey=`${session.id}:${session.index}:${session.followUp?.id||''}`;
@@ -227,6 +229,8 @@ function onAction(action, value, button) {
     case 'chapter':if(chapters.some(c=>c.number===Number(value))){currentChapter=Number(value);show('chapter');}break;
     case 'chapters':show('chapters');break;
     case 'history-list':show('history');break;
+    case 'progress':show('progress');break;
+    case 'review-list':show('review');break;
     case 'theme':{const before=prefs.theme||'system',next=['light','dark'].includes(value)?value:'system';if(before===next)break;
       const applyChoice=v=>{prefs.theme=v;savePrefs();applyTheme();render(`[data-action="theme"][data-value="${v}"]`);};
       applyChoice(next);say(`Appearance: ${{system:'Auto',light:'Light',dark:'Dark'}[next]} · saved`,{undo:()=>applyChoice(before)});break;}
@@ -234,7 +238,7 @@ function onAction(action, value, button) {
       const set=v=>{prefs[value]=v;savePrefs();render(`[data-action="toggle-pref"][data-value="${value}"]`);};
       set(!was);say(`${button?.querySelector?.('.set-text span')?.textContent||'Setting'} ${!was?'on':'off'} · saved`,{undo:()=>set(was)});break;}
     case 'why':if(suppressClick){suppressClick=false;break;}setWhy(!whyOpen);break;
-    case 'exam':show('library');root.querySelector('#exam-date')?.focus();break;
+    case 'exam':show('settings');root.querySelector('#exam-date')?.focus();break;
     case 'today':{const plan=todayPlan(chapters,questions,scopeProgress(progress,bank));const pool=pickPlan(plan);if(pool.length)start(pool,{label:'Today’s session',size:pool.length,ordered:true});else start(finalsQuestions,{...options(),label:'Mixed practice'});break;}
     case 'retry-one':{const q=bank.get(value);if(q&&isFinals(q))start([q],{label:`Retry · ${q.topic}`});break;}
     case 'chapter-practice':start(questions.filter(q=>q.chapter===Number(value)),{...options(),label:`Chapter ${value} practice`});break;
