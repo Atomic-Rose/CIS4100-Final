@@ -3,14 +3,15 @@ import { questions as finalsQuestions } from './data/questions.js';
 import { archiveQuestions } from './data/archive.js';
 import { createSession, confirmCurrent, setDraft, navigate, score, recommend, recordItem, finishSession, currentItem, similarQuestion, startFollowUp, endFollowUp } from './logic/session.js';
 import { loadProgress, saveProgress, validateProgress, importLegacy, listBackups, adoptUnreadable, key } from './logic/storage.js';
-import { renderStart, renderLibrary, renderSettings, renderQuiz, renderResults } from './views/screens.js';
+import { renderStart, renderLibrary, renderSettings, renderQuiz, renderResults, renderShell, renderChapters, renderChapter, renderHistory, setScorer } from './views/screens.js';
+import { todayPlan, pickPlan, snapshot } from './logic/dashboard.js';
 import { isFinals, isFinalsSession, parkArchiveSession, scopeProgress, resetFinalsProgress } from './logic/finals.js';
 const chapters = finalsChapters, questions = finalsQuestions;
 const bank = new Map([...questions,...archiveQuestions].map(q=>[q.id,q]));
 const root = document.querySelector('#main'), banner = document.querySelector('#storage-status');
 const dialog = document.querySelector('#confirm-dialog'), notice = document.querySelector('#notice');
 const loaded = loadProgress(bank);
-let progress = loaded.progress, screen = 'start', openChapter = null, result, recommendation, resultLabel, resultSession, pending, originFocus, lastQuestionKey = '';
+let progress = loaded.progress, screen = 'start', currentChapter = 7, result, recommendation, resultLabel, resultSession, pending, originFocus, lastQuestionKey = '';
 // Storage state. canWrite=false means writing could destroy something we could not read (or storage is blocked).
 let storageStatus = loaded.status, canWrite = loaded.writable, writeFailed = false, dirty = false, retryTimer = null;
 const prefsKey = `${key}.prefs`;
@@ -54,29 +55,36 @@ dialog.addEventListener('close',()=>{
   else if (originFocus?.isConnected) originFocus.focus();
   dialog.returnValue='';
 });
-// Keep the explanation clear of the sticky action bar (and the sticky rail) after feedback or Why? opens.
+// Keep the marked answer (with its "why not" line) clear of the sticky feedback sheet and the sticky rail.
 function reveal(element) {
-  const bar = root.querySelector('.lesson-actions'); if (!element?.getBoundingClientRect || !bar?.getBoundingClientRect) return;
-  const box = element.getBoundingClientRect(), barTop = bar.getBoundingClientRect().top, railBottom = root.querySelector('.lesson-rail')?.getBoundingClientRect().bottom || 0;
-  if (box.bottom > barTop - 12) window.scrollBy?.(0, Math.min(box.bottom - barTop + 16, box.top - railBottom - 12));
+  const sheet = root.querySelector('.sheet, .bar-bottom'); if (!element?.getBoundingClientRect || !sheet?.getBoundingClientRect) return;
+  const box = element.getBoundingClientRect(), sheetTop = sheet.getBoundingClientRect().top, railBottom = root.querySelector('.lesson-rail')?.getBoundingClientRect().bottom || 0;
+  if (box.bottom > sheetTop - 12) window.scrollBy?.(0, Math.min(box.bottom - sheetTop + 16, box.top - railBottom - 12));
 }
+// Theme: 'system' follows the device; 'light'/'dark' are stored per browser.
+function applyTheme() { const html=document.documentElement; if(html?.dataset){ if(prefs.theme==='light'||prefs.theme==='dark') html.dataset.theme=prefs.theme; else delete html.dataset.theme; } }
+function savePrefs() { try{localStorage.setItem(prefsKey,JSON.stringify(prefs));}catch{} }
+const shellFor = { library:'today', chapters:'chapters', chapter:'chapters', history:'history', settings:'settings', results:'history' };
 function render(focus='heading') {
   document.body.dataset.screen=screen;
   const scoped=scopeProgress(progress,bank), session=progress.active;
-  if(screen==='start') root.innerHTML=renderStart(scoped,chapters,questions);
-  if(screen==='library') root.innerHTML=renderLibrary(chapters,questions,scoped,openChapter);
-  if(screen==='settings') root.innerHTML=renderSettings({progress:scoped,questions,storage:storageInfo(),prefs,backups:listBackups(),archived:(progress.archivedSessions||[]).length});
+  const wrap=html=>renderShell(shellFor[screen],html,{reviewCount:questions.filter(q=>progress.latest[q.id]?.status==='answered'&&!progress.latest[q.id].correct).length,theme:prefs.theme||'system'});
+  if(screen==='start') root.innerHTML=renderStart(scoped,chapters,questions,{theme:prefs.theme||'system'});
+  if(screen==='library') root.innerHTML=wrap(renderLibrary(chapters,questions,scoped,{prefs}));
+  if(screen==='chapters') root.innerHTML=wrap(renderChapters(chapters,questions,scoped));
+  if(screen==='chapter') root.innerHTML=wrap(renderChapter(chapters.find(c=>c.number===currentChapter),questions,scoped));
+  if(screen==='history') root.innerHTML=wrap(renderHistory(scoped));
+  if(screen==='settings') root.innerHTML=wrap(renderSettings({progress:scoped,questions,storage:storageInfo(),prefs,backups:listBackups(),archived:(progress.archivedSessions||[]).length}));
   if(screen==='quiz') {
     const item=currentItem(session), q=bank.get(item.id), questionKey=`${session.id}:${session.index}:${session.followUp?.id||''}`;
     const similar=!session.mock&&!session.followUp&&item.checked&&item.pick!==q.answer?similarQuestion(q,questions,session,answeredIds()):null;
     root.innerHTML=renderQuiz(session,q,{bank,similar,fresh:questionKey!==lastQuestionKey});lastQuestionKey=questionKey;
   }
-  if(screen==='results') root.innerHTML=renderResults(result,recommendation,resultLabel,{progress:scoped,chapters,questions,session:resultSession});
-  if(focus==='feedback') { const f=root.querySelector('.feedback'); f?.focus({preventScroll:true}); reveal(f); }
+  if(screen==='results') root.innerHTML=wrap(renderResults(result,recommendation,resultLabel,{progress:scoped,chapters,questions,session:resultSession}));
+  if(focus==='feedback') { const f=root.querySelector('.feedback'); f?.focus({preventScroll:true}); reveal(root.querySelector('.choices .is-wrong')||root.querySelector('.choices .is-correct')); }
   else if(focus==='none') {}
-  else if(focus.startsWith?.('[')) { root.querySelector(focus)?.focus(); }
+  else if(/^[[#]/.test(focus)) { root.querySelector(focus)?.focus(); }
   else { window.scrollTo(0,0); root.querySelector('h1')?.focus({preventScroll:true}); }
-  root.querySelector('details.why')?.addEventListener?.('toggle',event=>{ if(event.target.open) reveal(event.target); });
   tick();
 }
 function show(target) { screen=target; notice.hidden=true; render(); }
@@ -93,7 +101,7 @@ function start(pool, settings={}) {
     // Start the optional clock when the session actually opens, after replacement confirmation.
     const duration=session.deadline===null?null:session.deadline-session.started;
     session.started=Date.now();session.deadline=duration===null?null:session.started+duration;
-    session.items[0].shown=true;progress.active=session;save();show('quiz');
+    session.items[0].shown=true;session.before=snapshot(chapters,questions,scopeProgress(progress,bank));progress.active=session;save();show('quiz');
   };
   if(progress.active) ask('End this session and start another?','The current session will be saved in history. Questions you did not answer stay unseen on your map; they are not counted as misses.','End & start',()=>{finishSession(progress,bank,'ended early');begin();});
   else begin();
@@ -174,8 +182,9 @@ root.addEventListener('change',event=>{
   const target=event.target;
   if(target.id==='import-progress'||target.id==='import-legacy') importProgress(target.files[0],target.id==='import-legacy');
   if(target.dataset&&'pref' in target.dataset) {
+    if(target.id==='exam-date'){prefs.examDate=/^\d{4}-\d{2}-\d{2}$/.test(target.value)?target.value:'';savePrefs();render('#exam-date');say(prefs.examDate?'Exam date saved.':'Exam date cleared.');return;}
     const name={length:'length','mock-length':'mockLength',minutes:'minutes'}[target.id];
-    if(name){prefs[name]=target.value==='all'?'all':Number(target.value);try{localStorage.setItem(prefsKey,JSON.stringify(prefs));}catch{}say('Default saved.');}
+    if(name){prefs[name]=target.value==='all'?'all':Number(target.value);savePrefs();say('Default saved.');}
   }
 });
 function onAction(action, value, button) {
@@ -185,7 +194,13 @@ function onAction(action, value, button) {
     case 'settings':show('settings');break;
     case 'exit':save();show('library');break;
     case 'resume':if(isFinalsSession(progress.active,bank)){lastQuestionKey='';show('quiz');}else show('library');break;
-    case 'chapter':if(chapters.some(c=>c.number===Number(value))){openChapter=openChapter===Number(value)?null:Number(value);screen='library';notice.hidden=true;render(`[data-action="chapter"][data-value="${value}"]`);}break;
+    case 'chapter':if(chapters.some(c=>c.number===Number(value))){currentChapter=Number(value);show('chapter');}break;
+    case 'chapters':show('chapters');break;
+    case 'history-list':show('history');break;
+    case 'theme':prefs.theme=['light','dark'].includes(value)?value:'system';savePrefs();applyTheme();render('[data-action="theme"][aria-pressed="true"]');break;
+    case 'exam':show('library');root.querySelector('#exam-date')?.focus();break;
+    case 'today':{const plan=todayPlan(chapters,questions,scopeProgress(progress,bank));const pool=pickPlan(plan);if(pool.length)start(pool,{label:'Today’s session',size:pool.length,ordered:true});else start(finalsQuestions,{...options(),label:'Mixed practice'});break;}
+    case 'retry-one':{const q=bank.get(value);if(q&&isFinals(q))start([q],{label:`Retry · ${q.topic}`});break;}
     case 'chapter-practice':start(questions.filter(q=>q.chapter===Number(value)),{...options(),label:`Chapter ${value} practice`});break;
     case 'chapter-missed':start(questions.filter(q=>q.chapter===Number(value)&&progress.latest[q.id]?.status==='answered'&&!progress.latest[q.id].correct),{...options(),label:`Chapter ${value} · to review`});break;
     case 'topic':{const colon=value.indexOf(':'),chapter=Number(value.slice(0,colon)),topic=value.slice(colon+1);start(questions.filter(q=>q.chapter===chapter&&q.topic===topic),{...options(),label:`Ch ${chapter} · ${topic}`});break;}
@@ -199,7 +214,7 @@ function onAction(action, value, button) {
     case 'similar':{const item=s.items[s.index],match=similarQuestion(bank.get(item.id),questions,s,answeredIds());if(match&&startFollowUp(s,match.question)){save();render();}break;}
     case 'leave-follow':endFollowUp(s,bank);save();render();break;
     case 'pick':pick(Number(value));break;
-    case 'flag':{const item=s.items[s.index];item.flag=!item.flag;progress.flags=progress.flags.filter(id=>id!==item.id);if(item.flag)progress.flags.push(item.id);button.setAttribute('aria-pressed',String(item.flag));button.textContent=item.flag?'Flagged':'Flag';updateCurrentStatus();save();break;}
+    case 'flag':{const item=s.items[s.index];item.flag=!item.flag;progress.flags=progress.flags.filter(id=>id!==item.id);if(item.flag)progress.flags.push(item.id);save();render('[data-action="flag"]');break;}
     case 'next-unanswered':case 'next-flagged':{
       if(s.mock)confirmCurrent(s);
       const candidates=Array.from({length:s.items.length},(_,n)=>(s.index+n+1)%s.items.length);
@@ -231,7 +246,7 @@ banner.addEventListener('click',event=>{
 document.addEventListener('keydown',event=>{
   if(dialog.open||event.altKey||event.ctrlKey||event.metaKey||event.shiftKey||event.repeat||event.target.closest('input,select,textarea,[contenteditable]'))return;
   // Study map: arrow keys move between chapter rows, chapter actions and topic buttons.
-  if(screen==='library'&&(event.key==='ArrowDown'||event.key==='ArrowUp')&&event.target.closest('[data-nav]')) {
+  if(screen==='chapter'&&(event.key==='ArrowDown'||event.key==='ArrowUp')&&event.target.closest('[data-nav]')) {
     const items=[...root.querySelectorAll('[data-nav]')],index=items.indexOf(event.target.closest('[data-nav]'));
     const next=items[index+(event.key==='ArrowDown'?1:-1)];if(next){event.preventDefault();next.focus();}return;
   }
@@ -258,6 +273,9 @@ setInterval(tick,1000);document.addEventListener('visibilitychange',()=>{tick();
 window.addEventListener?.('beforeunload',event=>{if(dirty&&(!canWrite||writeFailed)){event.preventDefault();event.returnValue='';}});
 // Persist migrations and recoveries right away (the original payload was copied aside by loadProgress when needed).
 if(parkedArchive||loaded.migrated||storageStatus==='recovered')save();
+setScorer(s=>score(s,bank).correct);applyTheme();
+// First visit opens on the welcome screen; anyone with finals progress lands on Today.
+{const scoped=scopeProgress(progress,bank);if(scoped.active||Object.keys(scoped.latest).length)screen='library';}
 renderBanner();render();
 if(loaded.migrated&&loaded.status==='ok')say('Your saved progress was updated: unanswered and skipped questions no longer count as misses. Session history is unchanged.');
 if(storageStatus==='recovered')say(storageInfo().summary);

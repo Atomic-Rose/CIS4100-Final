@@ -4,11 +4,15 @@ A focused study site for Computer Organization Chapters 7–11. Open [offline/Sm
 
 ## The flow
 
-- **Welcome.** "Load what you know." with one Start or Resume action and a five-row map of the real bank: one cell per question, grouped by topic. On mobile the action comes before the map.
-- **Study map.** The same map becomes the hub. Open a chapter to see its topics, their question cells, and a Practice button for each topic. Chapter rows and topic buttons are native buttons; arrow keys move between them. The primary action is Resume, then Review missed questions, then Mixed practice. Mock test, flagged review, and Settings stay secondary.
-- **Question.** Practice checks immediately. Your choice and the correct answer are marked in their rows, and a wrong choice gets one sentence explaining that specific misconception. The full explanation, worked steps, and source locator are behind **Why?** (or press W). **Continue** is always the primary action. **Try a similar one** appears after a miss when the bank has an eligible question: same concept first, then same topic, never one already in the session. It is optional, unscored practice; your place, score, and question count in the original session are unchanged. Mocks keep feedback until submission and show **Submit mock** in the main action bar.
-- **Results.** Score, a strip of every outcome, and a next step based only on answered misses. A single-topic session points at retrying those misses or a fresh question on the missed concept. The chapter rows below show which cells changed.
-- **Settings.** Saving status, export/import, preserved copies of earlier saves, resume and history, flagged review, session defaults, keyboard help, and reset.
+- **Welcome (first visit only).** "Load what you know." with one Start action, an optional exam date, and a preview of your five chapters. Anyone with finals progress opens straight on Today.
+- **Today.** A card-based dashboard. **Today's session** is built for you: your 4 oldest misses first, then unseen questions from the started chapter with the most left (10 questions). Beside it, a readiness ring: the share of all 171 questions whose latest answer is correct. Then answered count, first-try accuracy, study streak (consecutive days with a real answer), exam countdown, five chapter cards, your review list with one-tap Retry, and recent sessions.
+- **Chapters and chapter pages.** Each chapter page shows readiness, topics weakest first with Practice buttons, an aligned question map, and that chapter's misses. Arrow keys move between its buttons.
+- **Question.** Practice checks immediately. Your choice and the correct answer are marked in their rows, and a wrong choice gets one sentence explaining that specific misconception. A feedback panel slides up from the bottom with **Why?** (full explanation and source, or press W), **Try a similar one** when the bank has an eligible question, and **Continue** as the primary action. A similar question is optional, unscored practice; your place, score, and question count are unchanged. Mocks keep feedback until submission and show **Submit mock** in the action bar.
+- **Results.** Score ring and outcome strip, readiness before → after for each chapter in the session, one next step based only on answered misses, and every answer with its explanation.
+- **Shell.** Sidebar on desktop, tab bar on phones. **Appearance** offers Auto (follows the device), Light, and Dark; the choice is saved per browser.
+- **Settings.** Saving status, export/import, preserved copies of earlier saves, sessions and history, session defaults, exam date, appearance, keyboard help, and reset.
+
+Every text colour pair meets WCAG 2.2 AA in both themes (checked automatically on every screen), states always carry a word as well as a colour, controls are at least 44 px where they are buttons, and motion stops under reduced-motion settings.
 
 ## What counts as progress
 
