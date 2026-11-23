@@ -5,6 +5,9 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {readFile} from 'node:fs/promises';
 import {questions} from '../src/data/questions.js';
+import {archiveQuestions} from '../src/data/archive.js';
+import {createSession,setDraft,confirmCurrent,finishSession} from '../src/logic/session.js';
+import {freshProgress} from '../src/logic/storage.js';
 const html=await readFile(new URL('../offline/SmartPrep.html',import.meta.url),'utf8');
 const script=html.match(/<script>([\s\S]*?)<\/script>/)[1];
 function harness(saved=null,{blocked=false}={}){
@@ -34,7 +37,7 @@ test('offline file contains all local data and no runtime external dependencies'
  assert.ok(html.includes('C1-001'));assert.ok(html.includes('C11-'));assert.ok(!/<script[^>]+src=|<link[^>]+rel="stylesheet"/.test(html));assert.ok(!/\bimport\s*\{/.test(script));
 });
 test('actual app: Start, chapter, select, check, stable first result, continue, save and resume',()=>{
- const h=harness();assert.ok(h.root.innerHTML.includes('Start studying'));h.click('library');assert.ok(h.root.innerHTML.includes('What will you study?'));h.click('chapter',7);let s=h.state().active;assert.equal(s.items.length,10);const q=questions.find(q=>q.id===s.items[0].id);h.click('pick',q.answer);assert.ok(!h.root.innerHTML.includes(q.explanation));h.click('next');assert.ok(h.root.innerHTML.includes(q.explanation));assert.equal(h.state().first[q.id].correct,true);h.click('next');assert.equal(h.state().active.index,1);h.click('pick',0);h.click('exit');assert.ok(h.root.innerHTML.includes('Resume session'));
+ const h=harness();assert.ok(h.root.innerHTML.includes('Start studying'));h.click('library');assert.ok(h.root.innerHTML.includes('Your next study session'));h.click('chapter',7);h.click('chapter-practice',7);let s=h.state().active;assert.equal(s.items.length,10);const q=questions.find(q=>q.id===s.items[0].id);h.click('pick',q.answer);assert.ok(!h.root.innerHTML.includes(q.explanation));h.click('next');assert.ok(h.root.innerHTML.includes(q.explanation));assert.equal(h.state().first[q.id].correct,true);h.click('next');assert.equal(h.state().active.index,1);h.click('pick',0);h.click('exit');assert.ok(h.root.innerHTML.includes('Resume session'));
  const resumed=harness(h.values.get('smartprep-finals-v1'));resumed.click('library');resumed.click('resume');assert.equal(resumed.state().active.index,1);assert.equal(resumed.state().active.draft,0);assert.ok(resumed.root.innerHTML.includes('aria-pressed="true"'));
 });
 test('actual app: skip/revisit, T/F and MC keyboard selection, mock edit and deferred reveal',()=>{
@@ -63,5 +66,25 @@ test('actual app: backup import validates before replacement, cancellation prese
  h.click('reset');h.cancel();assert.ok(h.state().active);h.click('reset');h.confirm();assert.equal(h.state().active,null);assert.deepEqual(h.state().history,[]);
 });
 test('actual app: flags persist globally, filter into a review session, and can be removed',()=>{
- const h=harness();h.click('library');h.click('chapter',7);const id=h.state().active.items[0].id;h.click('flag');assert.deepEqual(h.state().flags,[id]);h.click('exit');h.click('flags');h.confirm();assert.deepEqual(h.state().active.items.map(i=>i.id),[id]);assert.ok(h.state().active.items[0].flag);h.click('flag');assert.deepEqual(h.state().flags,[]);
+ const h=harness();h.click('library');h.click('chapter',7);h.click('chapter-practice',7);const id=h.state().active.items[0].id;h.click('flag');assert.deepEqual(h.state().flags,[id]);h.click('exit');h.click('flags');h.confirm();assert.deepEqual(h.state().active.items.map(i=>i.id),[id]);assert.ok(h.state().active.items[0].flag);h.click('flag');assert.deepEqual(h.state().flags,[]);
+});
+
+test('requested journey: fresh visit, Chapter 9, DMA topic, checked explanation, recommendation and corrected retry',()=>{
+ const h=harness();h.click('library');h.click('chapter',9);assert.ok(h.root.innerHTML.includes('9:DMA'));h.click('topic','9:DMA');
+ const s=h.state().active;assert.ok(s.items.every(i=>questions.some(q=>q.id===i.id&&q.chapter===9&&q.topic==='DMA')));assert.equal(s.items.length,6);
+ const q=questions.find(q=>q.id===s.items[0].id);h.click('pick',q.answer===0?1:0);h.click('next');assert.ok(h.root.innerHTML.includes(q.explanation));h.click('submit');h.confirm();assert.ok(h.root.innerHTML.includes('You missed 6 of 6 DMA questions'));
+ h.click('retry');const retry=h.state().active;const first=questions.find(q=>q.id===retry.items[0].id);h.click('pick',first.answer);h.click('next');assert.equal(h.state().latest[first.id].correct,true);assert.equal(h.state().first[first.id].correct,false);assert.equal(h.state().history.length,1);
+});
+test('requested journey: mock flag and skip survive reload; edits stay deferred until submission',()=>{
+ const h=harness();h.click('library');h.click('mock');h.click('flag');h.click('skip');const saved=h.state();
+ const resumed=harness(JSON.stringify(saved));assert.ok(resumed.root.innerHTML.includes('Resume session'));resumed.click('resume');assert.equal(resumed.state().active.index,1);assert.deepEqual(resumed.state().active.items,saved.active.items);
+ resumed.click('next-flagged');assert.equal(resumed.state().active.index,0);const q=questions.find(q=>q.id===saved.active.items[0].id);resumed.click('pick',(q.answer+1)%q.choices.length);resumed.click('next');resumed.click('previous');resumed.click('pick',q.answer);assert.ok(!resumed.root.innerHTML.includes(q.explanation));resumed.click('submit');resumed.confirm();assert.equal(resumed.state().latest[q.id].correct,true);assert.ok(resumed.root.innerHTML.includes(q.explanation));
+});
+test('requested journey: existing midterm data is retained but absent from all finals starting paths',()=>{
+ const archive=archiveQuestions[0],p=freshProgress(),bank=new Map([...questions,...archiveQuestions].map(q=>[q.id,q]));
+ p.active=createSession([archive]);setDraft(p.active,archive.answer);confirmCurrent(p.active);finishSession(p,bank);p.active=createSession([archive,questions[0]],{size:2});const original=structuredClone(p.active);
+ const h=harness(JSON.stringify({version:2,...p}));assert.ok(h.root.innerHTML.includes('Start studying'));assert.ok(!h.root.innerHTML.includes('Resume session'));assert.deepEqual(h.state().archivedSessions,[original]);assert.equal(h.state().history.length,1);
+ h.click('library');assert.ok(!h.root.innerHTML.includes('midterm'));assert.ok(!h.root.innerHTML.includes('Review missed'));assert.equal((h.root.innerHTML.match(/data-action="chapter"/g)||[]).length,5);
+ h.click('mixed');assert.ok(h.state().active.items.every(i=>questions.some(q=>q.id===i.id)));assert.deepEqual(h.state().archivedSessions,[original]);
+ h.click('exit');h.click('chapter',1);assert.ok(!h.root.innerHTML.includes('CHAPTER 1</p>'));h.click('missed');assert.ok(h.notice.textContent.includes('No questions'));
 });

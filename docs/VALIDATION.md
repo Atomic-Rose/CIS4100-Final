@@ -1,45 +1,39 @@
-# Validation record
+# Validation — second pass
 
-## Commands and results
+## Results actually obtained
 
-- `npm test` — **24 tests passed, zero failures** on Node v22.22.3. Its pretest step regenerated `offline/SmartPrep.html`.
-- `npm run build` — produced a self-contained offline HTML file, approximately 478 KiB, containing eight bundled modules and both question banks.
-- `npm run coverage` — generated coverage and source locators for 171 finals questions.
-- `npm run import:midterm -- sources/study-studio/question-bank.json` — imported 442 archive questions, preserving IDs; tests verify uniqueness and provenance across all 613 questions.
-- `node --check src/main.js` and `node --check src/views/screens.js` — passed.
-- `npm run dev` — successfully served on `http://127.0.0.1:5173/`. HTTP checks returned 200 for the root page, controller, expanded-bank module, and stylesheet, and 404 for extracted course material and package metadata. The owned preview server was stopped after validation.
-- `git diff --check` — no whitespace errors (Git reports the normal Windows LF/CRLF conversion advisory).
+- `npm test`: **36 passed, zero failures**. Pretest regenerated the self-contained offline artifact with ten modules, approximately 517 KiB.
+- `npm run coverage`: regenerated locators and concept/exercise mapping for 171 finals records.
+- `node --check src/main.js` and `node --check src/views/screens.js`: passed.
+- Existing preview `http://127.0.0.1:3000/`: HTTP 200 for the root, controller, new finals-scope module, and stylesheet. This is the pre-existing VS Code preview; it was not started or stopped by this pass.
+- `git diff --check`: checked for whitespace errors. Windows LF/CRLF advisories do not indicate a test failure.
 
-The tests are scoped to `tests/*.test.js`; ignored reference-project tests are not included in the 24-test result.
+The 24 pre-existing tests passed before edits. Their screen-label and chapter-navigation expectations were updated for the requested new flow; functional scoring/storage checks were retained. Twelve regression tests bring the current total to 36.
 
-## Automated coverage
+## Requested journeys exercised by the actual bundled controller
 
-Bank: stable IDs, original starter ID inventory, 613 unique prompts/IDs across both banks, required fields and source references, both formats, four distinct MCQ options, canonical zero, True/False order, and per-chapter True/False proportions between 35% and 65% true. Counts are 32 / 32 / 32 / 38 / 37 finals questions by chapter.
+The controller is executed in an isolated Node VM with a minimal DOM adapter. These are integration checks of actual application code, **not browser tests**.
 
-Session logic: balanced quotas and sparse pools, no duplicates, deterministic seeds and display mappings, selection versus confirmation, fixed practice checks, editable mocks, deferred grading, navigation/draft restoration, distinct skipped/unanswered outcomes, first-attempt immutability, idempotent recording/finalization, correct retries clearing latest misses, unseen-topic recommendations/fallback, cram ordering, global flags, and six saved mocks with 120 unique questions and zero pairwise overlap.
+1. Fresh start → study screen → Chapter 9 → DMA. Scope is exactly Chapter 9/DMA and caps at six questions. Select/check reveals the corresponding explanation. Finish with misses, get session-specific DMA evidence, start retry, answer correctly, and verify latest missed clears while the first incorrect outcome/history remain.
+2. Mock → flag → skip → save/reload → resume. Index, item order, choice order, skip, and flag survive. Jump to flagged, save an answer, return and edit it, submit, then see explanations and the final edited result.
+3. Existing progress containing pure midterm history and a mixed active attempt. The original attempt is parked unchanged, the fresh start offers Start studying, all five chapter rows are finals, midterm records stay out of review counts, and a new mixed practice contains only finals IDs.
+4. Existing pure finals active saves round-trip with session ID, absolute deadline, current question, draft, flag, and displayed mapping intact.
 
-Storage: valid round trips, absolute deadlines, flags and drafts, malformed saves, blocked reads/writes, duplicate items, invalid IDs/mappings, starter-v1 migration without invented first attempts, and separate legacy history import with retry chronology.
+## Other regression coverage
 
-Controller/offline packaging: the actual generated script executes in Node’s isolated VM with a minimal DOM adapter. Tests exercise Start → Choose → Study → Results, chapter/mixed/mock starts, selecting/checking, skip/revisit, keyboard selection, save/exit/reload/resume, mock edit/cancel/submit/retry, empty review, replacement/history, timer expiry on reload and inside a confirmation dialog, in-memory fallback, backup validation/cancel/replacement, reset confirmation, and flag review/removal. The generated artifact has no external scripts or stylesheets and no remaining module imports.
+- One primary decision in Start/Study/Chapter: resume before missed before mixed; topic rows start focused sessions.
+- Practiced counts use distinct scored answers, never drafts, skips, unanswered outcomes, or unfinished mock picks. Repeated attempts do not inflate counts.
+- Balanced practice gives unseen items priority within each chapter quota, avoids duplicates, and caps small pools.
+- Recommendations show the session’s missed/total evidence; unseen topic pool and missed fallback are scoped correctly.
+- Finals-only projections filter old first/latest records, flags, mixed history items, and aggregate totals without deleting archive data.
+- Finals reset preserves archive records, flags, history, and parked attempts.
+- All 171 IDs, question types, answer indexes, and correct choice texts match the pre-audit answer manifest. Every false finals statement now has an audited corrective explanation. Bank integrity and numerical checks remain in place.
+- Existing immediate/deferred scoring, first/retry idempotence, corrected latest misses, draft navigation, timer expiry (including an open modal), no-pool handling, backup validation/confirmation, corrupt and blocked storage, and generated offline dependency checks pass.
 
-Calculations: independently recomputed addressable word capacity, instruction field budgets, DRAM/CPU timing, pipeline fill, average cache access, DMA address ranges, bus unit conversion, average rotational latency, sector time, disk access/capacity, optical overhead, and framebuffer bytes.
+## Visual/browser evidence and limitation
 
-## Browser checks — blocked, not passed
+All three user-supplied screenshots were inspected before edits: oversized start typography, a long study selection screen with competing actions, and a selected True/False question. The redesign uses one 760px content width, smaller typography, compact divided rows, one primary decision, reserved feedback-label space, and a single-column quiz on desktop/mobile. CSS includes a 480px breakpoint, wrapping, visible focus, native controls, and reduced motion.
 
-The browser access host was unavailable. Native Chrome automation was then denied with: **“Computer Use was not approved to use Google Chrome.”** No browser interaction, screenshot, mobile emulation, direct `file://` opening, screen-reader test, or browser-network-off test completed. VM tests are not browser tests and cannot establish rendered layout, actual focus behavior, or file-origin storage support.
+The final retry to open the updated preview in the in-app browser again returned “The browser access host is unavailable.” Native Chrome inspection then stopped because the tool could not establish the current Windows browser URL confidently enough to enforce policy. Consequently, **no live desktop/mobile screenshot or real browser journey is claimed as passed**. The actual preview responds over HTTP, but HTTP availability is not visual QA.
 
-Responsive breakpoints, wrapping, native controls, visible-focus rules, feedback words, and reduced-motion rules are implemented in CSS/markup, but their visual behavior is unverified.
-
-## Remaining manual checklist
-
-1. Double-click `offline/SmartPrep.html` in Chrome/Edge. Verify the four-screen path for both question types, explanations/citations after Check, keyboard T/F/A–D/1–4 and Tab/Enter, fixed checked answers, and stable row height on selection.
-2. Verify at desktop size and 390×844 / 320×640: no horizontal page overflow, readable prompts and long answers, accessible navigator/table scrolling, usable sticky rail/actions, and visible focus. Check reduced motion.
-3. In a mock, select/change answers, skip/revisit, save/exit, refresh/resume, cancel submission, then submit. Verify explanations appear only afterward and unanswered totals match.
-4. Confirm file-origin saving and JSON download/import with actual browser file controls. Check reset/import cancellation. Verify separate server-origin/offline-origin progress using explicit export/import.
-5. Disconnect networking and repeat a practice session from the single file. Check the browser network panel for no runtime dependency requests.
-6. Check an absolute timer across refresh/backgrounding, including expiry while the submission dialog is open.
-
-## Feature/source limits
-
-No live hosting or accounts are included. Legacy progress import supports completed v1 history; active legacy attempts/settings are intentionally not restored and a non-null legacy active attempt is explicitly rejected. Outstanding assignment-specific ambiguities and excluded concepts are in SOURCE_ISSUES.md. The optional midterm archive was imported from the supplied reference project rather than reverified against its original fourteen course sources.
-
+Remaining manual checks: open the updated modular/offline app at desktop, 390×844, and 320×640; run the three user journeys; verify no page overflow, readable long options, focus and Tab/Enter behavior, native file import/export, actual refresh persistence, reduced motion, and network-free use of the offline file. These limits do not affect the recorded automated results.

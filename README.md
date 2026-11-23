@@ -1,50 +1,46 @@
-# SmartPrep · CIS 4100
+# SmartPrep · CIS 4100 Finals
 
-Open [offline/SmartPrep.html](offline/SmartPrep.html) in Chrome or Edge. This single file includes the app, styles, and question banks. No server, internet connection, account, API key, or installation is needed to study.
+Open [offline/SmartPrep.html](offline/SmartPrep.html) in a modern Chrome or Edge browser. The self-contained file has no external runtime dependencies. For the modular version, run `npm run dev` with Node 22+ and open the printed local URL. No package installation is needed.
 
-Click **Start studying**, then a chapter, **Mixed practice**, or **Mock test**. Finals quick actions use Chapters 7–11. The separate, collapsed Chapters 1–6 archive is optional. The banks define study scope; exam coverage, timing, and format remain unspecified.
+## Nightly study loop
 
-## Study flow
+The start screen offers **Start studying**, or **Resume session** when a finals session is saved. Resume also has a quiet route to chapters.
 
-- Practice defaults to 10 questions; fresh mocks default to 20. Chapter/topic filters, other lengths, full-pool and cram practice, flags, an optional timer, and saved mocks sit under **More study options**.
-- Select an answer, then **Check answer** in practice. The explanation and chapter-local source locator appear below the answer rows. A checked answer stays fixed. **Continue** advances.
-- Mocks let you edit answers until final submission. **Save & next**, Back, or the navigator save a mock selection without revealing correctness. Explanations appear in results after submission.
-- Skip clears an unchecked selection and leaves that question available in the navigator. Save & exit preserves drafts, question/choice order, flags, and the current position. Resume restores them. Starting another session asks before finalizing the old one into history.
-- Results distinguish correct, incorrect, skipped, and unanswered outcomes. The next-topic action prefers globally unseen questions in the most-missed chapter/topic, then falls back to that topic’s misses. Retry missed includes unanswered items. Full answer review is expandable.
-- Six saved finals mocks are deterministic: 20 questions each, four per chapter, 120 distinct questions and zero overlap. Their question order and displayed MCQ mapping repeat; timing is optional. The UI includes measured overlap.
-- First attempts stay fixed. Later graded attempts count as retries. Latest missed review reflects the latest graded outcome; a correct retry clears that miss. Practice checks are recorded immediately, mocks only at finalization. Finalized skips/unanswered count as not correct.
+The study screen gives one action primary weight, in this order: resume an unfinished finals session, review outstanding misses, or start mixed practice. Mock test remains a secondary action. The five chapter rows show Not started, a unique practiced count, or current misses. Opening a chapter shows Start practice and topic rows; selecting a topic immediately starts a focused session.
 
-**Keyboard:** Tab and Enter operate native controls. T/F, A–D, or 1–4 select answers. Enter checks or continues while the prompt/feedback has focus; Enter on a focused button activates that button. S skips an unchecked question, P goes back, R toggles its flag. Text inputs/selects and open confirmation dialogs do not intercept these shortcuts.
+Default practice length is 10; default mixed mock length is 20. Sessions cap their size to available questions. Session length and optional timer are behind one Session options disclosure on the study/chapter screen. Mixed practice balances chapter coverage and prioritizes unseen questions within each chapter’s quota. Chapter and topic sessions remain in their selected scope.
 
-Progress, history, backups, import, and reset are in the collapsed **Progress, history & backups** section. Import validates first and asks before replacement; Reset also asks. A corrupt save is preserved until an explicit reset/import. If storage is blocked or full, study continues in memory and Export still works. Local-file storage can vary by browser and file location. Export before switching devices, browsers, or between the local server and offline file.
+Select an answer and then Check answer. Practice checks are scored immediately, fixed, and followed by a teaching explanation and source locator. Continue is the sole primary next action. Mock answers remain editable; explanations appear after submission. Back, Skip, and the question navigator support revisiting; the navigator can jump to the next unanswered or flagged question. The submission dialog states the total unanswered count, including skipped questions.
 
-The optional timer stores an absolute deadline. It continues while away; an overdue session is finalized when JavaScript next runs, including on reload. A closed browser cannot run a timer until reopened.
+Results separate incorrect and unanswered outcomes, give an evidence-based topic recommendation, and offer Retry missed. The topic action prefers unseen questions and falls back to that session’s misses on the topic. Correct retries immediately clear the latest missed queue while preserving earlier outcomes in history. A perfect score offers another mixed practice session.
 
-## Content and provenance
+## Finals-only visibility and preservation
 
-There are **171 finals questions** (32 / 32 / 32 / 38 / 37 across Chapters 7–11), including the 40 unchanged starter IDs. Both True/False and four-choice single-answer formats are supported; True always precedes False. MCQ display order is shuffled and persisted independently of the canonical answer index, including index zero.
+Every browsable chapter, topic, start action, review queue, recommendation, and visible progress total is limited to Chapters 7–11. **171 finals questions** remain, with original IDs and canonical answers preserved. Of these, 100 explanations, 53 MCQ option sets, and three prompts were revised in the second-pass audit.
 
-The optional archive includes **442 Study Studio questions**, with original IDs preserved. Content import is separate from progress import. `npm run import:midterm -- path/to/question-bank.json` regenerates archive content; the app’s separate legacy import accepts completed Study Studio v1 progress. Finish any active legacy session before exporting. Importing replaces current progress after confirmation; legacy settings are not imported.
+The 442 historical midterm records remain intact in source and the offline artifact, solely to validate and preserve old data. They cannot be browsed or selected. A saved active session containing any midterm items is moved unchanged into `archivedSessions`, outside the finals resume action. Existing pure finals saves preserve their IDs, draft selections, current index, flags, deadline, and question/choice order. Mixed historical sessions expose only their finals items in history/results; original stored sessions remain intact.
 
-All five supplied decks and five assignment PDFs were reviewed as sources. Original prompts include comparisons, instruction traces, field budgets, cache timing, bus throughput, disk capacity/latency, and display-size calculations. Ambiguous or slide-unsupported facts are excluded and documented; this is not an official assignment answer key.
+Practiced means a unique question with a **scored answer**. Drafts, skips, unanswered outcomes, and unfinished mock answers do not count. Immediate practice checks do count before the session ends. History provides evidence of past scored answers even if a later attempt was left unanswered. Missed queues use the latest finalized/check outcome, including skips and unanswered items.
 
-See [coverage](docs/COVERAGE.md), [source map](docs/SOURCE_MAP.md), [source issues](docs/SOURCE_ISSUES.md), and [validation](docs/VALIDATION.md). Raw documents and extracted review artifacts are excluded from git and runtime.
+Progress & backups contains finals history, flagged review, export, import, and reset. Export includes archival data. Import validates before asking to replace current progress; keep an export if you need the previous backup. Reset clears visible finals progress while retaining archive records and parked sessions. Historical aggregate retry counters are retained for compatibility but are not displayed as finals totals.
 
-## Development
+Corrupt saves are left untouched until explicit reset/import. Blocked or full storage falls back to in-memory operation and export. File-origin and server-origin storage may differ; export/import explicitly when switching browsers, devices, or app locations.
 
-Node 22+; no package install required:
+Timers use absolute deadlines and finalize overdue sessions when JavaScript next runs, including after reload. A closed browser cannot execute code until reopened.
+
+Keyboard: Tab/Enter operate native controls; T/F, A–D, and 1–4 select; Enter checks/continues from the prompt or feedback; S skips an unchecked item; P goes back; R flags. Inputs and confirmation dialogs preserve normal keyboard behavior.
+
+## Development and evidence
 
 ```text
-npm run dev
 npm test
 npm run build
 npm run coverage
+npm run dev
 ```
 
-The server binds to `http://127.0.0.1:5173/` (`PORT` overrides it) and only serves app assets. `npm test` rebuilds the offline artifact before running the tests. `npm run build` regenerates `offline/SmartPrep.html`. `npm run coverage` regenerates the per-record coverage report.
+Tests rebuild the offline artifact first. All **36 tests pass**, including controller journeys, finals isolation, preservation of old saves, first/retry accounting, storage failure, and answer-manifest compatibility. The local preview at `http://127.0.0.1:3000/` was already running and returns the updated modular app. The bundled HTML is approximately 517 KiB.
 
-Source is split into static HTML, CSS tokens/layout, data, pure session logic, storage validation, views, and a controller. The build script bundles these modules without dependencies. No changes have been published or committed by this task.
+See [second-pass audit](docs/SECOND_PASS.md), [coverage](docs/COVERAGE.md), [source map](docs/SOURCE_MAP.md), [source issues](docs/SOURCE_ISSUES.md), and [validation](docs/VALIDATION.md).
 
-## Verification limits
-
-24 automated tests currently pass. They include isolated execution of the actual bundled controller with a minimal DOM adapter. This verifies controller behavior and packaging, **not real browser rendering**. Desktop/mobile browser checks and direct file opening remain unverified: the browser connection was unavailable and native Chrome access was denied. See the validation checklist for remaining manual checks.
+The three supplied screenshots were visually inspected. Live desktop/mobile browser QA remains unverified because browser access has been unavailable/restricted. Automated VM controller tests do not establish rendered layout, native focus behavior, or direct file-origin behavior. No changes were committed or published by this pass.

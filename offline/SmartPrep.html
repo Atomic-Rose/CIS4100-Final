@@ -17,238 +17,33 @@
   --radius: 12px;
   --font: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
 }
-</style><style>*, *::before, *::after { box-sizing: border-box; }
-
-body {
-  margin: 0;
-  background: var(--canvas);
-  color: var(--ink);
-  font: 1rem/1.5 var(--font);
-}
-
-button { font: inherit; color: inherit; cursor: pointer; }
-button:disabled { cursor: default; }
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
-h1:focus, .feedback:focus { outline: none; }
-h1, h2, p { margin: 0; }
-h1, h2 { line-height: 1.08; text-wrap: balance; }
-h1 { font-size: clamp(2.2rem, 6vw, 3.9rem); letter-spacing: -.056em; }
-h2 { font-size: 1.12rem; letter-spacing: -.02em; }
-
-.site-header {
-  padding: 22px max(20px, calc((100vw - 1160px) / 2));
-  border-bottom: 1px solid var(--line);
-}
-
-.brand { font-weight: 800; font-size: 1.1rem; letter-spacing: -.04em; }
-.brand span { color: var(--accent); }
-
-.start {
-  width: min(720px, calc(100% - 40px));
-  margin: 0 auto;
-  min-height: min(690px, calc(100svh - 72px));
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  padding-block: 48px 72px;
-}
-
-.start h1 { font-size: clamp(3rem, 9vw, 6.5rem); }
-.start .button { margin-top: 30px; }
-.start-mark {
-  display: flex;
-  align-items: end;
-  gap: 5px;
-  height: 48px;
-  padding: 11px;
-  margin-bottom: 28px;
-  background: var(--selected);
-  border: 1px solid #d9e0ff;
-  border-radius: var(--radius);
-}
-.start-mark i { width: 5px; height: 10px; background: var(--accent); border-radius: 2px; }
-.start-mark i:nth-child(2) { height: 17px; }
-.start-mark i:nth-child(3) { height: 24px; }
-
-.course-code { margin-bottom: 12px; color: var(--quiet); font-size: .9rem; font-weight: 700; }
-.lede { margin-top: 13px; color: var(--quiet); font-size: 1.08rem; }
-
-.button {
-  display: inline-flex;
-  align-items: center;
-  min-height: 46px;
-  padding: 10px 17px;
-  border: 1px solid transparent;
-  border-radius: 9px;
-  background: transparent;
-  font-weight: 650;
-  text-align: start;
-  transition: background-color 130ms ease;
-}
-.primary { background: var(--accent); color: #fff; }
-.primary:hover:not(:disabled) { background: var(--accent-hover); }
-.primary:disabled { background: #e2e4e3; color: var(--quiet); }
-.outline { background: var(--paper); border-color: var(--line); }
-.quiet:hover, .outline:hover { background: #e9e9e6; }
-
-.library, .results, .lesson { width: min(720px, calc(100% - 40px)); margin-inline: auto; }
-.library, .results { padding-block: clamp(38px, 8vh, 88px) 64px; }
-.library-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-block: 24px 36px; }
-
-.chapters, .choices, .answer-review { margin: 14px 0 0; padding: 0; list-style: none; }
-.chapters, .choices { border-top: 1px solid var(--line); }
-.chapters li, .choices li, .answer-review li { border-bottom: 1px solid var(--line); }
-.chapter, .choice {
-  width: 100%;
-  display: grid;
-  align-items: center;
-  gap: 14px;
-  border: 0;
-  background: transparent;
-  text-align: left;
-  overflow-wrap: anywhere;
-}
-.chapter { grid-template-columns: 36px minmax(0, 1fr) auto; padding: 14px 8px; }
-.chapter:hover, .choice:hover:not(:disabled) { background: var(--paper); }
-.chapter-number, .choice-key {
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  font-size: .85rem;
-  font-weight: 750;
-}
-.chapter small { display: block; color: var(--quiet); }
-.chapter > span:last-child { color: var(--accent); }
-
-.lesson { padding-bottom: 48px; }
-.lesson-rail {
-  display: grid;
-  grid-template-columns: auto minmax(16px, 1fr) auto;
-  align-items: center;
-  gap: 14px;
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  background: var(--canvas);
-  padding-block: 7px;
-  margin-bottom: clamp(24px, 5vh, 52px);
-}
-.lesson-rail .button { padding-inline: 8px; }
-.lesson-rail span { color: var(--quiet); font-variant-numeric: tabular-nums; }
-progress { display: block; width: 100%; height: .4rem; accent-color: var(--accent); }
-.lesson h1 { font-size: clamp(1.55rem, 4vw, 2.35rem); letter-spacing: -.032em; line-height: 1.2; }
-.choices { margin-top: 24px; }
-.choice { grid-template-columns: 34px minmax(0, 1fr); min-height: 62px; padding: 12px; }
-.choice[aria-pressed="true"], .choice[aria-pressed="true"]:hover:not(:disabled) { background: var(--selected); }
-.choice.correct, .choice.correct[aria-pressed="true"] { color: var(--correct); background: var(--correct-bg); }
-.choice.wrong, .choice.wrong[aria-pressed="true"] { color: var(--wrong); background: var(--wrong-bg); }
-.answer-status { grid-column: 2; font-size: .85rem; }
-.feedback, dialog {
-  margin-top: 20px;
-  padding: 16px 18px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--paper);
-}
-.feedback p, dialog p, .answer-review p + p { margin-top: 6px; }
-.feedback small, .answer-review small { color: var(--quiet); display: block; margin-top: 7px; }
-.lesson-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: end; gap: 8px; margin-top: 22px; }
-
-.score { margin-top: 12px; font-size: clamp(4.5rem, 12vw, 8rem); font-weight: 800; letter-spacing: -.09em; line-height: 1; }
-.score span { color: var(--quiet); font-size: .45em; letter-spacing: -.05em; }
-.recommendation { margin-top: 20px; }
-.answer-review li { padding: 14px 0; }
-details { border-top: 1px solid var(--line); padding-top: 12px; }
-summary { cursor: pointer; font-weight: 650; }
-dialog { width: min(460px, calc(100% - 32px)); margin: auto; }
-dialog::backdrop { background: rgb(15 18 22 / .42); }
-.storage-warning { color: var(--wrong); padding: 10px 20px; background: var(--wrong-bg); }
-
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { transition: none !important; }
-}
-/* Focused layouts shared by the four screens. */
-.site-header { display:flex; align-items:center; justify-content:space-between; }
-.header-course { color:var(--quiet); font-size:.875rem; font-weight:650; }
-.skip-link { position:absolute; left:16px; top:-100px; padding:12px; background:var(--paper); z-index:9; }
-.skip-link:focus { top:10px; }
-.start { width:min(960px,calc(100% - 48px)); }
-.start h1 { font-size:clamp(3rem,7.6vw,6rem); max-width:930px; line-height:1.02; }
-.start-note { margin-top:30px; font-size:.9rem; color:var(--quiet); }
-.library,.results { width:min(840px,calc(100% - 40px)); }
-.library h1 { font-size:clamp(2.4rem,5.5vw,3.8rem); }
-.chapter { min-height:90px; padding-block:18px; }
-.chapter strong { font-size:1.12rem; }
-.chapter small { font-size:.875rem; margin-top:3px; }
-.more { margin-top:28px; }
-.more > summary { padding-bottom:12px; }
-.more p { margin-block:10px; }
-.options { display:grid; grid-template-columns:1fr 1fr; gap:18px; padding-block:12px; }
-label { display:flex; flex-direction:column; gap:7px; font-size:.9rem; font-weight:650; }
-select,input { font:inherit; color:var(--ink); max-width:100%; }
-select { width:100%; padding:12px 36px 12px 12px; border:1px solid var(--line); border-radius:8px; background-color:var(--paper); }
-.muted,.footnote,.shortcut-note,.topic-label { color:var(--quiet); }
-.muted,.footnote { font-size:.9rem; }
-.footnote { margin-top:36px; }
-.file-label { margin-block:18px; }
-.file-label input { font-size:1rem; font-weight:400; }
-.history { list-style:none; padding:0; }
-.history li { display:flex; align-items:center; justify-content:space-between; gap:16px; border-bottom:1px solid var(--line); padding-block:14px; }
-.history small { display:block; color:var(--quiet); }
-.table-scroll { overflow:auto; }
-table { border-collapse:collapse; width:100%; font-size:.9rem; text-align:center; }
-caption { text-align:left; margin-bottom:10px; color:var(--quiet); }
-th,td { border-bottom:1px solid var(--line); padding:9px; }
-.lesson { width:min(1120px,calc(100% - 48px)); }
-.lesson-body { padding-block:30px 12px; }
-.lesson-rail { margin-bottom:12px; }
-.quiz-tools { display:flex; flex-wrap:wrap; align-items:center; gap:12px; }
-.quiz-tools .course-code { margin:0; margin-right:auto; }
-#timer { font-variant-numeric:tabular-nums; font-size:.9rem; }
-.topic-label { font-size:.9rem; margin-bottom:14px; }
-.shortcut-note { font-size:.9rem; margin-top:20px; }
-.choice { position:relative; min-height:84px; padding:27px 12px 16px; font-size:1.06rem; }
-.answer-status { position:absolute; left:60px; top:5px; font-size:.8rem; min-height:18px; }
-.choices { margin-top:0; }
-.lesson-actions { padding-block:14px; }
-.lesson > .lesson-actions { position:sticky; bottom:0; background:var(--canvas); z-index:1; border-bottom:1px solid var(--line); }
-.navigator,.keyboard-help { margin-top:18px; }
-.navigator > p { margin-block:12px; }
-.question-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(100px,1fr)); gap:8px; margin-bottom:14px; }
-.nav-question { padding:10px; background:var(--paper); border:1px solid var(--line); border-radius:8px; min-height:68px; }
-.nav-question small { display:block; font-size:.875rem; color:var(--quiet); }
-.nav-question.current { outline:2px solid var(--accent); outline-offset:1px; }
-.next-step { border-top:2px solid var(--accent); padding-top:20px; margin-top:32px; }
-.next-step h2 { font-size:1.8rem; line-height:1.2; }
-.next-step p { margin-block:14px; }
-.next-step .button { margin-top:8px; }
-#notice { padding:14px max(20px,calc((100vw - 840px)/2)); background:var(--selected); border-bottom:1px solid var(--line); }
-.keyboard-help p { margin-top:12px; color:var(--quiet); font-size:.9rem; }
-@media(min-width:960px) {
-  .lesson-body { display:grid; grid-template-columns:minmax(0,5fr) minmax(0,6fr); gap:80px; padding-top:48px; }
-  .lesson-prompt { position:sticky; top:90px; align-self:start; }
-  .lesson h1 { font-size:2rem; line-height:1.2; }
-  .results { width:min(1040px,calc(100% - 64px)); }
-  .results-top { display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:center; }
-  .next-step { margin:0; }
-}
-@media(max-width:959px) { .lesson-work { margin-top:26px; } }
-@media(max-width:560px) {
-  .options { grid-template-columns:1fr; }
-  .start,.lesson { width:calc(100% - 32px); }
-  .lesson-rail { gap:8px; }
-  .lesson-rail .button { font-size:.9rem; }
-  .choice { font-size:1rem; }
-  .history li { align-items:flex-start; flex-direction:column; }
-  .lesson-actions { gap:4px; }
-  .lesson-actions .button { padding-inline:12px; }
-  .chapter { gap:10px; }
-  .start-note { max-width:260px; }
-}
+</style><style>*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--canvas);color:var(--ink);font:1rem/1.5 var(--font)}
+button,input,select{font:inherit;color:inherit}button,summary{cursor:pointer}button:disabled{cursor:default}
+:focus-visible{outline:2px solid var(--accent);outline-offset:4px}h1:focus,.feedback:focus{outline:none}
+h1,h2,p{margin:0}h1,h2{line-height:1.2;letter-spacing:-.03em}h1{font-size:clamp(1.7rem,4vw,2.1rem);font-weight:750}h2{font-size:1.05rem}
+.site-header{height:64px;width:min(760px,calc(100% - 40px));margin:auto;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}
+.brand{font-size:1.06rem;font-weight:800;letter-spacing:-.04em}.brand span{color:var(--accent)}.header-course{color:var(--quiet);font-size:.875rem;font-weight:650}
+.start,.library,.chapter-view,.results,.lesson{width:min(760px,calc(100% - 40px));margin-inline:auto;padding-block:36px 48px}
+.start{padding-top:clamp(64px,15vh,130px);min-height:400px}.start h1{font-size:clamp(2rem,5vw,2.7rem)}.start .lede{margin-top:12px}.start .library-actions{margin-top:26px}
+.course-code{font-size:.875rem;font-weight:650;color:var(--quiet);margin-bottom:10px}.lede{margin-top:10px;color:var(--quiet);font-size:1rem}
+.button{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 16px;border:1px solid transparent;border-radius:8px;background:transparent;font-weight:650;text-align:center;line-height:1.4;transition:background-color 120ms ease}
+.primary{background:var(--accent);color:white}.primary:hover:not(:disabled){background:var(--accent-hover)}.primary:disabled{background:#e2e4e3;color:var(--quiet)}.outline{border-color:var(--line);background:var(--paper)}.quiet:hover,.outline:hover{background:#e9e9e6}.library-actions{display:flex;gap:10px;flex-wrap:wrap;margin-block:22px 28px}
+.chapters,.choices,.answer-review,.history{list-style:none;padding:0;margin:12px 0 0}.chapters,.choices{border-top:1px solid var(--line)}.chapters li,.choices li,.answer-review li,.history li{border-bottom:1px solid var(--line)}
+.chapter,.topic-row{width:100%;display:grid;grid-template-columns:34px minmax(0,1fr) auto;align-items:center;gap:14px;min-height:72px;padding:12px 6px;text-align:left;background:transparent;border:0;overflow-wrap:anywhere}.chapter:hover,.topic-row:hover{background:var(--paper)}.chapter strong,.topic-row strong{font-size:1rem;font-weight:650}.chapter small,.topic-row small{display:block;font-size:.875rem;color:var(--quiet);margin-top:3px}.chapter-number,.choice-key{width:32px;height:32px;display:grid;place-items:center;border:1px solid var(--line);border-radius:7px;font-size:.875rem;font-weight:650}.row-hint{font-size:.875rem;color:var(--quiet)}
+.topic-row{grid-template-columns:minmax(0,1fr) auto;min-height:66px}.chapter-view>.button{margin-left:-16px;margin-bottom:20px}.chapter-view>.course-code{margin-top:4px}
+details{border-top:1px solid var(--line);padding-top:14px;margin-top:22px}summary{font-size:.9375rem;font-weight:650}details p{margin-top:12px}.muted,.footnote{color:var(--quiet);font-size:.875rem}.footnote{margin-top:28px}.options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-block:16px}label{display:flex;flex-direction:column;gap:8px;font-size:.875rem;font-weight:650}select{width:100%;min-width:0;min-height:44px;padding:10px;border:1px solid var(--line);border-radius:6px;background:var(--paper)}input{max-width:100%}.file-label{margin-top:18px}
+.history li{display:flex;gap:16px;align-items:center;justify-content:space-between;padding:12px 0}.history small{display:block;color:var(--quiet)}
+.lesson{padding-top:0}.lesson-rail{display:grid;grid-template-columns:auto minmax(20px,1fr) auto auto;align-items:center;gap:12px;position:sticky;top:0;z-index:2;background:var(--canvas);padding:8px 0;border-bottom:1px solid var(--line)}.lesson-rail .button{padding-inline:8px;font-size:.875rem}.lesson-rail>span{white-space:nowrap;font-size:.875rem;color:var(--quiet);font-variant-numeric:tabular-nums}progress{height:4px;width:100%;accent-color:var(--accent)}
+.quiz-tools{display:flex;justify-content:space-between;gap:12px;margin-top:24px}.quiz-tools .course-code{margin:0}#timer{font-size:.875rem;color:var(--quiet);font-variant-numeric:tabular-nums}.lesson-body{padding-top:22px}.topic-label{color:var(--quiet);font-size:.875rem;margin-bottom:12px}.lesson h1{font-size:clamp(1.4rem,3.4vw,1.8rem);line-height:1.3;letter-spacing:-.025em}.lesson-work{margin-top:26px}
+.choice{position:relative;display:grid;grid-template-columns:32px minmax(0,1fr);gap:14px;align-items:center;width:100%;min-height:78px;padding:27px 12px 16px;border:0;text-align:left;background:transparent;overflow-wrap:anywhere;line-height:1.45}.choice:hover:not(:disabled){background:var(--paper)}.choice[aria-pressed="true"]{background:var(--selected)}.choice.correct{background:var(--correct-bg);color:var(--correct)}.choice.wrong{background:var(--wrong-bg);color:var(--wrong)}.answer-status{position:absolute;left:58px;top:5px;font-size:.8125rem;min-height:18px}
+.feedback{padding:18px 20px;background:var(--paper);border:1px solid var(--line);border-radius:8px;margin-top:20px}.feedback p{margin-top:8px;white-space:pre-line}.feedback small,.answer-review small{display:block;color:var(--quiet);font-size:.875rem;margin-top:10px}.lesson-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding-block:16px;margin-top:14px}.lesson>.lesson-actions{position:sticky;bottom:0;background:var(--canvas);z-index:1;border-bottom:1px solid var(--line)}
+.question-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;margin-bottom:16px}.nav-question{min-height:64px;border:1px solid var(--line);border-radius:6px;background:var(--paper);padding:8px}.nav-question small{display:block;font-size:.8125rem;color:var(--quiet)}.nav-question.current{outline:2px solid var(--accent);outline-offset:1px}.navigator .library-actions{margin-block:14px}.keyboard-help p{color:var(--quiet);font-size:.875rem}
+.score{font-size:4rem;font-weight:750;line-height:1;letter-spacing:-.06em;margin-top:18px}.score span{font-size:1.8rem;color:var(--quiet)}.next-step{border-top:1px solid var(--line);margin-top:28px;padding-top:24px}.next-step h2{font-size:1.4rem}.next-step p{margin-top:10px}.next-step .button{margin-top:18px}.answer-review li{padding-block:18px}.answer-review p+p{margin-top:8px}.answer-review p{white-space:pre-line}
+dialog{width:min(460px,calc(100% - 32px));padding:24px;border:1px solid var(--line);border-radius:10px;background:var(--paper)}dialog p{margin-top:12px}dialog::backdrop{background:rgb(15 18 22/.42)}
+.storage-warning,#notice{padding:12px max(20px,calc((100vw - 760px)/2));font-size:.9375rem;background:var(--selected)}.skip-link{position:absolute;top:-100px;left:12px;z-index:9;background:var(--paper);padding:12px}.skip-link:focus{top:8px}
+@media(max-width:480px){.site-header,.start,.library,.chapter-view,.results,.lesson{width:calc(100% - 32px)}.library,.chapter-view,.results{padding-top:28px}.chapter{gap:10px}.chapter .row-hint{display:none}.options{grid-template-columns:1fr}.lesson-rail{gap:8px}.lesson-rail .button{padding-inline:4px}.lesson-rail progress{min-width:20px}.choice{padding-inline:8px;gap:12px}.answer-status{left:52px}.history li{align-items:flex-start;flex-direction:column}.start{min-height:360px}.library-actions{gap:8px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;scroll-behavior:auto!important}}
 </style></head>
 <body><a class="skip-link" href="#main">Skip to content</a><header class="site-header"><span class="brand">SmartPrep<span>.</span></span><span class="header-course">CIS 4100</span></header>
 <p id="storage-status" class="storage-warning" role="status" hidden>Browser storage is unavailable or the saved data is corrupt. The original save is preserved. You can study in memory and export progress; Reset or Import explicitly replaces the saved data.</p>
@@ -415,8 +210,118 @@ const expandedQuestions = rows;
 
 return {expandedQuestions};
 })();
+__modules["src/data/question-revisions.js"] = (() => {
+// Second-pass audit. IDs, types and canonical answers stay fixed for existing saves.
+const revisions = {
+ 'C7-003':{choices:['512 bytes','1 KiB','2 KiB','4 KiB'],explanation:'A 12-bit address selects 2^12=4096 locations. At one byte per location this is 4096 bytes, or 4096/1024=4 KiB. Using 2^(12−1) would count only half the addresses; multiplying the address width by a byte size is not an address-space calculation.'},
+ 'C7-015':{choices:['262,144 bytes','524,288 bytes','131,072 bytes','2,097,152 bytes'],explanation:'There are 2^18=262,144 addresses. Each address selects a 16-bit word, which is 16/8=2 bytes. Capacity=262,144×2=524,288 bytes (512 KiB). Choosing 262,144 bytes incorrectly assumes each address selects one byte.'},
+ 'C7-030':{choices:['Immediate','Direct','Register deferred','Register direct'],explanation:'R2 contains an address, so the CPU follows it to memory to obtain the operand: register deferred addressing. Register direct would use R2’s value itself as the operand. Direct memory addressing would put the memory address in the instruction.'},
+ 'C8-009':{choices:['ARM, x86, POWER/PowerPC','ARM, x86, PCI Express','POWER/PowerPC, DRAM, SPARC','ARM, USB, x86'],explanation:'ARM, x86, and POWER/PowerPC are processor architecture families listed in the deck. PCI Express and USB are I/O interconnects; DRAM is a memory technology. The distinction is the CPU’s architectural family versus hardware that connects to or supports it.'},
+ 'C8-017':{choices:['It reads the first instruction’s result','It writes the same destination register as the first instruction','It changes the branch target computed by the first instruction','It reuses only the opcode and no result of the first instruction'],explanation:'The first ADD produces a new R1; the second ADD consumes R1. It therefore has a true data dependency. Their destination registers are different, so this is not merely a write-name conflict that can be removed by renaming.'},
+ 'C8-030':{choices:['Several processing cores share one integrated circuit','One core executes several hardware threads but remains a single core','Several independent CPU packages occupy separate motherboard sockets','One execution unit performs every operation sequentially'],explanation:'Multicore puts multiple processing cores on one chip. Multiple packages can also form a multiprocessor system, while hardware multithreading can share a core. More cores help when work and shared resources permit useful parallelism.'},
+ 'C9-023':{choices:['Both directions at once','One direction only','Both directions but one at a time','Each bit must be echoed back before the next bit can be sent'],explanation:'Full duplex supports simultaneous bidirectional transfer. Half duplex supports both directions at separate times; simplex supports one direction. Requiring acknowledgements or echoes describes protocol behavior rather than the defining direction capability.'},
+ 'C9-025':{choices:['Addresses and control, and sometimes power','Data only, with no device-selection or control information','Only power, while software transports data without signals','Addresses only, because data values never travel on a bus'],explanation:'A bus can carry addressing to select a location or device, control to coordinate operations, and sometimes power, in addition to data. The signals may use dedicated lines or share physical paths according to the bus protocol.'},
+ 'C9-028':{choices:['Three controllers share one communication path','Each controller has its own separate link to a central switch','One dedicated link joins exactly two controllers','Two unconnected controllers each have a private internal bus'],explanation:'A multipoint bus connects several attachments to a shared path. A switch with separate point-to-point links can also connect many devices, but each individual link still joins two endpoints. The number of devices in the system alone does not define the topology.'},
+ 'C10-006':{choices:['Every drive reads the same block, so duplication alone multiplies throughput','The controller reconstructs every read only from parity','Every drive must finish the complete request before data can be combined','It can read different requested blocks from different drives in parallel'],explanation:'Mirror members all contain the needed data, so the controller can assign different blocks of a multiblock request to different members and combine the results. Reading the same block repeatedly is not the reason for the throughput gain. Gains depend on the workload and controller.'},
+ 'C10-022':{choices:['Two parity checks instead of one','Mirrored copies instead of any parity','Striping with no recovery information','One dedicated drive holding the entire unstriped file'],explanation:'The chapter describes RAID 6 with two different parity checks, compared with RAID 5’s single-parity organization. RAID 1 mirrors and RAID 0 has no redundancy. The named level matters; striping alone does not establish fault recovery.'},
+ 'C11-019':{choices:['Additional downstream device connection points','An independent full-capacity host connection for every attached device','A replacement for the host’s scheduling of all USB transfers','Translation of CPU load instructions directly into main-memory data'],explanation:'A hub adds downstream ports and connects them upstream toward the host. It expands a hierarchy of device connections. Additional ports do not automatically provide independent upstream bandwidth for each device or replace the host’s role.'},
+ 'C11-028':{choices:['PCIe, USB, SCSI, SATA','PCIe, USB, SRAM, SATA','SCSI, DRAM, SATA, USB','PCIe, USB, SIMD, SCSI'],explanation:'PCIe, USB, SCSI, and SATA are interface buses named in the chapter. SRAM and DRAM describe memories, while SIMD describes an instruction/data execution organization. A system needs both devices and interconnects, but those terms identify different roles.'},
+ 'C11-016':{explanation:'The misconception is describing PCIe as the older shared parallel PCI bus. PCIe uses serial point-to-point lanes with separate sending and receiving paths. A wider link combines lanes rather than sending a whole word over one shared parallel path.'},
+ 'C11-002':{choices:['A shared parallel path transmitting one full data word at a time','A serial link with separate transmit and receive paths','One simplex pair shared alternately for sending and receiving','A cache-coherence channel used only between memory banks'],explanation:'One PCIe lane has independent sending and receiving paths, each using a differential pair. An x4 link combines four lanes. Width counts those lanes rather than multiplying the signaling rate of one lane by four.'},
+ 'C11-003':{prompt:'Several USB devices behind one hub can share the hub’s upstream connection to the host.',explanation:'A hub provides downstream connection points that lead back through an upstream host connection. It expands connectivity rather than providing a wholly independent path for each device all the way to the host. The devices can share that path’s available bandwidth.'},
+ 'C11-004':{choices:['The main CPU’s arithmetic opcodes','The I/O device’s cache tags','Channel control words','The CPU’s saved interrupt context'],explanation:'Channel control words form the instructions executed by a mainframe channel subsystem for I/O. The main CPU can do other processing while the channel works. Saved interrupt context preserves program state; it is not an I/O program.'},
+ 'C11-005':{prompt:'Once a mainframe channel starts a DMA transfer, its data goes only into CPU registers and bypasses main memory.',explanation:'The misconception is confusing I/O offload with routing every byte through CPU registers. The channel manages transfers between devices and memory using DMA. The main CPU participates in initiating and coordinating work but need not execute every byte-transfer step.'},
+ 'C11-006':{choices:['The northbridge serves slow ports while the southbridge exclusively fetches instructions','Both bridges provide identical direct memory paths','The northbridge stores registers while the southbridge stores instructions','The northbridge handles fast CPU/memory connections, while the southbridge handles slower peripheral connections'],explanation:'The traditional northbridge serves speed-sensitive CPU and memory paths, while the southbridge handles peripheral I/O. The supplied Haswell example integrates functions differently. These names describe a historical arrangement rather than two mandatory chips in every system.'},
+ 'C11-007':{explanation:'The misconception is interpreting link width as the speed of one lane. x4 means four lanes, not one lane that automatically runs four times faster. At the same generation and rate their capacities combine; actual throughput also depends on negotiation and overhead.'},
+ 'C11-009':{choices:['CPU, memory, peripherals, controllers, buses','CPU, cache, registers, ALU, control unit only','Peripherals, ports, cables, drivers, connectors only','CPU, memory, peripherals, instruction formats, opcodes'],explanation:'The system model includes processing, memory, devices, device control, and the interconnects between them. CPU internals alone omit I/O. An interface-only list omits the processing and storage roles those interfaces must connect.'},
+ 'C11-011':{choices:['Memory bus','USB bus to external peripherals','SATA bus to disk drives','The printer’s device-side interface'],explanation:'The memory bus connects the processor to the memory subsystem. USB, SATA, and device-side interfaces serve other I/O paths. The traditional northbridge diagram and integrated Haswell controller implement the memory role differently.'},
+ 'C11-012':{explanation:'The misconception is mistaking common component roles for one identical physical layout. Smartphones, PCs, and mainframes all process, store, and move data, but their controllers and interconnections reflect different workloads. Shared roles do not require a universal bus design.'},
+ 'C11-013':{choices:['Device driver','Device controller','Bus interface circuit','DMA engine'],explanation:'A device driver is software that directs the device through its hardware interface. Controllers, interface circuits, and DMA engines carry out hardware roles. They cooperate with the driver but are not the software controlling those operations.'},
+ 'C11-018':{prompt:'Adding a USB hub gives every downstream device a separate full-bandwidth path all the way to the host.',explanation:'The misconception is treating extra ports as extra independent upstream bandwidth. Devices behind a hub share its connection to the host. The hub expands connectivity but does not multiply that upstream link’s capacity for every attached device.'},
+ 'C11-022':{choices:['Support for hubs and daisy-chaining','One point-to-point device with no hub support','Exclusively parallel transfers instead of packets','System shutdown before any supported device is removed'],explanation:'Slide 21 describes USB4 with hubs, daisy-chaining, packet-based transfers, and supported devices added or removed while powered. These are the deck’s architectural features, not a claim about the peak rate or connector capability of every implementation.'},
+ 'C11-024':{choices:['Delivery timing also matters','Peak rate guarantees equal packet arrival intervals','Serial connections cannot transmit continuous media','Larger packets guarantee every delivery deadline'],explanation:'A media stream needs data at usable times as well as adequate transfer capacity. Isochronous service schedules delivery at regular intervals. A high peak rate alone does not guarantee that data arrives before playback needs it.'},
+ 'C11-026':{choices:['The channel executes I/O control work that otherwise burdens the CPU','The CPU copies every transferred word again after setup','The channel replaces memory accesses with register transfers','The channel can issue a request but cannot run an I/O program'],explanation:'The channel is a separate I/O processor that runs channel control words and manages DMA. It offloads detailed control from the main CPU. It does not eliminate memory or require the CPU to repeat the entire transfer.'},
+ 'C11-027':{explanation:'The misconception is treating every instruction-like word as part of the application CPU’s arithmetic stream. Channel control words belong to the channel’s I/O program. That program manages device-memory transfers independently of ordinary application arithmetic.'},
+ 'C11-029':{explanation:'The misconception is assuming faster computation removes every bottleneck. The CPU still needs instructions and data from memory, and applications can wait for I/O. Controllers and interconnects must provide suitable bandwidth and latency for the workload.'},
+ 'C11-031':{explanation:'A subchannel is part of the channel subsystem’s organization of I/O. Channel paths connect toward control units, which serve devices in the drawing. This hierarchy lets the I/O processor manage device operations separately from the application CPU’s fetch/execute stream.'},
+ 'C11-032':{choices:['Match the path to bandwidth and latency needs','Attach every device to the slowest shared peripheral path','Choose only from the number of physical connectors','Force memory transfers through every external controller'],explanation:'CPU-memory traffic and peripheral traffic have different bandwidth and timing demands. A hierarchy assigns suitable paths and controllers to them. Connector count alone does not determine whether a path can support a workload.'},
+ 'C11-033':{choices:['Integrated memory controller','Separate southbridge memory buffer','PCIe peripheral controller','External USB host controller'],explanation:'The Haswell diagram places the integrated memory controller between the system agent and memory. This concrete example shows why a separate traditional northbridge should not be assumed for every processor generation.'},
+ 'C11-035':{choices:['DVD and hard disk','Display and GPU','USB hub and keyboard','CPU cache and main memory'],explanation:'The generalized diagram uses SATA buses between the disk controller and the DVD/hard-disk devices. USB ports use a separate controller, and graphics follows another path. Choose the interface from the device/controller relationship rather than from the broad category peripheral.'},
+ 'C11-037':{choices:['Channel subsystem, channel path, control unit, device','Channel subsystem, device, control unit, channel path','Control unit, CPU accumulator, channel path, device','Device, CPU instruction register, channel subsystem, control unit'],explanation:'The device side runs from the channel subsystem along a channel path to a control unit and then to the device. CPU and memory are on the other side. An application register is not a replacement for this controller hierarchy.'},
+ 'C7-001':{explanation:'MAR selects a memory location; MDR carries the value read from or written to that location. For a read from address 80, MAR holds 80 while MDR receives memory[80]. Confusing the address with its contents swaps the roles of these two registers.'},
+ 'C7-002':{explanation:'The instruction register holds the fetched instruction while the control unit decodes it. The program counter identifies where to fetch an instruction: it supplies an address rather than holding the instruction being decoded.'},
+ 'C7-005':{explanation:'The misconception is treating rotation as a shift that loses an outgoing bit. A rotate wraps that bit to the other end. Rotating 10000001 left by one gives 00000011; a logical left shift drops the high bit and fills with zero, giving 00000010.'},
+ 'C7-007':{explanation:'A nested call must preserve the outer call’s return address while saving a newer one. Each call pushes its return address, and each return pops the most recent one. LIFO order avoids overwriting an outer return address in one fixed storage location.'},
+ 'C7-008':{explanation:'The misconception is confusing a copy with a destructive move. A register copy leaves the source unchanged and replaces the destination’s previous contents. If R1=9 and R2=4, copying R1 into R2 leaves both registers holding 9.'},
+ 'C7-010':{explanation:'This confuses registers with main memory. A register is a small fixed-width CPU storage location, measured in bits or bytes. It can hold an address, instruction, data value, or status information; participating in execution does not mean holding the entire program.'},
+ 'C7-012':{explanation:'Both SRAM and DRAM are volatile: neither retains data without power. The difference is retention while powered. DRAM needs periodic refresh, whereas SRAM does not; static does not mean permanent or nonvolatile.'},
+ 'C7-014':{explanation:'The misconception is equating working memory with persistent firmware storage. DRAM loses its contents without power. Firmware needs a nonvolatile medium such as ROM or flash to survive a power cycle, even if some code is later copied into RAM for execution.'},
+ 'C7-016':{choices:['Copy the next instruction address from PC into MAR','Copy IR address 80 to MAR','Copy MDR into IR a second time','Copy the current accumulator into MDR'],explanation:'The instruction is already fetched, so execution copies operand address 80 from IR into MAR. Memory[80] then reaches MDR and is copied into A. Copying PC into MAR belongs to instruction fetch, not selection of this LOAD data operand.'},
+ 'C7-017':{explanation:'1. Fetch from PC=20: MAR=20, then MDR and IR receive ADD 60.\n2. Select the operand: MAR=60 and MDR=memory[60]=30.\n3. Execute ADD: A=150+30=180.\n4. Advance PC to 21.\nFinal state: PC=21, MAR=60, MDR=30, IR=ADD 60, A=180. Subtracting 30 would execute the wrong operation.'},
+ 'C7-018':{choices:['memory[70]=42 and PC=10','A=memory[70] and PC=10','memory[9]=42 and PC=10','memory[70]=42 and PC=70'],explanation:'After STORE 70 is fetched at address 9, its address field selects MAR=70. A’s value 42 passes through MDR into memory[70]. A stays 42 and PC advances to 10. Copying memory[70] into A would describe LOAD, the opposite direction.'},
+ 'C7-020':{explanation:'LOAD replaces A with the fetched operand. If A=10 and memory[80]=7, LOAD 80 leaves A=7, while ADD 80 leaves A=17. The same operand address can therefore produce different results depending on the opcode.'},
+ 'C7-024':{explanation:'A right rotation moves the low-order 1 around to the high-order position, giving 10000000. A logical right shift of 00000001 instead produces 00000000. Rotation preserves the outgoing bit; logical shifting discards it and introduces zero.'},
+ 'C7-026':{explanation:'SIMD applies one operation to several data elements, such as adding brightness to multiple pixels. It describes parallelism across data. Superscalar execution instead concerns issuing multiple suitable instructions in one cycle.'},
+ 'C7-029':{explanation:'The misconception is assuming every operand needs an explicit address field. An implicit operand is selected by the instruction set’s rules, such as an accumulator used automatically by ADD. An explicit operand is named in the instruction.'},
+ 'C7-031':{explanation:'The roles are reversed. The ALU performs arithmetic and comparisons. The control unit decodes instructions, coordinates transfers, and tells the ALU which operation to perform. Faster arithmetic and faster control sequences improve different parts of execution.'},
+ 'C7-032':{choices:['To ensure applications use fewer register operands','To protect system resources from arbitrary application changes','To prevent all application access to its own memory','To guarantee machine-control instructions finish in one cycle'],explanation:'Privilege protects operations that could change system control or access other programs’ resources. The OS mediates these operations. Ordinary permitted loads and stores in an application’s own address space are not all privileged merely because they access memory.'},
+ 'C8-001':{explanation:'A pipeline overlaps the stages of different instructions. Each instruction still passes through all required stages, but once the pipeline fills, completions can occur more often. Throughput improves without necessarily shortening one instruction’s start-to-finish latency.'},
+ 'C8-002':{choices:['They must commit before the branch to preserve instruction order','They are kept as the next instructions regardless of the branch','They are discarded and fetching resumes on the correct path','They become the result of the branch instruction'],explanation:'A wrong prediction fetches instructions from a path the program should not take. They must be discarded before committing architectural effects, and fetching restarts on the correct path. Keeping their results simply to fill the pipeline would change program behavior.'},
+ 'C8-004':{explanation:'Temporal locality means reusing the same locations over time, as a loop does with its instruction bytes. Spatial locality means accessing neighboring locations, as a sequential array scan does. This scenario specifically describes repeated reuse of the same bytes.'},
+ 'C8-005':{explanation:'The misconception is swapping write policies. Write-through forwards each cache write to the next memory level. Write-back can retain a modified, dirty line and send it later when required, such as on eviction. Delayed propagation describes write-back.'},
+ 'C8-006':{choices:['Only the tag, because the missed data is already in this cache','The operand from the register file instead of memory','The following sequential block regardless of the requested address','The relevant block from the next level in the memory hierarchy'],explanation:'On a miss, this cache lacks the requested block. Its controller obtains the block containing that address from the next memory level. A tag identifies a block; retrieving only a tag would not supply the missing instruction or data bytes.'},
+ 'C8-007':{explanation:'The misconception is assuming performance scales perfectly with processor count. Serial work cannot use every processor, while coordination and contention consume time. A second processor can improve suitable parallel work, but a guaranteed 2× application speedup does not follow.'},
+ 'C8-012':{choices:['Complex external instructions into simpler internal operations','Simple internal operations into a larger external instruction set','Source-language variables directly into cache tags','Operand values into opcodes without preserving their behavior'],explanation:'The assignment’s model retains a complex external instruction set while translating instructions into simpler internal operations. This is an implementation technique that preserves program behavior. It does not convert operand data or cache tags into instructions.'},
+ 'C8-015':{explanation:'The misconception is equating cycles per second with completed instructions per second. A 3 GHz clock supplies 3 billion cycles each second. Instructions may require several cycles, stall, or overlap, so throughput also depends on the program and CPU organization.'},
+ 'C8-019':{choices:['Past outcomes stored in a branch history table','Tags identifying recently accessed data-cache blocks','Return addresses saved for nested subroutine calls','Mappings from logical to physical registers'],explanation:'A branch history table records earlier outcomes to predict a future branch direction. Cache tags identify blocks, call stacks preserve return addresses, and register mappings resolve naming conflicts. Prediction concerns likely control flow and can still be wrong.'},
+ 'C8-020':{explanation:'The misconception is confusing a naming conflict with a true producer-consumer dependency. Renaming can separate unrelated values that reuse a register name. It cannot supply a value before its producer computes it; a consumer still needs that actual result.'},
+ 'C8-021':{choices:['Wider paths transfer more bytes together; interleaving spreads accesses across banks','Wider paths overlap independent banks; interleaving increases bytes per bus transfer','Wider paths retain recent blocks; interleaving predicts branches','Both work solely by shortening the CPU clock period'],explanation:'A wider path moves more bytes in one transfer. Interleaving distributes addresses among banks so operations can overlap when banks are available. Caching retains useful blocks near the CPU; it is a third mechanism.'},
+ 'C8-027':{explanation:'The misconception is assuming cache levels must be identical. A hierarchy trades access speed against capacity: a small fast level can handle frequent hits while a larger level holds more blocks. Equal capacity and equal access time are not L1/L2 requirements.'},
+ 'C8-028':{choices:['Symmetric multiprocessing','Primary-replica','Superscalar execution within one core','Memory interleaving across banks'],explanation:'The primary CPU manages resources and assigns work to replicas. SMP instead gives processors equal access to resources and shared scheduling responsibility. Central control simplifies primary-replica operation but makes the primary a bottleneck and possible failure point.'},
+ 'C8-031':{explanation:'The misconception is assuming extra replica CPUs automatically replace the primary’s management role. In the chapter’s design, the primary controls scheduling and resources. Losing that primary can stop the system even while replica processors remain functional.'},
+ 'C8-032':{choices:['Resource contention','A true data dependency between every pair of threads','Instruction decoding in the shared disk controller','A shortage of address bits in every program counter'],explanation:'The memory bus has finite transfer capacity. More cores requesting it may spend more time waiting, so adding computation resources does not remove this shared bottleneck. Coordination overhead and serial work can further limit speedup.'}
+};
+Object.assign(revisions, {
+ 'C9-001':{explanation:'Polling makes the CPU repeatedly inspect device status to decide when to transfer data. Interrupt-driven I/O lets the device signal an event instead. DMA addresses a different cost: moving a large block after setup without having the CPU copy each word.'},
+ 'C9-003':{explanation:'The misconception is assigning the bulk copy to the CPU after DMA setup. The CPU/OS supplies the device location, memory address, direction, and length. The controller transfers the block directly to memory and typically signals completion with an interrupt. Setup does not mean copying every byte.'},
+ 'C9-004':{choices:['To announce that the transfer is complete','To request the block’s starting address for the first time','To have the CPU copy the transferred block again byte by byte','To request the initial transfer direction after the block arrives'],explanation:'The completion interrupt tells the OS that the block transfer has ended so it can handle status and wake or notify the requester. Address, direction, and length were supplied during setup. They are not normally first chosen after completion.'},
+ 'C9-007':{explanation:'The misconception is confusing a shared multipoint path with a point-to-point link. One point-to-point link has exactly two endpoints. Three devices can communicate through multiple links and a switch or through a shared multipoint bus, but are not all endpoints of one point-to-point link.'},
+ 'C9-008':{explanation:'The misconception is treating interrupt service as a strict first-in, first-out queue. Priorities can determine which pending request is handled first. If nesting and masking allow it, a higher-priority request can preempt a lower-priority handler, whose context is restored afterward.'},
+ 'C9-009':{choices:['To adapt timing, formats, and control requirements','To force the CPU to run at each device’s physical speed','To replace all data movement with interrupt signals','To eliminate buffering for devices with burst transfers'],explanation:'Devices differ in format, timing, and physical control needs. An interface or controller adapts these details and can buffer data to bridge speeds. An interrupt announces an event; it does not itself carry out every transfer or eliminate the need for adaptation.'},
+ 'C9-011':{choices:['Save context, run handler, restore context and resume','Run handler, save the overwritten registers, then resume','Save only the device address, run handler, restart the program','Restore program context first, run handler, then save it'],explanation:'The system saves the interrupted program’s context before the handler changes registers or control state. After servicing the event, it restores that context. Saving registers only after running the handler would preserve modified values rather than the original program state.'},
+ 'C9-012':{explanation:'The misconception is assuming an interrupt terminates the interrupted program. Normally it resumes, so its registers and control state must be preserved. A handler may use registers, but the system restores the program’s saved context before returning.'},
+ 'C9-013':{choices:['Polled interrupts','Busy-wait polling with no interrupt notification','DMA block transfer with no requester identification','Vectored dispatch supplied directly by the device'],explanation:'An interrupt first announces that some device needs service. The handler then polls devices to identify the requester. Busy-wait polling repeatedly checks readiness before an interrupt; vectored handling supplies an identifier for dispatch instead of discovering it by polling.'},
+ 'C9-014':{choices:['After each individual bit transfer on the bus','After an instruction executes, when enabled','Only after the current program terminates','After each internal register transfer even if interrupts are disabled'],explanation:'The chapter’s simplified cycle finishes an instruction and then checks enabled interrupts. An instruction can take several clock cycles, so this is not a check every clock tick. The prompt specifies the course model rather than claiming identical timing for every CPU.'},
+ 'C9-017':{choices:['H returns to L, then L returns to the program','H returns to the program and discards unfinished L','L returns to the program before H can finish','Both H and L return to the program’s initial instruction'],explanation:'With preemption enabled, H interrupts L after its context is saved. H’s completion restores L, and L’s later completion restores the original program. Returning directly from H to the program would abandon L’s unfinished work.'},
+ 'C9-018':{choices:['Device location, memory start, size, and read direction','Device location and size without a memory destination','Memory start and size without device location or direction','Only an interrupt vector, with the block inferred by the controller'],explanation:'The OS specifies where the device block is, where memory should receive it, how much to move, and in which direction. The controller then performs DMA. The completion interrupt reports the result; it does not replace this setup information.'},
+ 'C9-019':{explanation:'The misconception is equating CPU offload with no CPU participation. DMA offloads the transfer itself. The CPU/OS still sets it up, and a completion interrupt usually lets it process the result and resume the requester.'},
+ 'C9-020':{choices:['Arbitration or other conflict avoidance','Increasing the block length until transfers overlap','Giving CPU and controller the same address without coordination','Signaling only after conflicting writes have completed'],explanation:'The DMA controller and CPU can both need memory or a shared bus. Arbitration or another coordination method prevents incompatible simultaneous use. A completion interrupt by itself does not prevent those access conflicts.'},
+ 'C9-024':{explanation:'The misconception is confusing half duplex with full duplex. Half duplex supports both directions but only one at a time. Full duplex supports simultaneous traffic both ways. Simplex supports only one direction.'},
+ 'C9-026':{explanation:'The misconception is assuming a parallel path must always be faster because it has more wires. Interference and timing constraints can limit its rate and length. A serial connection can run at a high enough signaling rate to provide greater throughput despite transferring fewer bits together.'},
+ 'C9-030':{choices:['The OS controls protected hardware operations','Applications cannot access their own permitted memory','Interrupt handlers must decode every application instruction','Only DMA controllers can execute programmed I/O instructions'],explanation:'The OS mediates privileged device-control operations so applications cannot arbitrarily change protected resources. The application requests a service, and the OS and controller carry it out. Protection does not prevent normal access to an application’s permitted memory.'},
+ 'C9-032':{explanation:'The misconception is treating an external network as outside the I/O model. A NIC controls transmitting and receiving data. Network traffic still enters and leaves the computer through interfaces, buffers, and memory transfers.'},
+ 'C10-001':{explanation:'The misconception is treating persistence as unlimited endurance. Flash retains data without power, but repeated program/erase cycles wear cells. Wear-leveling spreads this activity to extend useful life; it does not remove the physical endurance limit.'},
+ 'C10-005':{explanation:'The misconception is assuming every RAID level provides fault recovery. RAID 0 stripes blocks for performance but stores no redundant copy or parity for reconstruction. A failed member loses part of the data. Mirrored and parity-based organizations add recovery information that RAID 0 lacks.'},
+ 'C10-010':{explanation:'Access time and transfer rate measure different aspects of storage. Access time is the delay to locate and begin accessing data; transfer rate is the amount moved per second. A device can transfer sequential data quickly while still taking substantial time to reach a random block.'},
+ 'C10-011':{choices:['Spread program/erase activity across flash cells','Write repeatedly to the fastest cell regardless of wear','Refresh flash cells periodically as DRAM does','Retain the only copy of modified data in volatile cache'],explanation:'Wear-leveling distributes program/erase operations rather than wearing out a small set of cells first. DRAM refresh solves charge retention while powered, a different issue; it does not explain finite flash write endurance.'},
+ 'C10-013':{choices:['The corresponding track across recording surfaces','All sectors along one track on one surface','The sectors read while the disk turns once','All tracks on one recording surface'],explanation:'A cylinder groups tracks at the same radial position across recording surfaces. A track is one circular recording path on one surface, while sectors divide tracks into storage units. A cylinder groups aligned tracks, not all tracks on a surface.'},
+ 'C10-014':{choices:['Sectors per track','Number of recording surfaces','Number of bits in each byte','The fixed rotational speed for each individual read'],explanation:'ZBR divides tracks into zones. Sector count stays constant within a zone but can differ between zones, letting larger outer tracks hold more sectors. This is different from the simple equal-sector-count layout across the entire disk.'},
+ 'C10-015':{explanation:'The misconception is extending a within-zone rule to the whole disk. ZBR keeps sector count constant inside a zone, while different zones can have different counts. Outer zones can therefore hold more sectors per track.'},
+ 'C10-021':{explanation:'The misconception is adding mirror capacities as though the copies held different data. A simple two-drive RAID 1 stores the same blocks on both members. Two 2 TB drives provide 2 TB of distinct capacity before overhead; the second copy supplies redundancy.'},
+ 'C10-026':{choices:['Offline archival and disaster-recovery backups','Frequent small random updates to an active database','Low-latency paging for an interactive application','Repeated random reads of individual executable instructions'],explanation:'Tape suits long sequential transfers and offline retention. Reaching an arbitrary location can require advancing through the medium, making tape a poor fit for frequent low-latency random accesses. Direct-access storage better serves those workloads.'},
+ 'C10-030':{choices:['A transistor per cell','One switching element for the entire panel','Only row and column switching that scans cells sequentially','Self-emitting pixels without liquid-crystal light control'],explanation:'In the course’s active-matrix model, each LCD cell has a transistor to maintain a stronger charge. Passive-matrix addressing scans with row/column control. OLED’s self-emitting pixels are a different technology, not the definition of active-matrix LCD.'},
+ 'C10-032':{choices:['Large amounts of parallel work can be distributed across execution resources','Every individual instruction is guaranteed faster than on any CPU','Pixel computations become exclusively serial','A GPU eliminates image data transfers to the display'],explanation:'Many graphics operations repeat similar computations across vertices or pixels. A GPU distributes this work among many execution resources. Parallel throughput does not guarantee faster execution of each individual operation or eliminate data movement.'},
+ 'C10-033':{choices:['Fusing with heat','Charging and exposing the drum','Applying toner to the drum','Transferring loose toner from drum to paper'],explanation:'After toner transfers to paper, the fuser uses heat to bond it permanently. Charging, exposure, and transfer are earlier stages that prepare or position the image. They do not perform the final bonding.'},
+ 'C10-034':{explanation:'The misconception is applying an extrusion-based 3D process to ordinary page printers. Inkjet deposits ink droplets. Laser printing transfers a toner image and fuses it with heat. Extruding material into successive layers describes a different process.'},
+ 'C10-035':{choices:['It encodes across two dimensions and can carry more data','It stores data only by widening a single row of bars','It stores data magnetically rather than optically','It consists of independent one-dimensional barcodes read column by column'],explanation:'A QR code organizes information in a two-dimensional pattern captured optically, often by a camera. This allows greater data capacity than a typical one-dimensional barcode. It is neither a magnetic stripe nor simply a wider row of bars.'},
+ 'C10-036':{explanation:'The misconception is confusing radio identification with optical scanning. RFID communicates with a tag using radio frequencies. Printed barcodes and QR codes are read optically. Their reader and encoding technologies differ even when they identify the same item.'}
+});
+
+return {revisions};
+})();
 __modules["src/data/questions.js"] = (() => {
 const { expandedQuestions } = __modules["src/data/questions-expanded.js"];
+const { revisions } = __modules["src/data/question-revisions.js"];
 const trueFalse = ['True', 'False'];
 
 function makeQuestion(id, topic, prompt, choices, answer, explanation, reference) {
@@ -518,7 +423,7 @@ const starterQuestions = [
   makeQuestion('C11-008', 'System architecture', 'A smartphone and a mainframe can both be described in terms of components, controllers, and interconnections.', null, true,
     'Both need processing, memory, and I/O, along with ways to move data among those parts. Their implementations serve different workloads.', 'Slides 3–6'),
 ];
-const questions = [...starterQuestions, ...expandedQuestions];
+const questions = [...starterQuestions, ...expandedQuestions].map(question => ({ ...question, ...revisions[question.id] }));
 
 return {questions};
 })();
@@ -6763,18 +6668,19 @@ function shuffle(items, random = Math.random) {
   }
   return order;
 }
-function balancedSample(pool, size, random = Math.random) {
+function balancedSample(pool, size, random = Math.random, seen = new Set()) {
   const unique = [...new Map(pool.map(q => [q.id, q])).values()];
   const groups = Map.groupBy(shuffle(unique, random), q => q.chapter);
+  for (const [chapter, group] of groups) groups.set(chapter, [...group.filter(q => seen.has(q.id)), ...group.filter(q => !seen.has(q.id))]);
   const buckets = shuffle([...groups.values()], random), chosen = [];
   while (chosen.length < Math.min(size, unique.length)) {
     for (const bucket of buckets) if (bucket.length && chosen.length < size) chosen.push(bucket.pop());
   }
   return shuffle(chosen, random);
 }
-function createSession(pool, { label = 'Practice', mock = false, size = pool.length, seed = `${Date.now()}-${Math.random()}`, minutes = 0, ordered = false } = {}) {
+function createSession(pool, { label = 'Practice', mock = false, size = pool.length, seed = `${Date.now()}-${Math.random()}`, minutes = 0, ordered = false, seen = new Set() } = {}) {
   const random = seededRandom(seed);
-  const selected = ordered ? [...new Map(pool.map(q => [q.id, q])).values()].slice(0, size) : balancedSample(pool, size, random);
+  const selected = ordered ? [...new Map(pool.map(q => [q.id, q])).values()].slice(0, size) : balancedSample(pool, size, random, mock ? new Set() : seen);
   if (!selected.length) return null;
   const started = Date.now();
   return { id: `${started}-${Math.random().toString(36).slice(2)}`, label, mock, seed: String(seed), started,
@@ -6813,7 +6719,8 @@ function recommend(entries, questions, seen = new Set()) {
   const { chapter, topic } = top[0].question;
   const used = new Set([...seen, ...entries.map(e => e.question.id)]);
   const fresh = questions.filter(q => q.chapter === chapter && q.topic === topic && !used.has(q.id));
-  return { chapter, topic, fresh: fresh.length > 0, pool: fresh.length ? fresh : top.map(e => e.question) };
+  return { chapter, topic, missed: top.length, total: entries.filter(e => e.question.chapter === chapter && e.question.topic === topic).length,
+    fresh: fresh.length > 0, pool: fresh.length ? fresh : top.map(e => e.question) };
 }
 function recordItem(progress, session, item, bank, final = false) {
   if (item.recorded || !final && (session.mock || !item.checked)) return;
@@ -6873,7 +6780,7 @@ return {seededRandom,shuffle,balancedSample,createSession,setDraft,confirmCurren
 __modules["src/logic/storage.js"] = (() => {
 const { recordItem } = __modules["src/logic/session.js"];
 const key = 'smartprep-finals-v1';
-const freshProgress = () => ({ active: null, latest: {}, first: {}, flags: [], retries: { total: 0, correct: 0 }, history: [] });
+const freshProgress = () => ({ active: null, archivedSessions: [], latest: {}, first: {}, flags: [], retries: { total: 0, correct: 0 }, history: [] });
 function validSession(s, bank, finished = false) {
   if (!s || typeof s.id !== 'string' || typeof s.label !== 'string' || typeof s.mock !== 'boolean' ||
     !Number.isFinite(s.started) || !(s.deadline === null || Number.isFinite(s.deadline) && s.deadline >= s.started) ||
@@ -6901,9 +6808,10 @@ function validateProgress(raw, bank) {
     !Array.isArray(raw.flags) || new Set(raw.flags).size !== raw.flags.length || raw.flags.some(id => !bank.has(id)) ||
     !Array.isArray(raw.history) || raw.history.length > 10000 || !raw.history.every(s => validSession(s, bank, true)) ||
     !(raw.active === null || validSession(raw.active, bank)) || !raw.retries ||
+    raw.archivedSessions !== undefined && (!Array.isArray(raw.archivedSessions) || !raw.archivedSessions.every(s => validSession(s, bank))) ||
     !Number.isInteger(raw.retries.total) || !Number.isInteger(raw.retries.correct) || raw.retries.correct < 0 || raw.retries.total < raw.retries.correct ||
     new Set([...raw.history.map(s => s.id), ...(raw.active ? [raw.active.id] : [])]).size !== raw.history.length + (raw.active ? 1 : 0)) throw new Error('Invalid or incompatible progress backup.');
-  return structuredClone({ active: raw.active, latest: raw.latest, first: raw.first, flags: raw.flags, retries: raw.retries, history: raw.history });
+  return structuredClone({ active: raw.active, archivedSessions: raw.archivedSessions || [], latest: raw.latest, first: raw.first, flags: raw.flags, retries: raw.retries, history: raw.history });
 }
 function migrateV1(raw, bank) {
   const p = freshProgress();
@@ -6964,100 +6872,160 @@ function importLegacy(raw, bank) {
 
 return {key,freshProgress,validSession,validateProgress,loadProgress,saveProgress,importLegacy};
 })();
+__modules["src/logic/finals.js"] = (() => {
+const isFinals = q => q && q.chapter >= 7 && q.chapter <= 11;
+function isFinalsSession(session, bank) {
+  return !!session?.items?.length && session.items.every(item => isFinals(bank.get(item.id)));
+}
+// Keep incompatible active attempts intact, but never expose them through finals resume.
+function parkArchiveSession(progress, bank) {
+  if (!progress.active || isFinalsSession(progress.active, bank)) return false;
+  progress.archivedSessions ??= [];
+  progress.archivedSessions.push(progress.active);
+  progress.active = null;
+  return true;
+}
+function scopeProgress(progress, bank) {
+  const keep = records => Object.fromEntries(Object.entries(records).filter(([id]) => isFinals(bank.get(id))));
+  const history = progress.history.flatMap(session => {
+    const items = session.items.filter(item => isFinals(bank.get(item.id)));
+    if (!items.length) return [];
+    return [{ ...session, items, label: items.length === session.items.length ? session.label : 'Finals questions from saved session' }];
+  });
+  return { ...progress, first: keep(progress.first), latest: keep(progress.latest),
+    flags: progress.flags.filter(id => isFinals(bank.get(id))), history,
+    active: isFinalsSession(progress.active, bank) ? progress.active : null };
+}
+function studyStatus(pool, progress) {
+  const ids = new Set(pool.map(q => q.id)), practiced = new Set();
+  for (const records of [progress.first, progress.latest]) {
+    for (const [id, r] of Object.entries(records)) if (ids.has(id) && r.status === 'answered') practiced.add(id);
+  }
+  for (const session of [...progress.history, ...(progress.active && !progress.active.mock ? [progress.active] : [])]) {
+    for (const item of session.items) if (ids.has(item.id) && item.checked && item.recorded) practiced.add(item.id);
+  }
+  const missed = pool.filter(q => progress.latest[q.id] && !progress.latest[q.id].correct).length;
+  return { practiced: practiced.size, missed, total: pool.length,
+    text: missed ? `${missed} to review` : practiced.size ? `${practiced.size} of ${pool.length} practiced` : 'Not started' };
+}
+function resetFinalsProgress(progress, bank) {
+  const archiveOnly = records => Object.fromEntries(Object.entries(records).filter(([id]) => !isFinals(bank.get(id))));
+  const mixedHistory = progress.history.filter(s => s.items.some(i => isFinals(bank.get(i.id))) && s.items.some(i => !isFinals(bank.get(i.id))));
+  return { ...progress, active: null, first: archiveOnly(progress.first), latest: archiveOnly(progress.latest),
+    flags: progress.flags.filter(id => !isFinals(bank.get(id))),
+    history: progress.history.filter(s => s.items.every(i => !isFinals(bank.get(i.id)))),
+    // Keep original mixed attempts intact outside the finals view, including any archived answers.
+    archivedSessions: [...(progress.archivedSessions || []), ...mixedHistory,
+      ...(progress.active && !isFinalsSession(progress.active, bank) ? [progress.active] : [])] };
+}
+
+return {isFinals,isFinalsSession,parkArchiveSession,scopeProgress,studyStatus,resetFinalsProgress};
+})();
 __modules["src/views/screens.js"] = (() => {
+const { studyStatus } = __modules["src/logic/finals.js"];
 function escape(text) {
   return String(text).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 }
 function action(label, name, style = 'quiet', value = '') {
   return `<button type="button" class="button ${style}" data-action="${name}" data-value="${escape(value)}">${escape(label)}</button>`;
 }
-function renderStart() {
-  return `<section class="start"><div class="start-mark" aria-hidden="true"><i></i><i></i><i></i></div>
-    <p class="course-code">CIS 4100</p><h1 tabindex="-1">Computer<br>organization.</h1>
-    <p class="lede">Finals study bank · Chapters 7–11</p>${action('Start studying','library','primary')}
-    <p class="start-note">One question at a time. Explanations when you need them.</p></section>`;
+function renderStart(progress = {}) {
+  return `<section class="start"><p class="course-code">COMPUTER ORGANIZATION</p><h1 tabindex="-1">CIS 4100 Finals</h1>
+    <p class="lede">Chapters 7–11</p><div class="library-actions">${action(progress.active?'Resume session':'Start studying',progress.active?'resume':'library','primary')}
+    ${progress.active?action('Choose a chapter','library'):''}</div></section>`;
 }
-function chapterRows(chapters, questions) {
-  return chapters.map(ch => `<li><button class="chapter" type="button" data-action="chapter" data-value="${ch.number}">
-    <span class="chapter-number">${ch.number}</span><span><strong>${escape(ch.title)}</strong><small>${escape(ch.subtitle)} · ${questions.filter(q=>q.chapter===ch.number).length} questions</small></span><span aria-hidden="true">＋</span></button></li>`).join('');
+function settings() {
+  return `<details class="session-settings"><summary>Session options</summary><div class="options">
+    <label>Practice length<select id="length"><option value="10">10 questions</option><option value="20">20 questions</option><option value="40">40 questions</option><option value="all">All available</option></select></label>
+    <label>Mock length<select id="mock-length"><option value="20">20 questions</option><option value="40">40 questions</option><option value="all">All available</option></select></label>
+    <label>Timer<select id="minutes"><option value="0">No timer</option><option value="5">5 minutes</option><option value="15">15 minutes</option><option value="30">30 minutes</option><option value="60">60 minutes</option></select></label>
+    </div><p class="muted">Sessions use at most the available questions. A mock is a practice format; feedback appears after submission.</p></details>`;
 }
-function renderLibrary(chapters, questions, progress, overlap) {
-  const finals = chapters.filter(c=>c.number>=7), archive = chapters.filter(c=>c.number<7);
-  const hasMissed = Object.values(progress.latest).some(r=>!r.correct);
-  return `<section class="library"><p class="course-code">CIS 4100 · CHAPTERS 7–11</p><h1 tabindex="-1">What will you study?</h1>
-    <p class="lede">Pick a chapter, or mix things up.</p><div class="library-actions">
-    ${progress.active?action('Resume session','resume','primary'):action('Mixed practice','mixed','primary')}
-    ${progress.active?action('Mixed practice','mixed','outline'):''}${action('Mock test','mock','outline')}${hasMissed?action('Review missed','missed','outline'):''}</div>
-    <h2>Finals chapters</h2><ol class="chapters">${chapterRows(finals,questions)}</ol>
-    <details class="more"><summary>More study options</summary><div class="options">
-      <label>Chapter scope<select id="scope"><option value="finals">All finals chapters</option>${chapters.map(c=>`<option value="${c.number}">Chapter ${c.number} · ${escape(c.title)}</option>`).join('')}</select></label>
-      <label>Topic<select id="topic"><option value="">All topics</option></select></label>
-      <label>Practice length<select id="length"><option value="10">10 questions</option><option value="20">20 questions</option><option value="40">40 questions</option><option value="all">All in pool</option></select></label>
-      <label>Mock length<select id="mock-length"><option value="20">20 questions</option><option value="40">40 questions</option><option value="all">All in pool</option></select></label>
-      <label>Optional session timer<select id="minutes"><option value="0">No timer</option><option value="5">5 minutes</option><option value="15">15 minutes</option><option value="30">30 minutes</option><option value="60">60 minutes</option></select></label>
-    </div><div class="library-actions">${action('Practice selection','filtered','primary')}${action('Mock selection','filtered-mock','outline')}${action('Cram selection','cram','outline')}${action('All in selection','full','outline')}${action('Review flags','flags','outline')}</div>
-    <p class="muted">Cram starts with latest misses, then unseen questions, then previous correct answers. Quick buttons use the lengths and timer above; chapter buttons use practice length.</p>
-    <details class="more"><summary>Six repeatable finals mocks</summary><p class="muted">20 questions each · ${overlap.unique} unique questions · ${overlap.reused} reused slots. Same questions and answer order each time.</p>
-    <div class="library-actions">${Array.from({length:6},(_,i)=>action(`Mock ${i+1}`,'saved-mock','outline',i)).join('')}</div>
-    <div class="table-scroll"><table><caption>Shared questions between mocks</caption><thead><tr><th scope="col">Mock</th>${overlap.matrix.map((_,i)=>`<th scope="col">${i+1}</th>`).join('')}</tr></thead><tbody>${overlap.matrix.map((row,i)=>`<tr><th scope="row">${i+1}</th>${row.map(n=>`<td>${n}</td>`).join('')}</tr>`).join('')}</tbody></table></div></details></details>
-    <details class="more"><summary>Optional midterm archive · Chapters 1–6</summary><p class="muted">Separate from the finals quick actions. Original question IDs are preserved.</p><ol class="chapters">${chapterRows(archive,questions)}</ol></details>
-    <details class="more"><summary>Progress, history & backups</summary>${renderHistory(progress,questions)}</details>
-    <p class="footnote">Practice settings describe this app. Exam coverage, timing, and format are unspecified.</p></section>`;
+function chapterRows(chapters, questions, progress) {
+  return chapters.map(ch => {
+    const status=studyStatus(questions.filter(q=>q.chapter===ch.number),progress);
+    return `<li><button class="chapter" type="button" data-action="chapter" data-value="${ch.number}"><span class="chapter-number">${ch.number}</span>
+      <span><strong>${escape(ch.title)}</strong><small>${escape(status.text)}</small></span><span class="row-hint" aria-hidden="true">View</span></button></li>`;
+  }).join('');
+}
+function renderLibrary(chapters, questions, progress) {
+  const misses=questions.filter(q=>progress.latest[q.id]&&!progress.latest[q.id].correct).length;
+  const primary=progress.active?'resume':misses?'missed':'mixed';
+  const primaryLabel=primary==='resume'?'Resume session':primary==='missed'?'Review missed':'Mixed practice';
+  const hint=progress.active?`${progress.active.label} · Question ${progress.active.index+1} of ${progress.active.items.length}`:misses?`${misses} questions to revisit. A correct retry clears a miss.`:'10 questions, balanced across your finals chapters.';
+  return `<section class="library"><p class="course-code">CIS 4100 FINALS · CHAPTERS 7–11</p><h1 tabindex="-1">Your next study session</h1>
+    <p class="lede">${escape(hint)}</p><div class="library-actions">${action(primaryLabel,primary,'primary')}${action('Mock test','mock','outline')}
+      ${primary!=='mixed'?action('Mixed practice','mixed'):''}${primary==='resume'&&misses?action('Review missed','missed'):''}</div>
+    <h2>Study a chapter</h2><ol class="chapters">${chapterRows(chapters,questions,progress)}</ol>${settings()}
+    <details class="more"><summary>Progress & backups</summary>${renderHistory(progress,questions)}</details>
+    <p class="footnote">Exam coverage, timing, and format are unspecified.</p></section>`;
+}
+function renderChapter(chapter, questions, progress) {
+  const pool=questions.filter(q=>q.chapter===chapter.number), status=studyStatus(pool,progress);
+  const topics=[...Map.groupBy(pool,q=>q.topic)].map(([topic,items])=>`<li><button class="topic-row" type="button" data-action="topic" data-value="${escape(`${chapter.number}:${topic}`)}"><span><strong>${escape(topic)}</strong><small>${escape(studyStatus(items,progress).text)} · ${items.length} questions</small></span><span class="row-hint">Practice</span></button></li>`).join('');
+  return `<section class="chapter-view">${action('All chapters','library')}<p class="course-code">CHAPTER ${chapter.number}</p><h1 tabindex="-1">${escape(chapter.title)}</h1>
+    <p class="lede">${escape(status.text)} · ${pool.length} questions</p><div class="library-actions">${action('Start practice','chapter-practice','primary',chapter.number)}${status.missed?action('Review chapter misses','chapter-missed','quiet',chapter.number):''}</div>
+    <h2>Focus on a topic</h2><ol class="chapters topics">${topics}</ol>${settings()}</section>`;
 }
 function renderHistory(progress, questions) {
-  const first = Object.values(progress.first), latest = Object.values(progress.latest);
-  return `<p class="history-summary">${first.filter(r=>r.correct).length} / ${first.length} first attempts correct · ${progress.retries.correct} / ${progress.retries.total} retries correct · ${latest.filter(r=>!r.correct).length} latest misses</p>
-    <p class="muted">Finalized skips and unanswered items count as not correct. A retry never changes a first attempt.</p>
-    <ol class="history">${[...progress.history].reverse().map(s=>`<li><div><strong>${escape(s.label)}</strong><small>${new Date(s.finished).toLocaleString()} · ${escape(s.reason || 'submitted')}</small></div>${action('View results','history','outline',s.id)}</li>`).join('')||'<li>No completed sessions yet.</li>'}</ol>
-    <div class="library-actions">${action('Export progress JSON','export','outline')}${action('Reset progress…','reset','outline')}</div>
+  const status=studyStatus(questions,progress);
+  return `<p class="history-summary">${status.practiced} of ${questions.length} practiced · ${status.missed} to review</p>
+    <p class="muted">Practiced means a unique question with a scored answer. Drafts, skipped items, and unfinished mock answers do not count.</p>
+    <ol class="history">${[...progress.history].reverse().map(s=>`<li><div><strong>${escape(s.label)}</strong><small>${new Date(s.finished).toLocaleString()}</small></div>${action('View results','history','outline',s.id)}</li>`).join('')||'<li>No completed finals sessions yet.</li>'}</ol>
+    <div class="library-actions">${progress.flags.length?action('Review flagged','flags','outline'):''}${action('Export progress JSON','export','outline')}${action('Reset progress…','reset')}</div>
     <label class="file-label">Import SmartPrep progress<input id="import-progress" type="file" accept=".json,application/json"></label>
-    <details class="more"><summary>Import legacy Study Studio progress</summary><p class="muted">Archive content is already included. This separate import accepts completed Study Studio v1 history. Finish any active legacy session before exporting. Import replaces progress after confirmation.</p><label class="file-label">Legacy progress JSON<input id="import-legacy" type="file" accept=".json,application/json"></label></details>`;
+    <p class="muted">Backups retain archival data. Only finals questions appear in this app.</p>`;
 }
 function renderQuiz(session, question) {
-  const item = session.items[session.index], feedback = item.checked && !session.mock;
-  const selected = session.draft ?? item.draft ?? item.pick, last = session.index === session.items.length-1;
-  const choices = item.order.map((choice,position)=>{
-    const correct = feedback && choice === question.answer, wrong = feedback && choice === item.pick && !correct;
-    const badge = question.type==='true-false'?question.choices[choice][0]:'ABCD'[position];
+  const item=session.items[session.index], feedback=item.checked&&!session.mock;
+  const selected=session.draft??item.draft??item.pick, last=session.index===session.items.length-1;
+  const choices=item.order.map((choice,position)=>{
+    const correct=feedback&&choice===question.answer, wrong=feedback&&choice===item.pick&&!correct;
+    const badge=question.type==='true-false'?question.choices[choice][0]:'ABCD'[position];
     return `<li><button class="choice ${correct?'correct':''} ${wrong?'wrong':''}" type="button" data-action="pick" data-value="${choice}" aria-pressed="${selected===choice}" ${feedback?'disabled':''}>
-      <span class="choice-key" aria-hidden="true">${badge}</span><span>${escape(question.choices[choice])}</span><strong class="answer-status">${correct?'Correct answer':wrong?'Your answer · Incorrect':''}</strong></button></li>`;
+      <span class="choice-key" aria-hidden="true">${badge}</span><span>${escape(question.choices[choice])}</span><strong class="answer-status">${correct?(choice===item.pick?'Your answer · Correct':'Correct answer'):wrong?'Your answer · Incorrect':''}</strong></button></li>`;
   }).join('');
-  return `<section class="lesson"><div class="lesson-rail">${action('Save & exit','exit')}<progress value="${session.items.filter(i=>i.checked).length}" max="${session.items.length}" aria-label="Questions answered"></progress><span>${session.index+1} / ${session.items.length}</span></div>
-    <div class="quiz-tools"><span class="course-code">${escape(session.label)} · Ch ${question.chapter}</span><span id="timer" role="timer" aria-label="Time remaining"></span><button class="button quiet" data-action="flag" aria-pressed="${item.flag}">${item.flag?'Flagged':'Flag question'}</button></div>
-    <div class="lesson-body"><div class="lesson-prompt"><p class="topic-label">${escape(question.topic)} · ${question.type==='true-false'?'True / False':'Single answer'}</p><h1 tabindex="-1">${escape(question.prompt)}</h1><p class="shortcut-note">${session.mock?'Answers stay editable until submission.':'Choose an answer, then check.'}</p></div>
+  return `<section class="lesson"><div class="lesson-rail">${action('Save & exit','exit')}<progress value="${session.items.filter(i=>i.checked).length}" max="${session.items.length}" aria-label="Questions answered"></progress><span>${session.index+1} / ${session.items.length}</span>
+    <button class="button quiet flag-button" data-action="flag" aria-pressed="${item.flag}">${item.flag?'Flagged':'Flag'}</button></div>
+    <div class="quiz-tools"><span class="course-code">${escape(session.label)}</span><span id="timer" role="timer" aria-label="Time remaining"></span></div>
+    <div class="lesson-body"><div class="lesson-prompt"><p class="topic-label">Chapter ${question.chapter} · ${escape(question.topic)} · ${question.type==='true-false'?'True / False':'Single answer'}</p><h1 tabindex="-1">${escape(question.prompt)}</h1></div>
     <div class="lesson-work"><ul class="choices" aria-label="Answers">${choices}</ul>${feedback?`<div class="feedback" tabindex="-1" role="status"><strong>${item.pick===question.answer?'Correct':'Incorrect'}</strong><p>${escape(question.explanation)}</p><small>Chapter ${question.chapter} · ${escape(question.reference)}</small></div>`:''}</div></div>
-    <div class="lesson-actions">${session.index>0?action('Back','previous'):''}${!feedback&&!item.checked?action('Skip','skip'):''}
-      <button type="button" class="button primary" data-action="next" ${!feedback&&!session.mock&&selected===null?'disabled':''}>${feedback?(last?'Finish session':'Continue'):session.mock?(last?'Review & submit':'Save & next'):'Check answer'}</button></div>
-    <details class="navigator"><summary>Question navigator</summary><p class="muted">${session.mock?'Answered means saved, without grading.':'Checked practice answers are fixed.'} Skipped questions stay available until you finish.</p><div class="question-grid">${session.items.map((i,n)=>{
-      const state=i.checked?'Answered':i.skipped?'Skipped':i.draft!==null?'Selected':'Unanswered';
-      return `<button class="nav-question ${n===session.index?'current':''}" type="button" data-action="goto" data-value="${n}" ${n===session.index?'aria-current="step"':''}>${n+1}<small>${state}${i.flag?' · Flagged':''}</small></button>`;
-    }).join('')}</div>${action(session.mock?'Submit mock…':'Finish session…','submit','outline')}</details>
-    <details class="keyboard-help"><summary>Keyboard shortcuts</summary><p>T/F or A–D and 1–4 select. Enter checks or continues when no control has focus. Tab and Enter operate controls. S skips, P goes back, R flags.</p></details></section>`;
+    <div class="lesson-actions">${!feedback&&session.index>0?action('Back','previous'):''}${!feedback&&!item.checked?action('Skip','skip'):''}
+      <button type="button" class="button primary" data-action="next" ${!feedback&&!session.mock&&selected===null?'disabled':''}>${feedback?'Continue':session.mock?(last?'Review & submit':'Save & next'):'Check answer'}</button></div>
+    <details class="navigator"><summary>Question navigator</summary><p class="muted">${session.mock?'Answers stay editable. Explanations appear after submission.':'Checked answers are fixed; skipped questions can be revisited.'}</p>
+      <div class="library-actions">${action('Next unanswered','next-unanswered','outline')}${action('Next flagged','next-flagged','outline')}</div><div class="question-grid">${session.items.map((i,n)=>{
+        const state=i.checked?'Answered':i.draft!==null?'Selected':i.skipped?'Skipped':'Unanswered';
+        return `<button class="nav-question ${n===session.index?'current':''}" type="button" data-action="goto" data-value="${n}" ${n===session.index?'aria-current="step"':''}>${n+1}<small>${state}${i.flag?' · Flagged':''}</small></button>`;
+      }).join('')}</div>${action(session.mock?'Submit mock…':'Finish session…','submit','outline')}</details>
+    <details class="keyboard-help"><summary>Keyboard shortcuts</summary><p>T/F or A–D and 1–4 select. Enter checks or continues while the prompt or feedback has focus. Tab and Enter operate controls. S skips, P goes back, R flags.</p></details></section>`;
 }
-function renderResults(result, recommendation, label = 'Session complete') {
+function renderResults(result, recommendation, label='Session complete') {
   const missed=result.entries.filter(e=>!e.correct);
-  return `<section class="results"><p class="course-code">${escape(label)}</p><div class="results-top"><div><h1 tabindex="-1">Your results</h1><p class="score">${result.correct}<span> / ${result.total}</span></p><p class="lede">${result.correct} correct · ${result.total-result.correct-result.unanswered} incorrect · ${result.unanswered} unanswered</p><p class="muted">${result.skipped} skipped · ${result.unanswered-result.skipped} left unanswered</p></div>
-    <div class="next-step">${recommendation?`<p class="course-code">NEXT TOPIC · CHAPTER ${recommendation.chapter}</p><h2>${escape(recommendation.topic)}</h2><p class="muted">${recommendation.fresh?'Try unseen questions on this topic.':'Revisit the missed questions on this topic.'}</p>${action('Practice this topic','follow-up','primary')}`:`<h2>All correct.</h2><p class="muted">Choose another chapter when you’re ready.</p>${action('Back to chapters','library','primary')}`}</div></div>
-    <div class="library-actions">${missed.length?action('Retry missed','retry','outline'):''}${recommendation?action('Back to chapters','library'):''}</div>
+  return `<section class="results"><p class="course-code">${escape(label)}</p><h1 tabindex="-1">Your results</h1><p class="score">${result.correct}<span> / ${result.total}</span></p>
+    <p class="lede">${result.total-result.correct-result.unanswered} incorrect · ${result.unanswered} unanswered (${result.skipped} skipped)</p>
+    <div class="next-step">${recommendation?`<p class="course-code">NEXT TOPIC · CHAPTER ${recommendation.chapter}</p><h2>${escape(recommendation.topic)}</h2><p>You missed ${recommendation.missed} of ${recommendation.total} ${escape(recommendation.topic)} questions.</p>
+      <p class="muted">${recommendation.fresh?`${recommendation.pool.length} unseen questions available.`:'Revisit your misses on this topic.'}</p>${action('Practice this topic','follow-up','primary')}`:`<h2>All correct</h2><p class="muted">Keep going with a fresh mix across Chapters 7–11.</p>${action('Practice another 10','mixed','primary')}`}</div>
+    <div class="library-actions">${missed.length?action('Retry missed','retry','outline'):''}${action('Back to chapters','library')}</div>
     <details><summary>Review all ${result.total} answers</summary><ol class="answer-review">${result.entries.map(({question:q,pick,correct,status})=>`<li><p class="course-code">${q.id} · ${escape(q.topic)}</p><p><strong>${escape(q.prompt)}</strong></p><p>${correct?'Correct':pick===null?status==='skipped'?'Skipped':'Unanswered':`Incorrect · You chose ${escape(q.choices[pick])}`} · Correct answer: ${escape(q.choices[q.answer])}</p><p>${escape(q.explanation)}</p><small>Chapter ${q.chapter} · ${escape(q.reference)}</small></li>`).join('')}</ol></details></section>`;
 }
 
-
-return {escape,action,renderStart,renderLibrary,renderQuiz,renderResults};
+return {escape,action,renderStart,renderLibrary,renderChapter,renderQuiz,renderResults};
 })();
 __modules["src/main.js"] = (() => {
 const { chapters: finalsChapters } = __modules["src/data/chapters.js"];
 const { questions: finalsQuestions } = __modules["src/data/questions.js"];
-const { archiveChapters, archiveQuestions } = __modules["src/data/archive.js"];
-const { createSession, confirmCurrent, setDraft, navigate, score, recommend, recordItem, finishSession, savedMocks, mockOverlap, cramPool } = __modules["src/logic/session.js"];
-const { loadProgress, saveProgress, freshProgress, validateProgress, importLegacy } = __modules["src/logic/storage.js"];
-const { renderStart, renderLibrary, renderQuiz, renderResults } = __modules["src/views/screens.js"];
-const chapters = [...finalsChapters,...archiveChapters], questions = [...finalsQuestions,...archiveQuestions];
-const bank = new Map(questions.map(q=>[q.id,q])), mocks = savedMocks(finalsQuestions);
+const { archiveQuestions } = __modules["src/data/archive.js"];
+const { createSession, confirmCurrent, setDraft, navigate, score, recommend, recordItem, finishSession } = __modules["src/logic/session.js"];
+const { loadProgress, saveProgress, validateProgress, importLegacy } = __modules["src/logic/storage.js"];
+const { renderStart, renderLibrary, renderChapter, renderQuiz, renderResults } = __modules["src/views/screens.js"];
+const { isFinals, isFinalsSession, parkArchiveSession, scopeProgress, resetFinalsProgress } = __modules["src/logic/finals.js"];
+const chapters = finalsChapters, questions = finalsQuestions;
+const bank = new Map([...questions,...archiveQuestions].map(q=>[q.id,q]));
 const root = document.querySelector('#main'), warning = document.querySelector('#storage-status');
 const dialog = document.querySelector('#confirm-dialog'), notice = document.querySelector('#notice');
 const loaded = loadProgress(bank);
-let progress = loaded.progress, canSave = loaded.writable, screen = 'start', result, recommendation, resultLabel, pending, originFocus;
+let progress = loaded.progress, canSave = loaded.writable, screen = 'start', currentChapter = 7, result, recommendation, resultLabel, pending, originFocus;
+const parkedArchive = parkArchiveSession(progress, bank);
 function save() { if (canSave) canSave = saveProgress(progress); warning.hidden = canSave; }
 function say(message) { notice.textContent = message; notice.hidden = false; }
 function ask(title, message, label, callback) {
@@ -7076,11 +7044,12 @@ dialog.addEventListener('close',()=>{
 function render(focus='heading') {
   document.body.dataset.screen=screen;
   const session=progress.active;
-  if(screen==='start') root.innerHTML=renderStart();
-  if(screen==='library') { root.innerHTML=renderLibrary(chapters,questions,progress,mockOverlap(mocks)); updateTopics(); }
+  if(screen==='start') root.innerHTML=renderStart(scopeProgress(progress,bank));
+  if(screen==='library') root.innerHTML=renderLibrary(chapters,questions,scopeProgress(progress,bank));
+  if(screen==='chapter') root.innerHTML=renderChapter(chapters.find(c=>c.number===currentChapter),questions,scopeProgress(progress,bank));
   if(screen==='quiz') root.innerHTML=renderQuiz(session,bank.get(session.items[session.index].id));
   if(screen==='results') root.innerHTML=renderResults(result,recommendation,resultLabel);
-  if(focus==='feedback') root.querySelector('.feedback')?.focus({preventScroll:true});
+  if(focus==='feedback') root.querySelector('.feedback')?.focus();
   else if(focus==='none') {} else { window.scrollTo(0,0); root.querySelector('h1')?.focus({preventScroll:true}); }
   tick();
 }
@@ -7089,19 +7058,9 @@ function options(mock=false) {
   const length=root.querySelector(mock?'#mock-length':'#length')?.value;
   return {size:length==='all'?questions.length:Number(length || (mock?20:10)), minutes:Number(root.querySelector('#minutes')?.value || 0)};
 }
-function selectedPool() {
-  const scope=root.querySelector('#scope')?.value || 'finals', topic=root.querySelector('#topic')?.value;
-  return questions.filter(q=>(scope==='finals'?q.chapter>=7:q.chapter===Number(scope)) && (!topic || `${q.chapter}:${q.topic}`===topic));
-}
-function updateTopics() {
-  const select=root.querySelector('#topic'); if(!select) return;
-  const scope=root.querySelector('#scope').value;
-  select.replaceChildren(new Option('All topics',''));
-  const pool=questions.filter(q=>scope==='finals'?q.chapter>=7:q.chapter===Number(scope));
-  for(const [value,q] of new Map(pool.map(q=>[`${q.chapter}:${q.topic}`,q]))) select.add(new Option(`Ch ${q.chapter} · ${q.topic}`,value));
-}
 function start(pool, settings={}) {
-  const session=createSession(pool,settings);
+  pool=pool.filter(isFinals);
+  const session=createSession(pool,{seen:new Set([...Object.keys(progress.first),...Object.keys(progress.latest)]),...settings});
   if(!session) { say('No questions match this selection yet. Choose a different topic or complete a session first.'); return; }
   for(const item of session.items)item.flag=progress.flags.includes(item.id);
   const begin=()=>{
@@ -7126,7 +7085,7 @@ function submit() {
   const s=progress.active;
   if(s.mock) confirmCurrent(s);
   save(); const sc=score(s,bank);
-  ask(s.mock?'Submit this mock?':'Finish this session?',`${sc.total-sc.unanswered} answered · ${sc.skipped} skipped · ${sc.unanswered-sc.skipped} left unanswered. Unanswered items count as not correct.`,s.mock?'Submit mock':'Finish session',()=>finish());
+  ask(s.mock?'Submit this mock?':'Finish this session?',`${sc.unanswered} unanswered (${sc.skipped} skipped). ${sc.total-sc.unanswered} answered. Unanswered items count as not correct.`,s.mock?'Submit mock':'Finish session',()=>finish());
 }
 function pick(choice) {
   if(!setDraft(progress.active,choice)) return;
@@ -7162,12 +7121,11 @@ async function importProgress(file,legacy) {
     if(file.size>12000000) throw new Error('Backup exceeds 12 MB.');
     const raw=JSON.parse(await file.text()), candidate=legacy?importLegacy(raw,bank):validateProgress(raw,bank);
     ask('Replace current progress?',`${candidate.history.length} completed sessions${candidate.active?' and a resumable session':''} will be imported. Export current progress first if you want to keep it. Archive content is unchanged.`,'Replace progress',()=>{
-      progress=candidate;canSave=true;save();show('library');say('Progress imported.');
+      progress=candidate;parkArchiveSession(progress,bank);canSave=true;save();show('library');say('Progress imported.');
     });
   } catch(error) {say(`Import rejected; current progress was kept. ${error.message}`);}
 }
 root.addEventListener('change',event=>{
-  if(event.target.id==='scope') updateTopics();
   if(event.target.id==='import-progress'||event.target.id==='import-legacy') importProgress(event.target.files[0],event.target.id==='import-legacy');
 });
 root.addEventListener('click',event=>{
@@ -7176,26 +7134,32 @@ root.addEventListener('click',event=>{
   switch(action) {
     case 'library':show('library');break;
     case 'exit':save();show('library');break;
-    case 'resume':show('quiz');break;
-    case 'chapter':start(questions.filter(q=>q.chapter===Number(value)),{...options(),label:`Chapter ${value} practice`});break;
+    case 'resume':if(isFinalsSession(progress.active,bank))show('quiz');else show('library');break;
+    case 'chapter':if(chapters.some(c=>c.number===Number(value))){currentChapter=Number(value);show('chapter');}break;
+    case 'chapter-practice':start(questions.filter(q=>q.chapter===Number(value)),{...options(),label:`Chapter ${value} practice`});break;
+    case 'chapter-missed':start(questions.filter(q=>q.chapter===Number(value)&&progress.latest[q.id]&&!progress.latest[q.id].correct),{...options(),label:`Chapter ${value} missed`});break;
+    case 'topic':{const colon=value.indexOf(':'),chapter=Number(value.slice(0,colon)),topic=value.slice(colon+1);start(questions.filter(q=>q.chapter===chapter&&q.topic===topic),{...options(),label:`Ch ${chapter} · ${topic}`});break;}
     case 'mixed':start(finalsQuestions,{...options(),label:'Mixed practice'});break;
     case 'mock':start(finalsQuestions,{...options(true),label:'Mock test',mock:true});break;
-    case 'filtered':case 'filtered-mock':start(selectedPool(),{...options(action==='filtered-mock'),label:action==='filtered'?'Topic practice':'Selected mock',mock:action==='filtered-mock'});break;
-    case 'full':start(selectedPool(),{...options(),size:questions.length,label:'Full selection'});break;
-    case 'cram':start(cramPool(selectedPool(),progress.latest),{...options(),label:'Cram practice',ordered:true});break;
-    case 'saved-mock':start(mocks[Number(value)],{...options(true),size:20,label:`Saved mock ${Number(value)+1}`,mock:true,ordered:true,seed:`saved-mock-${value}-v2`});break;
     case 'missed':start(questions.filter(q=>progress.latest[q.id]&&!progress.latest[q.id].correct),{...options(),label:'Review latest missed'});break;
-    case 'flags':start(selectedPool().filter(q=>progress.flags.includes(q.id)),{...options(),label:'Flagged questions'});break;
+    case 'flags':start(questions.filter(q=>progress.flags.includes(q.id)),{...options(),label:'Flagged questions'});break;
     case 'retry':start(result.entries.filter(e=>!e.correct).map(e=>e.question),{label:'Retry missed'});break;
     case 'follow-up':start(recommendation.pool,{label:`Ch ${recommendation.chapter} · ${recommendation.topic}`,size:5});break;
     case 'pick':pick(Number(value));break;
     case 'flag':{const item=s.items[s.index];item.flag=!item.flag;progress.flags=progress.flags.filter(id=>id!==item.id);if(item.flag)progress.flags.push(item.id);button.setAttribute('aria-pressed',String(item.flag));button.textContent=item.flag?'Flagged':'Flag question';updateCurrentStatus();save();break;}
+    case 'next-unanswered':case 'next-flagged':{
+      if(s.mock)confirmCurrent(s);
+      const candidates=Array.from({length:s.items.length},(_,n)=>(s.index+n+1)%s.items.length);
+      const index=candidates.find(n=>action==='next-flagged'?s.items[n].flag:!s.items[n].checked);
+      if(index===undefined){save();say(action==='next-flagged'?'No flagged questions.':'All questions have saved answers.');break;}
+      navigate(s,index);save();render();root.querySelector('.navigator').open=true;break;
+    }
     case 'goto':navigate(s,Number(value));save();render();root.querySelector('.navigator').open=true;break;
     case 'previous':case 'skip':case 'next':step(action);break;
     case 'submit':submit();break;
-    case 'history':{const old=progress.history.find(s=>s.id===value);if(old) showResult(score(old,bank),old.label);break;}
+    case 'history':{const old=scopeProgress(progress,bank).history.find(s=>s.id===value);if(old) showResult(score(old,bank),old.label);break;}
     case 'export':exportProgress();break;
-    case 'reset':ask('Reset all progress?','This removes saved sessions, attempts, and history from this browser. Export a backup first to keep them.','Reset progress',()=>{progress=freshProgress();canSave=true;save();show('library');say('Progress reset.');});break;
+    case 'reset':ask('Reset finals progress?','This clears finals attempts, sessions, and flags. Archival data is retained. Export a backup first to keep your finals progress.','Reset finals',()=>{progress=resetFinalsProgress(progress,bank);canSave=true;save();show('library');say('Finals progress reset.');});break;
   }
 });
 document.addEventListener('keydown',event=>{
@@ -7209,7 +7173,7 @@ document.addEventListener('keydown',event=>{
   else if(key==='r'){event.preventDefault();root.querySelector('[data-action="flag"]').click();}
 });
 function tick() {
-  const s=progress.active;if(!s?.deadline) return;
+  const s=progress.active;if(!s?.deadline||!isFinalsSession(s,bank)) return;
   const remaining=Math.max(0,Math.ceil((s.deadline-Date.now())/1000));
   const timer=root.querySelector('#timer');if(timer) timer.textContent=`${Math.floor(remaining/60)}:${String(remaining%60).padStart(2,'0')} remaining`;
   if(remaining===0) {
@@ -7218,6 +7182,7 @@ function tick() {
   }
 }
 setInterval(tick,1000);document.addEventListener('visibilitychange',tick);
+if(parkedArchive)save();
 warning.hidden=canSave;render();
 
 return {};

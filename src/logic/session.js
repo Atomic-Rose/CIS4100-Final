@@ -11,18 +11,19 @@ export function shuffle(items, random = Math.random) {
   }
   return order;
 }
-export function balancedSample(pool, size, random = Math.random) {
+export function balancedSample(pool, size, random = Math.random, seen = new Set()) {
   const unique = [...new Map(pool.map(q => [q.id, q])).values()];
   const groups = Map.groupBy(shuffle(unique, random), q => q.chapter);
+  for (const [chapter, group] of groups) groups.set(chapter, [...group.filter(q => seen.has(q.id)), ...group.filter(q => !seen.has(q.id))]);
   const buckets = shuffle([...groups.values()], random), chosen = [];
   while (chosen.length < Math.min(size, unique.length)) {
     for (const bucket of buckets) if (bucket.length && chosen.length < size) chosen.push(bucket.pop());
   }
   return shuffle(chosen, random);
 }
-export function createSession(pool, { label = 'Practice', mock = false, size = pool.length, seed = `${Date.now()}-${Math.random()}`, minutes = 0, ordered = false } = {}) {
+export function createSession(pool, { label = 'Practice', mock = false, size = pool.length, seed = `${Date.now()}-${Math.random()}`, minutes = 0, ordered = false, seen = new Set() } = {}) {
   const random = seededRandom(seed);
-  const selected = ordered ? [...new Map(pool.map(q => [q.id, q])).values()].slice(0, size) : balancedSample(pool, size, random);
+  const selected = ordered ? [...new Map(pool.map(q => [q.id, q])).values()].slice(0, size) : balancedSample(pool, size, random, mock ? new Set() : seen);
   if (!selected.length) return null;
   const started = Date.now();
   return { id: `${started}-${Math.random().toString(36).slice(2)}`, label, mock, seed: String(seed), started,
@@ -61,7 +62,8 @@ export function recommend(entries, questions, seen = new Set()) {
   const { chapter, topic } = top[0].question;
   const used = new Set([...seen, ...entries.map(e => e.question.id)]);
   const fresh = questions.filter(q => q.chapter === chapter && q.topic === topic && !used.has(q.id));
-  return { chapter, topic, fresh: fresh.length > 0, pool: fresh.length ? fresh : top.map(e => e.question) };
+  return { chapter, topic, missed: top.length, total: entries.filter(e => e.question.chapter === chapter && e.question.topic === topic).length,
+    fresh: fresh.length > 0, pool: fresh.length ? fresh : top.map(e => e.question) };
 }
 export function recordItem(progress, session, item, bank, final = false) {
   if (item.recorded || !final && (session.mock || !item.checked)) return;

@@ -1,6 +1,6 @@
 import { recordItem } from './session.js';
 export const key = 'smartprep-finals-v1';
-export const freshProgress = () => ({ active: null, latest: {}, first: {}, flags: [], retries: { total: 0, correct: 0 }, history: [] });
+export const freshProgress = () => ({ active: null, archivedSessions: [], latest: {}, first: {}, flags: [], retries: { total: 0, correct: 0 }, history: [] });
 export function validSession(s, bank, finished = false) {
   if (!s || typeof s.id !== 'string' || typeof s.label !== 'string' || typeof s.mock !== 'boolean' ||
     !Number.isFinite(s.started) || !(s.deadline === null || Number.isFinite(s.deadline) && s.deadline >= s.started) ||
@@ -28,9 +28,10 @@ export function validateProgress(raw, bank) {
     !Array.isArray(raw.flags) || new Set(raw.flags).size !== raw.flags.length || raw.flags.some(id => !bank.has(id)) ||
     !Array.isArray(raw.history) || raw.history.length > 10000 || !raw.history.every(s => validSession(s, bank, true)) ||
     !(raw.active === null || validSession(raw.active, bank)) || !raw.retries ||
+    raw.archivedSessions !== undefined && (!Array.isArray(raw.archivedSessions) || !raw.archivedSessions.every(s => validSession(s, bank))) ||
     !Number.isInteger(raw.retries.total) || !Number.isInteger(raw.retries.correct) || raw.retries.correct < 0 || raw.retries.total < raw.retries.correct ||
     new Set([...raw.history.map(s => s.id), ...(raw.active ? [raw.active.id] : [])]).size !== raw.history.length + (raw.active ? 1 : 0)) throw new Error('Invalid or incompatible progress backup.');
-  return structuredClone({ active: raw.active, latest: raw.latest, first: raw.first, flags: raw.flags, retries: raw.retries, history: raw.history });
+  return structuredClone({ active: raw.active, archivedSessions: raw.archivedSessions || [], latest: raw.latest, first: raw.first, flags: raw.flags, retries: raw.retries, history: raw.history });
 }
 function migrateV1(raw, bank) {
   const p = freshProgress();

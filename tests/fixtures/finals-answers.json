@@ -1,0 +1,1028 @@
+[
+  {
+    "id": "C7-001",
+    "type": "true-false",
+    "answer": 0,
+    "correctChoice": "True"
+  },
+  {
+    "id": "C7-002",
+    "type": "multiple-choice",
+    "answer": 2,
+    "correctChoice": "Instruction register"
+  },
+  {
+    "id": "C7-003",
+    "type": "multiple-choice",
+    "answer": 3,
+    "correctChoice": "4 KiB"
+  },
+  {
+    "id": "C7-004",
+    "type": "true-false",
+    "answer": 0,
+    "correctChoice": "True"
+  },
+  {
+    "id": "C7-005",
+    "type": "true-false",
+    "answer": 1,
+    "correctChoice": "False"
+  },
+  {
+    "id": "C7-006",
+    "type": "multiple-choice",
+    "answer": 1,
+    "correctChoice": "5 bits"
+  },
+  {
+    "id": "C7-007",
+    "type": "true-false",
+    "answer": 0,
+    "correctChoice": "True"
+  },
+  {
+    "id": "C7-008",
+    "type": "true-false",
+    "answer": 1,
+    "correctChoice": "False"
+  },
+  {
+    "id": "C8-001",
+    "type": "true-false",
+    "answer": 0,
+    "correctChoice": "True"
+  },
+  {
+    "id": "C8-002",
+    "type": "multiple-choice",
+    "answer": 2,
+    "correctChoice": "They are discarded and fetching resumes on the correct path"
+  },
+  {
+    "id": "C8-003",
+    "type": "true-false",
+    "answer": 0,
+    "correctChoice": "True"
+  },
+  {
+    "id": "C8-004",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "Temporal locality"
+  },
+  {
+    "id": "C8-005",
+    "type": "true-false",
+    "answer": 1,
+    "correctChoice": "False"
+  },
+  {
+    "id": "C8-006",
+    "type": "multiple-choice",
+    "answer": 3,
+    "correctChoice": "The relevant block from the next level in the memory hierarchy"
+  },
+  {
+    "id": "C8-007",
+    "type": "true-false",
+    "answer": 1,
+    "correctChoice": "False"
+  },
+  {
+    "id": "C8-008",
+    "type": "true-false",
+    "answer": 0,
+    "correctChoice": "True"
+  },
+  {
+    "id": "C9-001",
+    "type": "true-false",
+    "answer": 0,
+    "correctChoice": "True"
+  },
+  {
+    "id": "C9-002",
+    "type": "multiple-choice",
+    "answer": 3,
+    "correctChoice": "Vectored interrupts"
+  },
+  {
+    "id": "C9-003",
+    "type": "true-false",
+    "answer": 1,
+    "correctChoice": "False"
+  },
+  {
+    "id": "C9-004",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "To announce that the transfer is complete"
+  },
+  {
+    "id": "C9-005",
+    "type": "true-false",
+    "answer": 0,
+    "correctChoice": "True"
+  },
+  {
+    "id": "C9-006",
+    "type": "multiple-choice",
+    "answer": 2,
+    "correctChoice": "5"
+  },
+  {
+    "id": "C9-007",
+    "type": "true-false",
+    "answer": 1,
+    "correctChoice": "False"
+  },
+  {
+    "id": "C9-008",
+    "type": "true-false",
+    "answer": 1,
+    "correctChoice": "False"
+  },
+  {
+    "id": "C10-001",
+    "type": "true-false",
+    "answer": 1,
+    "correctChoice": "False"
+  },
+  {
+    "id": "C10-002",
+    "type": "multiple-choice",
+    "answer": 2,
+    "correctChoice": "Rotational latency"
+  },
+  {
+    "id": "C10-003",
+    "type": "true-false",
+    "answer": 0,
+    "correctChoice": "True"
+  },
+  {
+    "id": "C10-004",
+    "type": "multiple-choice",
+    "answer": 1,
+    "correctChoice": "2.048 GB"
+  },
+  {
+    "id": "C10-005",
+    "type": "true-false",
+    "answer": 1,
+    "correctChoice": "False"
+  },
+  {
+    "id": "C10-006",
+    "type": "multiple-choice",
+    "answer": 3,
+    "correctChoice": "It can read different requested blocks from different drives in parallel"
+  },
+  {
+    "id": "C10-007",
+    "type": "true-false",
+    "answer": 0,
+    "correctChoice": "True"
+  },
+  {
+    "id": "C10-008",
+    "type": "true-false",
+    "answer": 0,
+    "correctChoice": "True"
+  },
+  {
+    "id": "C11-001",
+    "type": "true-false",
+    "answer": 0,
+    "correctChoice": "True"
+  },
+  {
+    "id": "C11-002",
+    "type": "multiple-choice",
+    "answer": 1,
+    "correctChoice": "A serial link with separate transmit and receive paths"
+  },
+  {
+    "id": "C11-003",
+    "type": "true-false",
+    "answer": 0,
+    "correctChoice": "True"
+  },
+  {
+    "id": "C11-004",
+    "type": "multiple-choice",
+    "answer": 2,
+    "correctChoice": "Channel control words"
+  },
+  {
+    "id": "C11-005",
+    "type": "true-false",
+    "answer": 1,
+    "correctChoice": "False"
+  },
+  {
+    "id": "C11-006",
+    "type": "multiple-choice",
+    "answer": 3,
+    "correctChoice": "The northbridge handles fast CPU/memory connections, while the southbridge handles slower peripheral connections"
+  },
+  {
+    "id": "C11-007",
+    "type": "true-false",
+    "answer": 1,
+    "correctChoice": "False"
+  },
+  {
+    "id": "C11-008",
+    "type": "true-false",
+    "answer": 0,
+    "correctChoice": "True"
+  },
+  {
+    "id": "C7-009",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "ALU: calculator; CU: little man"
+  },
+  {
+    "id": "C7-010",
+    "type": "true-false",
+    "answer": 1,
+    "correctChoice": "False"
+  },
+  {
+    "id": "C7-011",
+    "type": "multiple-choice",
+    "answer": 2,
+    "correctChoice": "Carry flag"
+  },
+  {
+    "id": "C7-012",
+    "type": "true-false",
+    "answer": 0,
+    "correctChoice": "True"
+  },
+  {
+    "id": "C7-013",
+    "type": "multiple-choice",
+    "answer": 1,
+    "correctChoice": "DRAM"
+  },
+  {
+    "id": "C7-014",
+    "type": "true-false",
+    "answer": 1,
+    "correctChoice": "False"
+  },
+  {
+    "id": "C7-015",
+    "type": "multiple-choice",
+    "answer": 1,
+    "correctChoice": "524,288 bytes"
+  },
+  {
+    "id": "C7-016",
+    "type": "multiple-choice",
+    "answer": 1,
+    "correctChoice": "Copy IR address 80 to MAR"
+  },
+  {
+    "id": "C7-017",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "(21, 60, 30, 180)"
+  },
+  {
+    "id": "C7-018",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "memory[70]=42 and PC=10"
+  },
+  {
+    "id": "C7-019",
+    "type": "multiple-choice",
+    "answer": 1,
+    "correctChoice": "12"
+  },
+  {
+    "id": "C7-020",
+    "type": "true-false",
+    "answer": 0,
+    "correctChoice": "True"
+  },
+  {
+    "id": "C7-021",
+    "type": "multiple-choice",
+    "answer": 2,
+    "correctChoice": "13"
+  },
+  {
+    "id": "C7-022",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "STORE"
+  },
+  {
+    "id": "C7-023",
+    "type": "multiple-choice",
+    "answer": 2,
+    "correctChoice": "00000010"
+  },
+  {
+    "id": "C7-024",
+    "type": "true-false",
+    "answer": 0,
+    "correctChoice": "True"
+  },
+  {
+    "id": "C7-025",
+    "type": "multiple-choice",
+    "answer": 3,
+    "correctChoice": "75 then 40"
+  },
+  {
+    "id": "C7-026",
+    "type": "true-false",
+    "answer": 0,
+    "correctChoice": "True"
+  },
+  {
+    "id": "C7-027",
+    "type": "multiple-choice",
+    "answer": 2,
+    "correctChoice": "27"
+  },
+  {
+    "id": "C7-028",
+    "type": "multiple-choice",
+    "answer": 2,
+    "correctChoice": "16"
+  },
+  {
+    "id": "C7-029",
+    "type": "true-false",
+    "answer": 1,
+    "correctChoice": "False"
+  },
+  {
+    "id": "C7-030",
+    "type": "multiple-choice",
+    "answer": 2,
+    "correctChoice": "Register deferred"
+  },
+  {
+    "id": "C7-031",
+    "type": "true-false",
+    "answer": 1,
+    "correctChoice": "False"
+  },
+  {
+    "id": "C7-032",
+    "type": "multiple-choice",
+    "answer": 1,
+    "correctChoice": "To protect system resources from arbitrary application changes"
+  },
+  {
+    "id": "C8-009",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "ARM, x86, POWER/PowerPC"
+  },
+  {
+    "id": "C8-010",
+    "type": "true-false",
+    "answer": 0,
+    "correctChoice": "True"
+  },
+  {
+    "id": "C8-011",
+    "type": "multiple-choice",
+    "answer": 1,
+    "correctChoice": "Use more general registers and simpler fixed instruction formats"
+  },
+  {
+    "id": "C8-012",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "Complex external instructions into simpler internal operations"
+  },
+  {
+    "id": "C8-013",
+    "type": "multiple-choice",
+    "answer": 1,
+    "correctChoice": "0.5 ns"
+  },
+  {
+    "id": "C8-014",
+    "type": "multiple-choice",
+    "answer": 2,
+    "correctChoice": "140"
+  },
+  {
+    "id": "C8-015",
+    "type": "true-false",
+    "answer": 1,
+    "correctChoice": "False"
+  },
+  {
+    "id": "C8-016",
+    "type": "multiple-choice",
+    "answer": 1,
+    "correctChoice": "12"
+  },
+  {
+    "id": "C8-017",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "It reads the first instruction’s result"
+  },
+  {
+    "id": "C8-018",
+    "type": "true-false",
+    "answer": 0,
+    "correctChoice": "True"
+  },
+  {
+    "id": "C8-019",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "Past outcomes stored in a branch history table"
+  },
+  {
+    "id": "C8-020",
+    "type": "true-false",
+    "answer": 1,
+    "correctChoice": "False"
+  },
+  {
+    "id": "C8-021",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "Wider paths transfer more bytes together; interleaving spreads accesses across banks"
+  },
+  {
+    "id": "C8-022",
+    "type": "true-false",
+    "answer": 0,
+    "correctChoice": "True"
+  },
+  {
+    "id": "C8-023",
+    "type": "multiple-choice",
+    "answer": 2,
+    "correctChoice": "92%"
+  },
+  {
+    "id": "C8-024",
+    "type": "multiple-choice",
+    "answer": 1,
+    "correctChoice": "7 ns"
+  },
+  {
+    "id": "C8-025",
+    "type": "true-false",
+    "answer": 0,
+    "correctChoice": "True"
+  },
+  {
+    "id": "C8-026",
+    "type": "true-false",
+    "answer": 0,
+    "correctChoice": "True"
+  },
+  {
+    "id": "C8-027",
+    "type": "true-false",
+    "answer": 1,
+    "correctChoice": "False"
+  },
+  {
+    "id": "C8-028",
+    "type": "multiple-choice",
+    "answer": 1,
+    "correctChoice": "Primary-replica"
+  },
+  {
+    "id": "C8-029",
+    "type": "true-false",
+    "answer": 0,
+    "correctChoice": "True"
+  },
+  {
+    "id": "C8-030",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "Several processing cores share one integrated circuit"
+  },
+  {
+    "id": "C8-031",
+    "type": "true-false",
+    "answer": 1,
+    "correctChoice": "False"
+  },
+  {
+    "id": "C8-032",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "Resource contention"
+  },
+  {
+    "id": "C9-009",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "To adapt timing, formats, and control requirements"
+  },
+  {
+    "id": "C9-010",
+    "type": "true-false",
+    "answer": 0,
+    "correctChoice": "True"
+  },
+  {
+    "id": "C9-011",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "Save context, run handler, restore context and resume"
+  },
+  {
+    "id": "C9-012",
+    "type": "true-false",
+    "answer": 1,
+    "correctChoice": "False"
+  },
+  {
+    "id": "C9-013",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "Polled interrupts"
+  },
+  {
+    "id": "C9-014",
+    "type": "multiple-choice",
+    "answer": 1,
+    "correctChoice": "After an instruction executes, when enabled"
+  },
+  {
+    "id": "C9-015",
+    "type": "true-false",
+    "answer": 0,
+    "correctChoice": "True"
+  },
+  {
+    "id": "C9-016",
+    "type": "true-false",
+    "answer": 0,
+    "correctChoice": "True"
+  },
+  {
+    "id": "C9-017",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "H returns to L, then L returns to the program"
+  },
+  {
+    "id": "C9-018",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "Device location, memory start, size, and read direction"
+  },
+  {
+    "id": "C9-019",
+    "type": "true-false",
+    "answer": 1,
+    "correctChoice": "False"
+  },
+  {
+    "id": "C9-020",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "Arbitration or other conflict avoidance"
+  },
+  {
+    "id": "C9-021",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "4607"
+  },
+  {
+    "id": "C9-022",
+    "type": "true-false",
+    "answer": 0,
+    "correctChoice": "True"
+  },
+  {
+    "id": "C9-023",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "Both directions at once"
+  },
+  {
+    "id": "C9-024",
+    "type": "true-false",
+    "answer": 1,
+    "correctChoice": "False"
+  },
+  {
+    "id": "C9-025",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "Addresses and control, and sometimes power"
+  },
+  {
+    "id": "C9-026",
+    "type": "true-false",
+    "answer": 1,
+    "correctChoice": "False"
+  },
+  {
+    "id": "C9-027",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "100 MB/s"
+  },
+  {
+    "id": "C9-028",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "Three controllers share one communication path"
+  },
+  {
+    "id": "C9-029",
+    "type": "true-false",
+    "answer": 0,
+    "correctChoice": "True"
+  },
+  {
+    "id": "C9-030",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "The OS controls protected hardware operations"
+  },
+  {
+    "id": "C9-031",
+    "type": "multiple-choice",
+    "answer": 1,
+    "correctChoice": "6"
+  },
+  {
+    "id": "C9-032",
+    "type": "true-false",
+    "answer": 1,
+    "correctChoice": "False"
+  },
+  {
+    "id": "C10-009",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "Cache and conventional main memory"
+  },
+  {
+    "id": "C10-010",
+    "type": "true-false",
+    "answer": 1,
+    "correctChoice": "False"
+  },
+  {
+    "id": "C10-011",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "Spread program/erase activity across flash cells"
+  },
+  {
+    "id": "C10-012",
+    "type": "true-false",
+    "answer": 0,
+    "correctChoice": "True"
+  },
+  {
+    "id": "C10-013",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "The corresponding track across recording surfaces"
+  },
+  {
+    "id": "C10-014",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "Sectors per track"
+  },
+  {
+    "id": "C10-015",
+    "type": "true-false",
+    "answer": 1,
+    "correctChoice": "False"
+  },
+  {
+    "id": "C10-016",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "4.17 ms"
+  },
+  {
+    "id": "C10-017",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "50 μs"
+  },
+  {
+    "id": "C10-018",
+    "type": "multiple-choice",
+    "answer": 3,
+    "correctChoice": "10.5 ms"
+  },
+  {
+    "id": "C10-019",
+    "type": "multiple-choice",
+    "answer": 2,
+    "correctChoice": "983.04 GB"
+  },
+  {
+    "id": "C10-020",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "RAID 0"
+  },
+  {
+    "id": "C10-021",
+    "type": "true-false",
+    "answer": 1,
+    "correctChoice": "False"
+  },
+  {
+    "id": "C10-022",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "Two parity checks instead of one"
+  },
+  {
+    "id": "C10-023",
+    "type": "true-false",
+    "answer": 0,
+    "correctChoice": "True"
+  },
+  {
+    "id": "C10-024",
+    "type": "multiple-choice",
+    "answer": 2,
+    "correctChoice": "304"
+  },
+  {
+    "id": "C10-025",
+    "type": "true-false",
+    "answer": 0,
+    "correctChoice": "True"
+  },
+  {
+    "id": "C10-026",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "Offline archival and disaster-recovery backups"
+  },
+  {
+    "id": "C10-027",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "2500"
+  },
+  {
+    "id": "C10-028",
+    "type": "multiple-choice",
+    "answer": 3,
+    "correctChoice": "16,777,216"
+  },
+  {
+    "id": "C10-029",
+    "type": "true-false",
+    "answer": 0,
+    "correctChoice": "True"
+  },
+  {
+    "id": "C10-030",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "A transistor per cell"
+  },
+  {
+    "id": "C10-031",
+    "type": "true-false",
+    "answer": 0,
+    "correctChoice": "True"
+  },
+  {
+    "id": "C10-032",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "Large amounts of parallel work can be distributed across execution resources"
+  },
+  {
+    "id": "C10-033",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "Fusing with heat"
+  },
+  {
+    "id": "C10-034",
+    "type": "true-false",
+    "answer": 1,
+    "correctChoice": "False"
+  },
+  {
+    "id": "C10-035",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "It encodes across two dimensions and can carry more data"
+  },
+  {
+    "id": "C10-036",
+    "type": "true-false",
+    "answer": 1,
+    "correctChoice": "False"
+  },
+  {
+    "id": "C10-037",
+    "type": "true-false",
+    "answer": 0,
+    "correctChoice": "True"
+  },
+  {
+    "id": "C10-038",
+    "type": "true-false",
+    "answer": 0,
+    "correctChoice": "True"
+  },
+  {
+    "id": "C11-009",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "CPU, memory, peripherals, controllers, buses"
+  },
+  {
+    "id": "C11-010",
+    "type": "true-false",
+    "answer": 0,
+    "correctChoice": "True"
+  },
+  {
+    "id": "C11-011",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "Memory bus"
+  },
+  {
+    "id": "C11-012",
+    "type": "true-false",
+    "answer": 1,
+    "correctChoice": "False"
+  },
+  {
+    "id": "C11-013",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "Device driver"
+  },
+  {
+    "id": "C11-014",
+    "type": "true-false",
+    "answer": 0,
+    "correctChoice": "True"
+  },
+  {
+    "id": "C11-015",
+    "type": "multiple-choice",
+    "answer": 1,
+    "correctChoice": "4"
+  },
+  {
+    "id": "C11-016",
+    "type": "true-false",
+    "answer": 1,
+    "correctChoice": "False"
+  },
+  {
+    "id": "C11-017",
+    "type": "multiple-choice",
+    "answer": 2,
+    "correctChoice": "4 GB/s"
+  },
+  {
+    "id": "C11-018",
+    "type": "true-false",
+    "answer": 1,
+    "correctChoice": "False"
+  },
+  {
+    "id": "C11-019",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "Additional downstream device connection points"
+  },
+  {
+    "id": "C11-020",
+    "type": "multiple-choice",
+    "answer": 2,
+    "correctChoice": "127"
+  },
+  {
+    "id": "C11-021",
+    "type": "true-false",
+    "answer": 0,
+    "correctChoice": "True"
+  },
+  {
+    "id": "C11-022",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "Support for hubs and daisy-chaining"
+  },
+  {
+    "id": "C11-023",
+    "type": "true-false",
+    "answer": 0,
+    "correctChoice": "True"
+  },
+  {
+    "id": "C11-024",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "Delivery timing also matters"
+  },
+  {
+    "id": "C11-025",
+    "type": "true-false",
+    "answer": 0,
+    "correctChoice": "True"
+  },
+  {
+    "id": "C11-026",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "The channel executes I/O control work that otherwise burdens the CPU"
+  },
+  {
+    "id": "C11-027",
+    "type": "true-false",
+    "answer": 1,
+    "correctChoice": "False"
+  },
+  {
+    "id": "C11-028",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "PCIe, USB, SCSI, SATA"
+  },
+  {
+    "id": "C11-029",
+    "type": "true-false",
+    "answer": 1,
+    "correctChoice": "False"
+  },
+  {
+    "id": "C11-030",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "1.25 GB/s"
+  },
+  {
+    "id": "C11-031",
+    "type": "true-false",
+    "answer": 0,
+    "correctChoice": "True"
+  },
+  {
+    "id": "C11-032",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "Match the path to bandwidth and latency needs"
+  },
+  {
+    "id": "C11-033",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "Integrated memory controller"
+  },
+  {
+    "id": "C11-034",
+    "type": "true-false",
+    "answer": 0,
+    "correctChoice": "True"
+  },
+  {
+    "id": "C11-035",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "DVD and hard disk"
+  },
+  {
+    "id": "C11-036",
+    "type": "true-false",
+    "answer": 0,
+    "correctChoice": "True"
+  },
+  {
+    "id": "C11-037",
+    "type": "multiple-choice",
+    "answer": 0,
+    "correctChoice": "Channel subsystem, channel path, control unit, device"
+  }
+]
